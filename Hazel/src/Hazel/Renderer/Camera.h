@@ -5,10 +5,7 @@ namespace Hazel {
 	class Camera
 	{
 	private:
-		glm::vec3 cameraPos;
-		glm::vec3 cameraFront;
-		glm::vec3 cameraUp;
-		float cameraFov;
+		
 
 		
 
@@ -18,6 +15,12 @@ namespace Hazel {
 		float pitch;
 
 	public:
+
+		glm::vec3 cameraPos;
+		glm::vec3 cameraFront;
+		glm::vec3 cameraUp;
+		float cameraFov;
+
 		Camera();
 		void MouseControl(double xposIn, double yposIn);
 		void ScrollControl(double xoffset, double yoffset);

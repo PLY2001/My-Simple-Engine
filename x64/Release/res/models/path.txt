@@ -1,1 +1,1 @@
-res/models/nanosuit/nanosuit.obj
+res/models/Woman.gltf

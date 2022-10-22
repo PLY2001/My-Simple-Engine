@@ -130,6 +130,10 @@ namespace Hazel
 		camera.reset(new Camera);
 
 		glfwSetInputMode(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+		//gltf
+		gApplication = new Sample();//初始化
+		gApplication->Initialize();//导入gltf
 	}
 
 
@@ -203,6 +207,10 @@ namespace Hazel
 
 				GLClearError();//清除错误信息
 
+				//gltf
+				if (gApplication != 0) {
+					gApplication->Update(deltaTime);//播放动画
+				}
 
 				//相机键盘输入控制
 				camera->KeyControl(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), deltaTime);
@@ -307,7 +315,9 @@ namespace Hazel
 
 					framebufferSM->Bind();//绑定帧缓冲对象，接收深度
 					OpenGLRendererAPI::ClearDepth();//只需清除深度，不需清除颜色
-					OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowMapShader, ModelCount);//绘制需要投射阴影的物体
+					//OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowMapShader, ModelCount);//绘制需要投射阴影的物体
+					gApplication->Render((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight(),camera,DirectLight);//绘制模型
+
 					ShadowMapShader->Unbind();
 					framebufferSM->Unbind();
 
@@ -341,7 +351,9 @@ namespace Hazel
 					framebufferSCM->Bind();//绑定帧缓冲对象，接收深度
 					OpenGLRendererAPI::ClearDepth();//只需清除深度，不需清除颜色
 
-					OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowCubeMapShader, ModelCount);//绘制需要投射阴影的物体
+					//OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowCubeMapShader, ModelCount);//绘制需要投射阴影的物体
+					gApplication->Render((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight(),camera,PointLight);//绘制模型
+
 					ShadowCubeMapShader->Unbind();
 					framebufferSCM->Unbind();
 
@@ -385,7 +397,15 @@ namespace Hazel
 				glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubemapTexture);
 				shader->SetUniform1i("skybox", 5);
 
-				OpenGLRendererAPI::DrawInstanced(modelmesh,shader, ModelCount);
+				//OpenGLRendererAPI::DrawInstanced(modelmesh,shader, ModelCount);
+				if (lightmode == LightMode::Direct)
+				{
+					gApplication->Render((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight(), camera,DirectLight);//绘制模型
+				}
+				else
+				{
+					gApplication->Render((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight(), camera, PointLight);//绘制模型
+				}
 				if (graphicmode == GraphicMode::Normal)
 				{
 					OpenGLRendererAPI::Draw(plane,shader);
@@ -450,7 +470,9 @@ namespace Hazel
 						OpenGLRendererAPI::ClearColor();
 						OpenGLRendererAPI::ClearDepth();
 
-						OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowDrawShader, ModelCount);
+						//OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowDrawShader, ModelCount);
+						gApplication->Render((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight(),camera,DirectLight);//绘制模型
+
 						OpenGLRendererAPI::Draw(plane,ShadowDrawShader);
 
 
@@ -475,7 +497,9 @@ namespace Hazel
 						OpenGLRendererAPI::ClearColor();
 						OpenGLRendererAPI::ClearDepth();
 						
-						OpenGLRendererAPI::DrawInstanced(modelmesh, ShadowCubeDrawShader, ModelCount);
+						//OpenGLRendererAPI::DrawInstanced(modelmesh, ShadowCubeDrawShader, ModelCount);
+						gApplication->Render((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight(),camera,PointLight);//绘制模型
+
 						OpenGLRendererAPI::Draw(plane, ShadowCubeDrawShader);
 
 

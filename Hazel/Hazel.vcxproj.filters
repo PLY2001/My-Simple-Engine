@@ -123,9 +123,6 @@
     <ClInclude Include="src\Hazel\Renderer\Skybox.h">
       <Filter>src\Hazel\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Hazel\Renderer\Texture.h">
-      <Filter>src\Hazel\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\Hazel\Window.h">
       <Filter>src\Hazel</Filter>
     </ClInclude>
@@ -1386,6 +1383,30 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
+    <ClInclude Include="src\Hazel\gltf\Attribute.h" />
+    <ClInclude Include="src\Hazel\gltf\cgltf.h" />
+    <ClInclude Include="src\Hazel\gltf\Clip.h" />
+    <ClInclude Include="src\Hazel\gltf\Draw.h" />
+    <ClInclude Include="src\Hazel\gltf\Frame.h" />
+    <ClInclude Include="src\Hazel\gltf\GLTFLoader.h" />
+    <ClInclude Include="src\Hazel\gltf\IndexBuffer.h" />
+    <ClInclude Include="src\Hazel\gltf\Interpolation.h" />
+    <ClInclude Include="src\Hazel\gltf\khrplatform.h" />
+    <ClInclude Include="src\Hazel\gltf\mat4.h" />
+    <ClInclude Include="src\Hazel\gltf\Pose.h" />
+    <ClInclude Include="src\Hazel\gltf\quat.h" />
+    <ClInclude Include="src\Hazel\gltf\Sample.h" />
+    <ClInclude Include="src\Hazel\gltf\Skeleton.h" />
+    <ClInclude Include="src\Hazel\gltf\Texture.h" />
+    <ClInclude Include="src\Hazel\gltf\Track.h" />
+    <ClInclude Include="src\Hazel\gltf\Transform.h" />
+    <ClInclude Include="src\Hazel\gltf\TransformTrack.h" />
+    <ClInclude Include="src\Hazel\gltf\Uniform.h" />
+    <ClInclude Include="src\Hazel\gltf\vec2.h" />
+    <ClInclude Include="src\Hazel\gltf\vec3.h" />
+    <ClInclude Include="src\Hazel\gltf\vec4.h" />
+    <ClInclude Include="src\Hazel\gltf\gltfShader.h" />
+    <ClInclude Include="src\Hazel\gltf\gltfMesh.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Hazel\Application.cpp">
@@ -1433,9 +1454,6 @@
     <ClCompile Include="src\Hazel\Renderer\Skybox.cpp">
       <Filter>src\Hazel\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Hazel\Renderer\Texture.cpp">
-      <Filter>src\Hazel\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
@@ -1448,5 +1466,24 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
+    <ClCompile Include="src\Hazel\gltf\Attribute.cpp" />
+    <ClCompile Include="src\Hazel\gltf\cgltf.c" />
+    <ClCompile Include="src\Hazel\gltf\Clip.cpp" />
+    <ClCompile Include="src\Hazel\gltf\Draw.cpp" />
+    <ClCompile Include="src\Hazel\gltf\GLTFLoader.cpp" />
+    <ClCompile Include="src\Hazel\gltf\IndexBuffer.cpp" />
+    <ClCompile Include="src\Hazel\gltf\mat4.cpp" />
+    <ClCompile Include="src\Hazel\gltf\Pose.cpp" />
+    <ClCompile Include="src\Hazel\gltf\quat.cpp" />
+    <ClCompile Include="src\Hazel\gltf\Sample.cpp" />
+    <ClCompile Include="src\Hazel\gltf\Skeleton.cpp" />
+    <ClCompile Include="src\Hazel\gltf\Texture.cpp" />
+    <ClCompile Include="src\Hazel\gltf\Track.cpp" />
+    <ClCompile Include="src\Hazel\gltf\Transform.cpp" />
+    <ClCompile Include="src\Hazel\gltf\TransformTrack.cpp" />
+    <ClCompile Include="src\Hazel\gltf\Uniform.cpp" />
+    <ClCompile Include="src\Hazel\gltf\vec3.cpp" />
+    <ClCompile Include="src\Hazel\gltf\gltfMesh.cpp" />
+    <ClCompile Include="src\Hazel\gltf\gltfShader.cpp" />
   </ItemGroup>
 </Project>
