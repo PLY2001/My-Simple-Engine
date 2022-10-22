@@ -1,1 +1,1 @@
-res/models/Woman.gltf
+res/models/ABB_IRB120.obj

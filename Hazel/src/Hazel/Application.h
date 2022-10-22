@@ -8,14 +8,11 @@
 #include "Hazel/Renderer/Shader.h"
 #include "Hazel/Renderer/Buffer.h"
 #include "Hazel/Renderer/Model.h"
-//#include "Hazel/Renderer/Texture.h"
+#include "Hazel/Renderer/Texture.h"
 #include "Hazel/Renderer/Skybox.h"
 #include "Hazel/Renderer/Light.h"
 #include "Hazel/Renderer/Camera.h"
 #include "Hazel/Renderer/OpenGLRendererAPI.h"
-
-//gltf
-#include "gltf/Sample.h"
 
 namespace Hazel
 {
@@ -70,16 +67,16 @@ namespace Hazel
 
 		//灯光
 		float count = 0;
-		std::shared_ptr<Light> PointLight;
-		std::shared_ptr<Light> DirectLight;
+		std::unique_ptr<Light> PointLight;
+		std::unique_ptr<Light> DirectLight;
 
 		//创建变换矩阵
-		std::vector<glm::mat4> ModelMatrices;//生成模型的model变换矩阵数组
+		std::vector<std::vector<glm::mat4>> ModelMatrices;//生成模型的model变换矩阵数组
 		glm::mat4 ViewMatrix;
 		glm::mat4 ProjectionMatrix;
 
 		//创建实例化数组
-		std::unique_ptr<InstanceBuffer> insbo;
+		std::vector<std::unique_ptr<InstanceBuffer>> insbo;
 		std::unique_ptr<InstanceBuffer> insboplane;
 
 		//创建Uniform缓冲对象
@@ -123,7 +120,7 @@ namespace Hazel
 		unsigned int SkyboxID;
 
 		//camera
-		std::shared_ptr<Camera> camera;
+		std::unique_ptr<Camera> camera;
 		float deltaTime = 0;//每次循环耗时
 		float lastTime = 0;
 		
@@ -139,9 +136,6 @@ namespace Hazel
 
 		enum class MouseMode { Disable = 0, Enable = 1 };
 		MouseMode mousemode = MouseMode::Disable;
-
-		//gltf
-		Sample* gApplication = 0;
 
 	private:
 		static Application* s_Instance;//单例，就需要在类里面直接声明当前类的唯一实例

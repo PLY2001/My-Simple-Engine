@@ -22,7 +22,7 @@ namespace Hazel {
 		Model(std::string path, glm::vec3 Pos);
 		void Draw(const std::shared_ptr<Shader>& shader);
 		void DrawInstanced(const std::shared_ptr<Shader>& shader, int amount);
-		glm::mat4 mModelMatrix;
+		glm::mat4 mModelMatrix = glm::mat4(1.0f);
 		void SetPosition();
 		void SetMatrix(float deltaTime);
 		std::vector<Mesh> meshes;

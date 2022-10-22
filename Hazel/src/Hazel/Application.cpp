@@ -55,21 +55,28 @@ namespace Hazel
 		modelmesh.reset(new Model(ss.str(), glm::vec3(0.0f, 0.0f, 0.0f)));//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 	
 		//创建变换矩阵
-		ModelMatrices.push_back(ModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f)).Matrix);
+		ModelMatrices.resize(modelmesh->meshes.size());
+		for(int i = 0; i < modelmesh->meshes.size(); i++)
+		{
+			ModelMatrices[i].push_back(ModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f)).Matrix);
+			ModelMatrices[i].back() = glm::scale(ModelMatrices[i].back(), glm::vec3(0.01f, 0.01f, 0.01f));
+		}
 		
 
 		//创建实例化数组
-		insbo.reset(new InstanceBuffer(100 * sizeof(glm::mat4), NULL));
-		for (Mesh mesh : modelmesh->meshes)//该模型有多个网格时，每个网格都有自己的顶点数组对象ID，要想把实例化数组缓冲区绑定在每个顶点数组对象上，就必须遍历
+		
+		for (int i = 0; i < modelmesh->meshes.size();i++)//该模型有多个网格时，每个网格都有自己的顶点数组对象ID，要想把实例化数组缓冲区绑定在每个顶点数组对象上，就必须遍历
 		{
-			insbo->AddInstanceBuffermat4(mesh.vaID, 3);
+			insbo.push_back(NULL);
+			insbo.back().reset(new InstanceBuffer(100 * sizeof(glm::mat4), NULL));
+			insbo.back()->AddInstanceBuffermat4(modelmesh->meshes[i].vaID, 3);
 		}
 		
 		/*平面*/
 		plane.reset(new Model("res/models/plane.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
 		insboplane.reset(new InstanceBuffer(sizeof(glm::mat4), &plane->mModelMatrix));//创建实例化数组
 		insboplane->AddInstanceBuffermat4(plane->meshes[0].vaID, 3);
-		insboplane->SetDatamat4(sizeof(glm::mat4) * ModelCount, ModelMatrices.data());
+		insboplane->SetDatamat4(sizeof(glm::mat4), &plane->mModelMatrix);
 		
 		//创建帧缓冲1
 		framebuffer1.reset(new FrameBuffer(s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight()));
@@ -130,10 +137,6 @@ namespace Hazel
 		camera.reset(new Camera);
 
 		glfwSetInputMode(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-		//gltf
-		gApplication = new Sample();//初始化
-		gApplication->Initialize();//导入gltf
 	}
 
 
@@ -207,10 +210,6 @@ namespace Hazel
 
 				GLClearError();//清除错误信息
 
-				//gltf
-				if (gApplication != 0) {
-					gApplication->Update(deltaTime);//播放动画
-				}
 
 				//相机键盘输入控制
 				camera->KeyControl(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), deltaTime);
@@ -234,10 +233,18 @@ namespace Hazel
 
 				//增加模型
 				
-					if (int Increase = ModelCount -ModelMatrices.size()>0)
+					if (int increase = ModelCount -ModelMatrices[0].size()>0)
 					{
-						for(int i=0;i<Increase;i++)
-							ModelMatrices.push_back(ModelMatrix(glm::vec3((ModelCount-1) * 10.0f, 0.0f, 0.0f)).Matrix);
+						
+						for (int i = 0; i < modelmesh->meshes.size(); i++)
+						{
+							for(int j = 0; j < increase; j++)
+							{
+								ModelMatrices[i].push_back(ModelMatrix(glm::vec3((ModelCount - 1) * 10.0f, 0.0f, 0.0f)).Matrix);
+								ModelMatrices[i].back() = glm::scale(ModelMatrices[i].back(), glm::vec3(0.01f, 0.01f, 0.01f));
+							}
+						}
+						
 					}
 				
 				//切换显示模式
@@ -278,15 +285,92 @@ namespace Hazel
 				lastTime = (float)glfwGetTime();
 
 				//设置变换矩阵
-				for (glm::mat4& modelmatrix : ModelMatrices)
+				if(glfwGetKey(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), GLFW_KEY_1) == GLFW_PRESS)
 				{
-					modelmatrix = glm::rotate(modelmatrix, deltaTime * glm::radians(50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+					for (int j = 1;j<modelmesh->meshes.size();j++)
+					{
+						for (int i = 0; i < ModelCount; i++)
+						{
+							ModelMatrices[j][i] = glm::rotate(ModelMatrices[j][i], deltaTime * glm::radians(50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+						}
+
+					}
+				}
+				if (glfwGetKey(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), GLFW_KEY_2) == GLFW_PRESS)
+				{
+					for (int j = 2; j < modelmesh->meshes.size(); j++)
+					{
+						for (int i = 0; i < ModelCount; i++)
+						{
+							ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(0.0f, 290.0f, 0.0f));
+							ModelMatrices[j][i] = glm::rotate(ModelMatrices[j][i], deltaTime * glm::radians(50.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+							ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(0.0f, -290.0f, 0.0f));
+						}
+
+					}
+				}
+				if (glfwGetKey(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), GLFW_KEY_3) == GLFW_PRESS)
+				{
+					for (int j = 3; j < modelmesh->meshes.size(); j++)
+					{
+						for (int i = 0; i < ModelCount; i++)
+						{
+							ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(0.0f, 560.0f, 0.0f));
+							ModelMatrices[j][i] = glm::rotate(ModelMatrices[j][i], deltaTime * glm::radians(50.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+							ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(0.0f, -560.0f, 0.0f));
+						}
+
+					}
+				}
+				if (glfwGetKey(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), GLFW_KEY_4) == GLFW_PRESS)
+				{
+					for (int j = 4; j < modelmesh->meshes.size(); j++)
+					{
+						for (int i = 0; i < ModelCount; i++)
+						{
+							ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(0.0f, 630.0f, 0.0f));
+							ModelMatrices[j][i] = glm::rotate(ModelMatrices[j][i], deltaTime * glm::radians(50.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+							ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(0.0f, -630.0f, 0.0f));
+						}
+
+					}
+				}
+				if (glfwGetKey(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), GLFW_KEY_5) == GLFW_PRESS)
+				{
+					for (int j = 5; j < modelmesh->meshes.size(); j++)
+					{
+						for (int i = 0; i < ModelCount; i++)
+						{
+							ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(-302.0f, 630.0f, 0.0f));
+							ModelMatrices[j][i] = glm::rotate(ModelMatrices[j][i], deltaTime * glm::radians(50.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+							ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(302.0f, -630.0f, 0.0f));
+						}
+
+					}
+				}
+				if (glfwGetKey(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), GLFW_KEY_6) == GLFW_PRESS)
+				{
+					for (int j = 6; j < modelmesh->meshes.size(); j++)
+					{
+						for (int i = 0; i < ModelCount; i++)
+						{
+							ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(-302.0f, 630.0f, 0.0f));
+							ModelMatrices[j][i] = glm::rotate(ModelMatrices[j][i], deltaTime * glm::radians(50.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+							ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(302.0f, -630.0f, 0.0f));
+						}
+
+					}
 				}
 				ViewMatrix = camera->SetView();
 				ProjectionMatrix = camera->SetProjection((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight());
 
 				//将model矩阵数组填入实例化数组
-				insbo->SetDatamat4(sizeof(glm::mat4) * ModelCount, ModelMatrices.data());
+				for (int i = 0; i < insbo.size(); i++)
+				{
+					insbo[i]->SetDatamat4(sizeof(glm::mat4)* ModelCount, ModelMatrices[i].data());
+
+				}
 
 				//向uniform缓冲对象填入view、projection矩阵数据
 				ubo->SetDatamat4(0, sizeof(glm::mat4), &ViewMatrix);
@@ -315,9 +399,7 @@ namespace Hazel
 
 					framebufferSM->Bind();//绑定帧缓冲对象，接收深度
 					OpenGLRendererAPI::ClearDepth();//只需清除深度，不需清除颜色
-					//OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowMapShader, ModelCount);//绘制需要投射阴影的物体
-					gApplication->Render((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight(),camera,DirectLight);//绘制模型
-
+					OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowMapShader, ModelCount);//绘制需要投射阴影的物体
 					ShadowMapShader->Unbind();
 					framebufferSM->Unbind();
 
@@ -351,9 +433,7 @@ namespace Hazel
 					framebufferSCM->Bind();//绑定帧缓冲对象，接收深度
 					OpenGLRendererAPI::ClearDepth();//只需清除深度，不需清除颜色
 
-					//OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowCubeMapShader, ModelCount);//绘制需要投射阴影的物体
-					gApplication->Render((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight(),camera,PointLight);//绘制模型
-
+					OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowCubeMapShader, ModelCount);//绘制需要投射阴影的物体
 					ShadowCubeMapShader->Unbind();
 					framebufferSCM->Unbind();
 
@@ -397,15 +477,7 @@ namespace Hazel
 				glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubemapTexture);
 				shader->SetUniform1i("skybox", 5);
 
-				//OpenGLRendererAPI::DrawInstanced(modelmesh,shader, ModelCount);
-				if (lightmode == LightMode::Direct)
-				{
-					gApplication->Render((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight(), camera,DirectLight);//绘制模型
-				}
-				else
-				{
-					gApplication->Render((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight(), camera, PointLight);//绘制模型
-				}
+				OpenGLRendererAPI::DrawInstanced(modelmesh,shader, ModelCount);
 				if (graphicmode == GraphicMode::Normal)
 				{
 					OpenGLRendererAPI::Draw(plane,shader);
@@ -470,9 +542,7 @@ namespace Hazel
 						OpenGLRendererAPI::ClearColor();
 						OpenGLRendererAPI::ClearDepth();
 
-						//OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowDrawShader, ModelCount);
-						gApplication->Render((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight(),camera,DirectLight);//绘制模型
-
+						OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowDrawShader, ModelCount);
 						OpenGLRendererAPI::Draw(plane,ShadowDrawShader);
 
 
@@ -497,9 +567,7 @@ namespace Hazel
 						OpenGLRendererAPI::ClearColor();
 						OpenGLRendererAPI::ClearDepth();
 						
-						//OpenGLRendererAPI::DrawInstanced(modelmesh, ShadowCubeDrawShader, ModelCount);
-						gApplication->Render((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight(),camera,PointLight);//绘制模型
-
+						OpenGLRendererAPI::DrawInstanced(modelmesh, ShadowCubeDrawShader, ModelCount);
 						OpenGLRendererAPI::Draw(plane, ShadowCubeDrawShader);
 
 
