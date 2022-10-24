@@ -13,6 +13,7 @@
 #include "Hazel/Renderer/Light.h"
 #include "Hazel/Renderer/Camera.h"
 #include "Hazel/Renderer/OpenGLRendererAPI.h"
+#include "Robot/ABBIRB120.h"
 
 namespace Hazel
 {
@@ -32,12 +33,8 @@ namespace Hazel
 		inline static Application& Get() { return *s_Instance; }
 
 	public:
-		bool GraphicMode_Normal = true;
-		bool GraphicMode_Outline = false;
-		bool LightMode_Direct = true;
-		bool LightMode_Point = false;
-
-		unsigned int ModelCount = 1;//模型的数量
+		
+		//unsigned int ModelCount = 1;//模型的数量
 
 	private:
 		std::unique_ptr<Window> m_Window;
@@ -47,7 +44,7 @@ namespace Hazel
 		bool OnWindowResize(WindowResizeEvent& e);
 		bool OnCameraRotate(MouseMovedEvent& e);
 		bool OnCameraZoom(MouseScrolledEvent& e);
-		bool OnKeyEvent(KeyPressedEvent& e);
+		bool OnMouseButtonEvent(MouseButtonPressedEvent& e);
 		LayerStack m_LayerStack;
 
 		//shader
@@ -71,7 +68,7 @@ namespace Hazel
 		std::unique_ptr<Light> DirectLight;
 
 		//创建变换矩阵
-		std::vector<std::vector<glm::mat4>> ModelMatrices;//生成模型的model变换矩阵数组
+		
 		glm::mat4 ViewMatrix;
 		glm::mat4 ProjectionMatrix;
 
@@ -115,6 +112,8 @@ namespace Hazel
 		/*平面*/
 		std::shared_ptr<Model> plane;
 
+		
+
 		//创建天空盒
 		std::unique_ptr<Skybox> skybox;
 		unsigned int SkyboxID;
@@ -128,20 +127,28 @@ namespace Hazel
 		//模式
 		enum class GraphicMode { Normal = 0, Outline = 1 };
 		enum class LightMode { Direct = 0, Point = 1 };
-		GraphicMode graphicmode = GraphicMode::Normal;
-		LightMode lightmode = LightMode::Direct;
+		
 
 		//防止连按
-		unsigned int FrameCount = 0;
+		//unsigned int FrameCount = 0;
 
 		enum class MouseMode { Disable = 0, Enable = 1 };
 		MouseMode mousemode = MouseMode::Disable;
 
+		
+
+
 	private:
 		static Application* s_Instance;//单例，就需要在类里面直接声明当前类的唯一实例
-	
 
+	public:
+		GraphicMode graphicmode = GraphicMode::Normal;
+		LightMode lightmode = LightMode::Direct;
 
+		
+		bool AngleChanged = false;
+
+		std::unique_ptr<ABBIRB120> irb120;
 	};
 
 	Application* CreateApplication();

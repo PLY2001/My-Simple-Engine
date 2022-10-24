@@ -18,6 +18,22 @@ namespace Hazel {
 		SetPosition();
 	}
 
+	Model::Model(std::string path) :Pos(glm::vec3(0))
+	{
+		Assimp::Importer import;
+		const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);// | aiProcess_CalcTangentSpace);
+
+		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+		{
+			std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
+			return;
+		}
+		directory = path.substr(0, path.find_last_of('/'));
+		processNode(scene->mRootNode, scene);
+
+		//SetPosition();
+	}
+
 
 	void Model::processNode(aiNode* node, const aiScene* scene)
 	{

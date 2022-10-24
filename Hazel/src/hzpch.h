@@ -18,6 +18,7 @@
 
 #include "Hazel/Log.h"
 #include "KeyCodes.h"
+#include "MouseButtonCodes.h"
 
 #ifdef HZ_PLATFORM_WINDOWS
 #include <Windows.h>

@@ -90,23 +90,51 @@ namespace Hazel {
 	{
 		//static bool show = true;
 		//ImGui::ShowDemoWindow(&show);//显示imgui示例界面
+
+
+		
 		//自定义imgui窗口
 		ImGui::Begin("Control");                          // Create a window called "Hello, world!" and append into it.
 
-		ImGui::Text("Change Graphic Mode");               // Display some text (you can use a format strings too)
-		ImGui::Checkbox("Normal", &Application::Get().GraphicMode_Normal);      // Edit bool storing our window open/close state
+		ImGui::Text("Change Graphic Mode");           
+		ImGui::RadioButton("Normal", (int*)&Application::Get().graphicmode , 0);      
 		ImGui::SameLine();
-		ImGui::Checkbox("Outline", &Application::Get().GraphicMode_Outline);
+		ImGui::RadioButton("Outline", (int*)&Application::Get().graphicmode, 1);
 
-		ImGui::Text("Change Light Mode");               // Display some text (you can use a format strings too)
-		ImGui::Checkbox("Direct", &Application::Get().LightMode_Direct);      // Edit bool storing our window open/close state
+		ImGui::Text("Change Light Mode");      
+		ImGui::RadioButton("Direct", (int*)&Application::Get().lightmode, 0);           
 		ImGui::SameLine();
-		ImGui::Checkbox("Point", &Application::Get().LightMode_Point);
+		ImGui::RadioButton("Point", (int*)&Application::Get().lightmode, 1);
 
-		if (ImGui::Button("Increase Model Count"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-			Application::Get().ModelCount++;
+		if (ImGui::Button("Increase Model Count"))                            
+			Application::Get().irb120->AddAmount();
 		ImGui::SameLine();
-		ImGui::Text("counter = %d", Application::Get().ModelCount);
+		ImGui::Text("counter = %d", Application::Get().irb120->GetAmount());
+
+		if (ImGui::SliderFloat("Angle1", Application::Get().irb120->SetAngle(1), -165.0f, 165.0f))
+		{
+			Application::Get().AngleChanged = true;
+		}
+		if (ImGui::SliderFloat("Angle2", Application::Get().irb120->SetAngle(2), -110.0f, 110.0f))
+		{
+			Application::Get().AngleChanged = true;
+		}
+		if (ImGui::SliderFloat("Angle3", Application::Get().irb120->SetAngle(3), -110.0f, 70.0f))
+		{
+			Application::Get().AngleChanged = true;
+		}
+		if (ImGui::SliderFloat("Angle4", Application::Get().irb120->SetAngle(4), -160.0f, 160.0f))
+		{
+			Application::Get().AngleChanged = true;
+		}
+		if (ImGui::SliderFloat("Angle5", Application::Get().irb120->SetAngle(5), -120.0f, 120.0f))
+		{
+			Application::Get().AngleChanged = true;
+		}
+		if (ImGui::SliderFloat("Angle6", Application::Get().irb120->SetAngle(6), -400.0f, 400.0f))
+		{
+			Application::Get().AngleChanged = true;
+		}
 
 // 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 // 		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
@@ -118,6 +146,7 @@ namespace Hazel {
 // 
  		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
+		
 	}
 
 }
