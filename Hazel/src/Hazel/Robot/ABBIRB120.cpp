@@ -110,3 +110,4 @@ float* Hazel::ABBIRB120::SetAngle(int Axis)
 {
 	return &Angle[Axis - 1];
 }
+
