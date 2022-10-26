@@ -11,7 +11,6 @@ namespace Hazel
 
 	
 
-
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)//定义一个绑定某函数的函数对象，类函数第一个输入参量必须为this
 
 	Application* Application::s_Instance = nullptr;
@@ -41,30 +40,33 @@ namespace Hazel
 		ShadowCubeDrawShader.reset(new Shader("res/shaders/ShadowCubeDraw.shader"));
 		BricksShader.reset(new Shader("res/shaders/Bricks.shader"));
 		BloomShader.reset(new Shader("res/shaders/Bloom.shader"));
+		AABBShader.reset(new Shader("res/shaders/AABB.shader"));
+		ArrowShader.reset(new Shader("res/shaders/Arrow.shader"));
+
 
 		//加载模型
-		std::ifstream source("res/models/path.txt");
-		std::string line;
-		std::stringstream ss;
-		while (getline(source, line))
-		{
-			ss << line;
-		}
+// 		std::ifstream source("res/models/path.txt");
+// 		std::string line;
+// 		std::stringstream ss;
+// 		while (getline(source, line))
+// 		{
+// 			ss << line;
+// 		}
 
-		/*人物*/
-		modelmesh.reset(new Model(ss.str()));//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
-		irb120.reset(new ABBIRB120(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), modelmesh));
+		/*IRB120*/
+		IRB120Model.reset(new Model("res/models/ABB_IRB120.obj"));//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
+		irb120.reset(new ABBIRB120(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f,0.01f,0.01f), IRB120Model));
 		irb120->InitModelMatrices();
 		
 		
 
 		//创建实例化数组
 		
-		for (int i = 0; i < modelmesh->meshes.size();i++)//该模型有多个网格时，每个网格都有自己的顶点数组对象ID，要想把实例化数组缓冲区绑定在每个顶点数组对象上，就必须遍历
+		for (int i = 0; i < IRB120Model->meshes.size();i++)//该模型有多个网格时，每个网格都有自己的顶点数组对象ID，要想把实例化数组缓冲区绑定在每个顶点数组对象上，就必须遍历
 		{
 			insbo.push_back(NULL);
 			insbo.back().reset(new InstanceBuffer(100 * sizeof(glm::mat4), NULL));
-			insbo.back()->AddInstanceBuffermat4(modelmesh->meshes[i].vaID, 3);
+			insbo.back()->AddInstanceBuffermat4(IRB120Model->meshes[i].vaID, 3);
 		}
 		
 		/*平面*/
@@ -73,6 +75,10 @@ namespace Hazel
 		insboplane->AddInstanceBuffermat4(plane->meshes[0].vaID, 3);
 		insboplane->SetDatamat4(sizeof(glm::mat4), &plane->mModelMatrix);
 		
+		/*移动箭头*/
+		Arrow.reset(new Model("res/models/arrow.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
+
+
 		//创建帧缓冲1
 		framebuffer1.reset(new FrameBuffer(s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight()));
 		framebuffer1->GenTexture2D();
@@ -120,6 +126,9 @@ namespace Hazel
 		shaderIDs.push_back(shader->RendererID);
 		shaderIDs.push_back(OutlineShader->RendererID);
 		shaderIDs.push_back(ShadowDrawShader->RendererID);
+		shaderIDs.push_back(ShadowCubeDrawShader->RendererID);
+		shaderIDs.push_back(AABBShader->RendererID);
+		shaderIDs.push_back(ArrowShader->RendererID);
 		ubo->Bind(shaderIDs, "Matrices");
 
 
@@ -132,6 +141,8 @@ namespace Hazel
 		camera.reset(new Camera);
 
 		glfwSetInputMode(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+		
 	}
 
 
@@ -158,7 +169,7 @@ namespace Hazel
 		}
 		else
 		{
-			
+			dispatcher.Dispatch<MouseMovedEvent>(BIND_EVENT_FN(OnMousePos));
 		}
 		dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(OnMouseButtonEvent));
 		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));
@@ -292,7 +303,7 @@ namespace Hazel
 
 					framebufferSM->Bind();//绑定帧缓冲对象，接收深度
 					OpenGLRendererAPI::ClearDepth();//只需清除深度，不需清除颜色
-					OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowMapShader, irb120->GetAmount());//绘制需要投射阴影的物体
+					OpenGLRendererAPI::DrawInstanced(IRB120Model,ShadowMapShader, irb120->GetAmount());//绘制需要投射阴影的物体
 					ShadowMapShader->Unbind();
 					framebufferSM->Unbind();
 
@@ -326,7 +337,7 @@ namespace Hazel
 					framebufferSCM->Bind();//绑定帧缓冲对象，接收深度
 					OpenGLRendererAPI::ClearDepth();//只需清除深度，不需清除颜色
 
-					OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowCubeMapShader, irb120->GetAmount());//绘制需要投射阴影的物体
+					OpenGLRendererAPI::DrawInstanced(IRB120Model,ShadowCubeMapShader, irb120->GetAmount());//绘制需要投射阴影的物体
 					ShadowCubeMapShader->Unbind();
 					framebufferSCM->Unbind();
 
@@ -355,7 +366,85 @@ namespace Hazel
 
 				//second pass
 				//render stuff
-				OpenGLRendererAPI::CullFace("BACK");
+
+				///////////////////////////////////////
+				float XMin = irb120->GetAABBMinPos().x;
+				float XMax = irb120->GetAABBMaxPos().x;
+				float YMin = irb120->GetAABBMinPos().y;
+				float YMax = irb120->GetAABBMaxPos().y;
+				float ZMin = irb120->GetAABBMinPos().z;
+				float ZMax = irb120->GetAABBMaxPos().z;
+
+				float AABBVertices[] = {
+					// positions          
+					XMin, YMax, ZMin,
+					XMin, YMin, ZMin,
+					XMax, YMin, ZMin,
+					XMax, YMin, ZMin,
+					XMax, YMax, ZMin,
+					XMin, YMax, ZMin,
+
+					XMin, YMin, ZMax,
+					XMin, YMin, ZMin,
+					XMin, YMax, ZMin,
+					XMin, YMax, ZMin,
+					XMin, YMax, ZMax,
+					XMin, YMin, ZMax,
+
+					XMax, YMin, ZMin,
+					XMax, YMin, ZMax,
+					XMax, YMax, ZMax,
+					XMax, YMax, ZMax,
+					XMax, YMax, ZMin,
+					XMax, YMin, ZMin,
+
+					XMin, YMin, ZMax,
+					XMin, YMax, ZMax,
+					XMax, YMax, ZMax,
+					XMax, YMax, ZMax,
+					XMax, YMin, ZMax,
+					XMin, YMin, ZMax,
+
+					XMin, YMax, ZMin,
+					XMax, YMax, ZMin,
+					XMax, YMax, ZMax,
+					XMax, YMax, ZMax,
+					XMin, YMax, ZMax,
+					XMin, YMax, ZMin,
+
+					XMin, YMin, ZMin,
+					XMin, YMin, ZMax,
+					XMax, YMin, ZMin,
+					XMax, YMin, ZMin,
+					XMin, YMin, ZMax,
+					XMax, YMin, ZMax
+				};
+				unsigned int vaID;//VertexArray
+				unsigned int vbID;
+
+				VertexArray va(vaID);
+				VertexBuffer vb(vbID, AABBVertices, 108 * sizeof(float));
+
+				VertexAttribLayout layout;//创建顶点属性布局实例
+				layout.Push<GL_FLOAT>(3);//填入第一个属性布局，类型为float，每个点为3维向量
+
+				va.AddBuffer(vbID, layout);//将所有属性布局应用于顶点缓冲区vb，并绑定在顶点数组对象va上
+
+				va.Unbind();
+				vb.Unbind();
+
+				AABBShader->Bind();
+				va.Bind();
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				AABBShader->Unbind();
+				va.Unbind();
+				/////////////////////////////////////
+
+				//OpenGLRendererAPI::Draw(Arrow, ArrowShader);
+
+				//OpenGLRendererAPI::CullFace("BACK");
 
 				shader->Bind();
 
@@ -370,7 +459,7 @@ namespace Hazel
 				glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubemapTexture);
 				shader->SetUniform1i("skybox", 5);
 
-				OpenGLRendererAPI::DrawInstanced(modelmesh,shader, irb120->GetAmount());
+				OpenGLRendererAPI::DrawInstanced(IRB120Model,shader, irb120->GetAmount());
 				if (graphicmode == GraphicMode::Normal)
 				{
 					OpenGLRendererAPI::Draw(plane,shader);
@@ -435,7 +524,7 @@ namespace Hazel
 						OpenGLRendererAPI::ClearColor();
 						OpenGLRendererAPI::ClearDepth();
 
-						OpenGLRendererAPI::DrawInstanced(modelmesh,ShadowDrawShader, irb120->GetAmount());
+						OpenGLRendererAPI::DrawInstanced(IRB120Model,ShadowDrawShader, irb120->GetAmount());
 						OpenGLRendererAPI::Draw(plane,ShadowDrawShader);
 
 
@@ -460,7 +549,7 @@ namespace Hazel
 						OpenGLRendererAPI::ClearColor();
 						OpenGLRendererAPI::ClearDepth();
 						
-						OpenGLRendererAPI::DrawInstanced(modelmesh, ShadowCubeDrawShader, irb120->GetAmount());
+						OpenGLRendererAPI::DrawInstanced(IRB120Model, ShadowCubeDrawShader, irb120->GetAmount());
 						OpenGLRendererAPI::Draw(plane, ShadowCubeDrawShader);
 
 
@@ -499,7 +588,13 @@ namespace Hazel
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 					framebuffer5->Draw(GaussianShader, QuadID4);
 					glDisable(GL_BLEND);
-					
+
+					if(Choosed)
+					{
+						glDisable(GL_DEPTH_TEST);
+						OpenGLRendererAPI::Draw(Arrow, ArrowShader);
+						glEnable(GL_DEPTH_TEST);
+					}
 
 
 
@@ -582,6 +677,39 @@ namespace Hazel
 				mousemode = MouseMode::Enable;
 			}
 		}
+		if (mousemode == MouseMode::Enable)
+		{
+			Choosed = false;
+			ClickPos = glm::vec2(MousePos.x/m_Window->GetWidth()*2.0f-1.0f,MousePos.y/m_Window->GetHeight()*2.0f-1.0f);
+			//ClickPos = MousePos;
+			
+ 			for(float ClipZ = 0.0f;ClipZ<1.0f;ClipZ+=0.001f)
+ 			{
+ 				glm::vec4 WorldClickPos = glm::inverse(ViewMatrix)*glm::inverse(ProjectionMatrix) * glm::vec4(ClickPos, ClipZ, 1.0f);
+ 				WorldClickPos /= WorldClickPos.w;
+ 				if (WorldClickPos.x > irb120->GetAABBMinPos().x&& WorldClickPos.x < irb120->GetAABBMaxPos().x)
+ 				{
+ 					if (WorldClickPos.y > irb120->GetAABBMinPos().y&& WorldClickPos.y < irb120->GetAABBMaxPos().y)
+ 					{
+ 						if (WorldClickPos.z > irb120->GetAABBMinPos().z&& WorldClickPos.z < irb120->GetAABBMaxPos().z)
+ 						{
+ 							Choosed = true;
+ 						}
+  					
+ 					}
+  				
+ 				}
+  			
+ 			}
+
+		}
+
+		return true;
+	}
+
+	bool Application::OnMousePos(MouseMovedEvent& e)
+	{
+		MousePos = glm::vec2(e.GetX(), m_Window->GetHeight() - e.GetY());
 		return true;
 	}
 

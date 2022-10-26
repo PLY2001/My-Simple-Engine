@@ -45,6 +45,7 @@ namespace Hazel
 		bool OnCameraRotate(MouseMovedEvent& e);
 		bool OnCameraZoom(MouseScrolledEvent& e);
 		bool OnMouseButtonEvent(MouseButtonPressedEvent& e);
+		bool OnMousePos(MouseMovedEvent& e);
 		LayerStack m_LayerStack;
 
 		//shader
@@ -61,6 +62,8 @@ namespace Hazel
 		std::shared_ptr<Shader> ShadowCubeDrawShader;
 		std::shared_ptr<Shader> BricksShader;
 		std::shared_ptr<Shader> BloomShader;
+		std::shared_ptr<Shader> AABBShader;
+		std::shared_ptr<Shader> ArrowShader;
 
 		//灯光
 		float count = 0;
@@ -107,11 +110,12 @@ namespace Hazel
 		std::unique_ptr<FrameBuffer> framebuffer7;
 		unsigned int QuadID7;
 
-		/*人物*/
-		std::shared_ptr<Model> modelmesh;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
+		/*IRB120*/
+		std::shared_ptr<Model> IRB120Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		/*平面*/
 		std::shared_ptr<Model> plane;
 
+		std::shared_ptr<Model> Arrow;
 		
 
 		//创建天空盒
@@ -135,8 +139,8 @@ namespace Hazel
 		enum class MouseMode { Disable = 0, Enable = 1 };
 		MouseMode mousemode = MouseMode::Disable;
 
-		
-
+		glm::vec2 MousePos = glm::vec2(0);
+		glm::vec2 ClickPos = glm::vec2(0);
 
 	private:
 		static Application* s_Instance;//单例，就需要在类里面直接声明当前类的唯一实例
@@ -149,6 +153,11 @@ namespace Hazel
 		bool AngleChanged = false;
 
 		std::unique_ptr<ABBIRB120> irb120;
+
+		inline glm::vec2 GetClickPos() { return ClickPos; }
+
+		bool Choosed = false;
+
 	};
 
 	Application* CreateApplication();

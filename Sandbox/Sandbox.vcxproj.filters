@@ -19,4 +19,8 @@
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="res\shaders\AABB.shader" />
+    <None Include="res\shaders\Arrow.shader" />
+  </ItemGroup>
 </Project>

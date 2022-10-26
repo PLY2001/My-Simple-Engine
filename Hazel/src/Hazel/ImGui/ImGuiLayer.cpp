@@ -12,11 +12,11 @@
 
 #include "Hazel/Application.h"
 
-#define PI 3.1415926
+
 
 namespace Hazel {
 
-	glm::vec3 Pos = glm::vec3(-374.0f,630.0f,0.0f);
+	glm::vec3 Pos = glm::vec3(-3.74f,6.3f,0.0f);
 	glm::vec3 Eular = glm::vec3(0.0f, 0.0f, 0.0f);
 
 
@@ -117,143 +117,74 @@ namespace Hazel {
 		ImGui::SameLine();
 		ImGui::Text("counter = %d", Application::Get().irb120->GetAmount());
 
-		if (ImGui::SliderFloat("Angle1", Application::Get().irb120->SetAngle(1), -165.0f, 165.0f))
+		ImGui::Text("Change Control Mode");
+		ImGui::RadioButton("Angles", (int*)&Application::Get().irb120->controlmode, 0);
+		ImGui::SameLine();
+		ImGui::RadioButton("Pos&Eular", (int*)&Application::Get().irb120->controlmode, 1);
+		if((int)Application::Get().irb120->controlmode == 0)
 		{
-			Application::Get().AngleChanged = true;
-		}
-		if (ImGui::SliderFloat("Angle2", Application::Get().irb120->SetAngle(2), -110.0f, 110.0f))
-		{
-			Application::Get().AngleChanged = true;
-		}
-		if (ImGui::SliderFloat("Angle3", Application::Get().irb120->SetAngle(3), -110.0f, 70.0f))
-		{
-			Application::Get().AngleChanged = true;
-		}
-		if (ImGui::SliderFloat("Angle4", Application::Get().irb120->SetAngle(4), -160.0f, 160.0f))
-		{
-			Application::Get().AngleChanged = true;
-		}
-		if (ImGui::SliderFloat("Angle5", Application::Get().irb120->SetAngle(5), -120.0f, 120.0f))
-		{
-			Application::Get().AngleChanged = true;
-		}
-		if (ImGui::SliderFloat("Angle6", Application::Get().irb120->SetAngle(6), -400.0f, 400.0f))
-		{
-			Application::Get().AngleChanged = true;
+			if (ImGui::SliderFloat("Angle1", Application::Get().irb120->SetAngle(1), -165.0f, 165.0f))
+			{
+				Application::Get().AngleChanged = true;
+			}
+			if (ImGui::SliderFloat("Angle2", Application::Get().irb120->SetAngle(2), -110.0f, 110.0f))
+			{
+				Application::Get().AngleChanged = true;
+			}
+			if (ImGui::SliderFloat("Angle3", Application::Get().irb120->SetAngle(3), -110.0f, 70.0f))
+			{
+				Application::Get().AngleChanged = true;
+			}
+			if (ImGui::SliderFloat("Angle4", Application::Get().irb120->SetAngle(4), -160.0f, 160.0f))
+			{
+				Application::Get().AngleChanged = true;
+			}
+			if (ImGui::SliderFloat("Angle5", Application::Get().irb120->SetAngle(5), -120.0f, 120.0f))
+			{
+				Application::Get().AngleChanged = true;
+			}
+			if (ImGui::SliderFloat("Angle6", Application::Get().irb120->SetAngle(6), -400.0f, 400.0f))
+			{
+				Application::Get().AngleChanged = true;
+			}
 		}
 
-// 		ImGui::InputFloat("PosX", &Pos.x);
-// 		ImGui::InputFloat("PosY", &Pos.y);
-// 		ImGui::InputFloat("PosZ", &Pos.z);
-// 		ImGui::InputFloat("EularX", &Eular.x);
-// 		ImGui::InputFloat("EularY", &Eular.y);
-// 		ImGui::InputFloat("EularZ", &Eular.z);
-		if (ImGui::SliderFloat("PosX", &Pos.x, -652.0f, 652.0f))
+		if ((int)Application::Get().irb120->controlmode == 1)
 		{
-			Application::Get().AngleChanged = true;
+			glm::vec3 Scale = Application::Get().irb120->GetScale();
+			if (ImGui::SliderFloat("PosX", &Pos.x, -652.0f * Scale.x, 652.0f * Scale.x))
+			{
+				Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale,Eular);
+			}
+			if (ImGui::SliderFloat("PosY", &Pos.y, -184.0f * Scale.y, 1054.0f * Scale.y))
+			{
+				Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+			}
+			if (ImGui::SliderFloat("PosZ", &Pos.z, -652.0f * Scale.z, 652.0f * Scale.z))
+			{
+				Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+			}
+			if (ImGui::SliderFloat("EularX", &Eular.x, -180.0f, 180.0f))
+			{
+				Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+			}
+			if (ImGui::SliderFloat("EularY", &Eular.y, -180.0f, 180.0f))
+			{
+				Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+			}
+			if (ImGui::SliderFloat("EularZ", &Eular.z, -180.0f, 180.0f))
+			{
+				Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+			}
+			
+			
 		}
-		if (ImGui::SliderFloat("PosY", &Pos.y, -184.0f, 1054.0f))
-		{
-			Application::Get().AngleChanged = true;
-		}
-		if (ImGui::SliderFloat("PosZ", &Pos.z, -652.0f, 652.0f))
-		{
-			Application::Get().AngleChanged = true;
-		}
-		if (ImGui::SliderFloat("EularX", &Eular.x, -180.0f, 180.0f))
-		{
-			Application::Get().AngleChanged = true;
-		}
-		if (ImGui::SliderFloat("EularY", &Eular.y, -180.0f, 180.0f))
-		{
-			Application::Get().AngleChanged = true;
-		}
-		if (ImGui::SliderFloat("EularZ", &Eular.z, -180.0f, 180.0f))
-		{
-			Application::Get().AngleChanged = true;
-		}
+
+		ImGui::Text("IRB 120 AABB: XMin = %.3f , XMax = %.3f , YMin = %.3f , YMax = %.3f , ZMin = %.3f , ZMax = %.3f", Application::Get().irb120->GetAABBMinPos().x, Application::Get().irb120->GetAABBMaxPos().x, Application::Get().irb120->GetAABBMinPos().y, Application::Get().irb120->GetAABBMaxPos().y, Application::Get().irb120->GetAABBMinPos().z, Application::Get().irb120->GetAABBMaxPos().z);
 		
-		glm::mat4 backwardTranslate = glm::mat4(1);;
-		backwardTranslate = glm::translate(backwardTranslate, glm::vec3(72.0f, 0.0f, 0.0f));
-		
+		ImGui::Text("ClickPos = ( %f , %f )", Application::Get().GetClickPos().x, Application::Get().GetClickPos().y);
+		//ImGui::Checkbox("Choosed",&Application::Get().Choosed);
 
-		glm::mat4 backwardEular = glm::mat4(1);
-		backwardEular = glm::translate(backwardEular, Pos);
-		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.x), glm::vec3(1, 0, 0));
-		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.y), glm::vec3(0, 1, 0));
-		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.z), glm::vec3(0, 0, 1));
-		backwardEular = glm::translate(backwardEular, -Pos);
-		
-		glm::vec4 Pw = backwardEular * backwardTranslate *  glm::vec4(Pos, 1.0f);
-		
-		ImGui::Text("PwX = %.3f", Pw.x);
-		ImGui::Text("PwY = %.3f", Pw.y);
-		ImGui::Text("PwZ = %.3f", Pw.z);
-
-		float Angle[6] = { 0,0,0,0,0,0 };
-		Angle[0] = atan2f(Pw.z, -Pw.x)/PI*180.0f;
-		ImGui::Text("Angle1 = %.3f", Angle[0]);
-
-		float x = sqrt(Pw.x * Pw.x + Pw.z * Pw.z);
-		float y = Pw.y-290.0f;
-		float temp = (float)acos((y * y + x * x - 169004.0f) / 167403.484f);
-		Angle[2] = (temp + (float)atan2f(70.0f, 302.0f)) / PI * 180.0f - 90.0f;
-		Angle[1] = atan2f((-y * 310.006f * sin(temp) + x * (270.0f + 310.006f * cos(temp))) , (x * 310.006f * sin(temp) + y * (270.0f + 310.006f * cos(temp))))*180.0f/PI;
-		ImGui::Text("Angle2 = %.3f", Angle[1]);
-		ImGui::Text("Angle3 = %.3f", Angle[2]);
-
-		
-		
-		glm::mat4 T13 = glm::mat4(1);
-		T13 = glm::translate(T13, glm::vec3(-302.0f, 630.0f, 0.0f));
-		T13	= glm::rotate(T13, glm::radians(Angle[0]), glm::vec3(0.0f, 1.0f, 0.0f));
-		//T13 = glm::translate(T13, glm::vec3(0.0f, 290.0f, 0.0f));
-		T13 = glm::rotate(T13, glm::radians(Angle[1]), glm::vec3(0.0f, 0.0f, 1.0f));
-		//T13 = glm::translate(T13, glm::vec3(0.0f, -290.0f, 0.0f));
-		//T13 = glm::translate(T13, glm::vec3(0.0f, 560.0f, 0.0f));
-		T13 = glm::rotate(T13, glm::radians(Angle[2]), glm::vec3(0.0f, 0.0f, 1.0f));
-		//T13 = glm::translate(T13, glm::vec3(0.0f, -560.0f, 0.0f));
-
-		glm::mat4 T16 = glm::mat4(1);
-		T16 = glm::translate(T16, Pos);
-		T16 = glm::rotate(T16, glm::radians(Eular.z), glm::vec3(0, 0, 1));
-		T16 = glm::rotate(T16, glm::radians(Eular.y), glm::vec3(0, 1, 0));
-		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
-
-		glm::mat4 T35 = glm::inverse(T13) * T16;
-		Angle[3] = atan2f(-T35[2].y,T35[2].z) / PI * 180.0f;
-		Angle[4] = atan2f(-T35[1].x,T35[0].x) / PI * 180.0f;
-		ImGui::Text("Angle4 = %.3f", Angle[3]);
-		ImGui::Text("Angle5 = %.3f", Angle[4]);
-		
-
-		if (Angle[0] < 165.0f && Angle[0] > -165.0f)
-		{
-			*Application::Get().irb120->SetAngle(1) = Angle[0];	
-		}
-		if (Angle[1] < 110.0f && Angle[1] > -110.0f)
-		{
-			*Application::Get().irb120->SetAngle(2) = Angle[1];
-		}
-		if (Angle[2] < 70.0f && Angle[2] > -110.0f)
-		{
-			*Application::Get().irb120->SetAngle(3) = Angle[2];
-		}
-		if (Angle[3] < 160.0f && Angle[3] > -160.0f)
-		{
-			*Application::Get().irb120->SetAngle(4) = Angle[3];
-		}
-		if (Angle[4] < 120.0f && Angle[4] > -120.0f)
-		{
-			*Application::Get().irb120->SetAngle(5) = Angle[4];
-		}
-
-		if (ImGui::Button("Solve"))
-		{
-			Application::Get().AngleChanged = true;
-		}
-
-		
 
 // 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 // 		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color

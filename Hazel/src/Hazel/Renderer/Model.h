@@ -16,6 +16,7 @@ namespace Hazel {
 		unsigned int TextureFromFile(const char* path, const std::string& directory);
 		std::vector<myTexture> textures_loaded;
 
+		
 
 
 	public:
@@ -25,18 +26,9 @@ namespace Hazel {
 		void DrawInstanced(const std::shared_ptr<Shader>& shader, int amount);
 		glm::mat4 mModelMatrix = glm::mat4(1.0f);
 		void SetPosition();
-		void SetMatrix(float deltaTime);
 		std::vector<Mesh> meshes;
+		
 	};
 
-	class ModelMatrix
-	{
-	public:
-		glm::mat4 Matrix = glm::mat4(1.0f);
-		ModelMatrix(glm::vec3 Pos)
-		{
-			Matrix = glm::translate(Matrix, Pos);
-		}
 
-	};
 }

@@ -16,6 +16,8 @@ namespace Hazel {
 		processNode(scene->mRootNode, scene);
 
 		SetPosition();
+
+		
 	}
 
 	Model::Model(std::string path) :Pos(glm::vec3(0))
@@ -31,7 +33,8 @@ namespace Hazel {
 		directory = path.substr(0, path.find_last_of('/'));
 		processNode(scene->mRootNode, scene);
 
-		//SetPosition();
+		SetPosition();
+		
 	}
 
 
@@ -189,6 +192,8 @@ namespace Hazel {
 		return textureID;
 	}
 
+
+
 	void Model::Draw(const std::shared_ptr<Shader>& shader)
 	{
 		for (unsigned int i = 0; i < meshes.size(); i++)
@@ -201,10 +206,9 @@ namespace Hazel {
 			meshes[i].DrawInstanced(shader, amount);
 	}
 
-	void Model::SetMatrix(float deltaTime)
-	{
-		mModelMatrix = glm::rotate(mModelMatrix, deltaTime * glm::radians(50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	}
+
+
+
 
 	void Model::SetPosition()
 	{
