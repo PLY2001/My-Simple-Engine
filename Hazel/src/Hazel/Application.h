@@ -13,7 +13,8 @@
 #include "Hazel/Renderer/Light.h"
 #include "Hazel/Renderer/Camera.h"
 #include "Hazel/Renderer/OpenGLRendererAPI.h"
-#include "Robot/ABBIRB120.h"
+#include "Objects/ABBIRB120.h"
+#include "Objects/Arrow.h"
 
 namespace Hazel
 {
@@ -46,6 +47,7 @@ namespace Hazel
 		bool OnCameraZoom(MouseScrolledEvent& e);
 		bool OnMouseButtonEvent(MouseButtonPressedEvent& e);
 		bool OnMousePos(MouseMovedEvent& e);
+		bool OnMouseReleaseEvent(MouseButtonReleasedEvent& e);
 		LayerStack m_LayerStack;
 
 		//shader
@@ -115,7 +117,7 @@ namespace Hazel
 		/*平面*/
 		std::shared_ptr<Model> plane;
 
-		std::shared_ptr<Model> Arrow;
+		std::shared_ptr<Model> ArrowModel;
 		
 
 		//创建天空盒
@@ -157,6 +159,14 @@ namespace Hazel
 		inline glm::vec2 GetClickPos() { return ClickPos; }
 
 		bool Choosed = false;
+		int index = 0;
+
+		std::unique_ptr<Arrow> arrow;
+		bool ToMove = false;
+		int axis = 0;
+
+		bool first = true;
+		glm::vec3 LastWorldClickPos = glm::vec3(1);
 
 	};
 

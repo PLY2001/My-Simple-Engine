@@ -1386,7 +1386,8 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Hazel\Robot\ABBIRB120.h" />
+    <ClInclude Include="src\Hazel\Objects\ABBIRB120.h" />
+    <ClInclude Include="src\Hazel\Objects\Arrow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Hazel\Application.cpp">
@@ -1449,6 +1450,7 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Hazel\Robot\ABBIRB120.cpp" />
+    <ClCompile Include="src\Hazel\Objects\ABBIRB120.cpp" />
+    <ClCompile Include="src\Hazel\Objects\Arrow.cpp" />
   </ItemGroup>
 </Project>

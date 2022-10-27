@@ -76,7 +76,8 @@ namespace Hazel
 		insboplane->SetDatamat4(sizeof(glm::mat4), &plane->mModelMatrix);
 		
 		/*ÒÆ¶¯¼ýÍ·*/
-		Arrow.reset(new Model("res/models/arrow.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
+		ArrowModel.reset(new Model("res/models/arrow.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
+		arrow.reset(new Arrow(irb120->GetPos(0), glm::vec3(0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f), ArrowModel));
 
 
 		//´´½¨Ö¡»º³å1
@@ -170,6 +171,7 @@ namespace Hazel
 		else
 		{
 			dispatcher.Dispatch<MouseMovedEvent>(BIND_EVENT_FN(OnMousePos));
+			dispatcher.Dispatch<MouseButtonReleasedEvent>(BIND_EVENT_FN(OnMouseReleaseEvent));
 		}
 		dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(OnMouseButtonEvent));
 		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));
@@ -368,12 +370,13 @@ namespace Hazel
 				//render stuff
 
 				///////////////////////////////////////
-				float XMin = irb120->GetAABBMinPos().x;
-				float XMax = irb120->GetAABBMaxPos().x;
-				float YMin = irb120->GetAABBMinPos().y;
-				float YMax = irb120->GetAABBMaxPos().y;
-				float ZMin = irb120->GetAABBMinPos().z;
-				float ZMax = irb120->GetAABBMaxPos().z;
+				
+				float XMin = irb120->GetAABBMinPos(index).x;
+				float XMax = irb120->GetAABBMaxPos(index).x;
+				float YMin = irb120->GetAABBMinPos(index).y;
+				float YMax = irb120->GetAABBMaxPos(index).y;
+				float ZMin = irb120->GetAABBMinPos(index).z;
+				float ZMax = irb120->GetAABBMaxPos(index).z;
 
 				float AABBVertices[] = {
 					// positions          
@@ -591,11 +594,24 @@ namespace Hazel
 
 					if(Choosed)
 					{
+						arrow->ChangePos(irb120->GetPos(index));
 						glDisable(GL_DEPTH_TEST);
-						OpenGLRendererAPI::Draw(Arrow, ArrowShader);
+						ArrowShader->Bind();
+						ArrowShader->SetUniformMat4("model", arrow->GetModelMatrix());
+						if (ToMove)
+						{
+							ArrowShader->SetUniform1f("Clicked", 1.0f);
+						}
+						else
+						{
+							ArrowShader->SetUniform1f("Clicked", 0.0f);
+						}
+						OpenGLRendererAPI::Draw(ArrowModel, ArrowShader);
+						ArrowShader->Unbind();
 						glEnable(GL_DEPTH_TEST);
 					}
 
+					
 
 
 
@@ -680,25 +696,55 @@ namespace Hazel
 		if (mousemode == MouseMode::Enable)
 		{
 			Choosed = false;
+			ToMove = false;
 			ClickPos = glm::vec2(MousePos.x/m_Window->GetWidth()*2.0f-1.0f,MousePos.y/m_Window->GetHeight()*2.0f-1.0f);
 			//ClickPos = MousePos;
 			
- 			for(float ClipZ = 0.0f;ClipZ<1.0f;ClipZ+=0.001f)
+ 			for(float ClipZ = 0.0f;ClipZ<1.0f;ClipZ+=0.0001f)
  			{
  				glm::vec4 WorldClickPos = glm::inverse(ViewMatrix)*glm::inverse(ProjectionMatrix) * glm::vec4(ClickPos, ClipZ, 1.0f);
  				WorldClickPos /= WorldClickPos.w;
- 				if (WorldClickPos.x > irb120->GetAABBMinPos().x&& WorldClickPos.x < irb120->GetAABBMaxPos().x)
- 				{
- 					if (WorldClickPos.y > irb120->GetAABBMinPos().y&& WorldClickPos.y < irb120->GetAABBMaxPos().y)
- 					{
- 						if (WorldClickPos.z > irb120->GetAABBMinPos().z&& WorldClickPos.z < irb120->GetAABBMaxPos().z)
- 						{
- 							Choosed = true;
- 						}
-  					
- 					}
-  				
- 				}
+
+				
+				//¼ì²âirb120Åö×²
+				for(int i = 0; i < irb120->GetAmount(); i++)
+				{
+					if (WorldClickPos.x > irb120->GetAABBMinPos(i).x&& WorldClickPos.x < irb120->GetAABBMaxPos(i).x)
+					{
+						if (WorldClickPos.y > irb120->GetAABBMinPos(i).y&& WorldClickPos.y < irb120->GetAABBMaxPos(i).y)
+						{
+							if (WorldClickPos.z > irb120->GetAABBMinPos(i).z&& WorldClickPos.z < irb120->GetAABBMaxPos(i).z)
+							{
+								Choosed = true;
+								index = i;
+								break;
+							}
+
+						}
+
+					}
+				}
+
+				//¼ì²âarrowÅö×²
+				for (int i = 0; i < 3; i++)
+				{
+					if (WorldClickPos.x > arrow->GetAABBMinPos(i).x&& WorldClickPos.x < arrow->GetAABBMaxPos(i).x)
+					{
+						if (WorldClickPos.y > arrow->GetAABBMinPos(i).y&& WorldClickPos.y < arrow->GetAABBMaxPos(i).y)
+						{
+							if (WorldClickPos.z > arrow->GetAABBMinPos(i).z&& WorldClickPos.z < arrow->GetAABBMaxPos(i).z)
+							{
+								ToMove = true;
+								Choosed = true;
+								first = true;
+								axis = i;
+								break;
+							}
+
+						}
+
+					}
+				}
   			
  			}
 
@@ -710,7 +756,42 @@ namespace Hazel
 	bool Application::OnMousePos(MouseMovedEvent& e)
 	{
 		MousePos = glm::vec2(e.GetX(), m_Window->GetHeight() - e.GetY());
+		if (ToMove)
+		{
+			ClickPos = glm::vec2(MousePos.x / m_Window->GetWidth() * 2.0f - 1.0f, MousePos.y / m_Window->GetHeight() * 2.0f - 1.0f);
+
+			glm::vec4 irb120ScreenPos = ProjectionMatrix * ViewMatrix * glm::vec4(irb120->GetPos(index), 1.0f);
+			irb120ScreenPos /= irb120ScreenPos.w;
+
+			glm::vec4 WorldClickPos = glm::inverse(ViewMatrix) * glm::inverse(ProjectionMatrix) * glm::vec4(ClickPos, irb120ScreenPos.z, 1.0f);
+			WorldClickPos /= WorldClickPos.w;
+
+			if (first)
+			{
+				LastWorldClickPos = WorldClickPos;
+				first = false;
+			}
+
+			if (axis == 0)
+			{
+				irb120->ChangePos(index, glm::vec3(WorldClickPos.x- LastWorldClickPos.x, 0.0f, 0.0f));
+			}
+			if (axis == 1)
+			{
+				irb120->ChangePos(index, glm::vec3(0.0f, WorldClickPos.y - LastWorldClickPos.y, 0.0f));
+			}
+			if (axis == 2)
+			{
+				irb120->ChangePos(index, glm::vec3(0.0f, 0.0f, WorldClickPos.z - LastWorldClickPos.z));
+			}
+			LastWorldClickPos = WorldClickPos;
+		}
 		return true;
 	}
 
+	bool Application::OnMouseReleaseEvent(MouseButtonReleasedEvent& e)
+	{
+		ToMove = false;
+		return true;
+	}
 }

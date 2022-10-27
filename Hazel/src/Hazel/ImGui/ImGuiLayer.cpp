@@ -180,7 +180,12 @@ namespace Hazel {
 			
 		}
 
-		ImGui::Text("IRB 120 AABB: XMin = %.3f , XMax = %.3f , YMin = %.3f , YMax = %.3f , ZMin = %.3f , ZMax = %.3f", Application::Get().irb120->GetAABBMinPos().x, Application::Get().irb120->GetAABBMaxPos().x, Application::Get().irb120->GetAABBMinPos().y, Application::Get().irb120->GetAABBMaxPos().y, Application::Get().irb120->GetAABBMinPos().z, Application::Get().irb120->GetAABBMaxPos().z);
+		//int index = Application::Get().index;
+// 		if(Application::Get().irb120->GetAmount()>1)
+// 		{	
+// 			int index = 1;
+// 			ImGui::Text("IRB 120 AABB: XMin = %.3f , XMax = %.3f , YMin = %.3f , YMax = %.3f , ZMin = %.3f , ZMax = %.3f", Application::Get().irb120->GetAABBMinPos(index).x, Application::Get().irb120->GetAABBMaxPos(index).x, Application::Get().irb120->GetAABBMinPos(index).y, Application::Get().irb120->GetAABBMaxPos(index).y, Application::Get().irb120->GetAABBMinPos(index).z, Application::Get().irb120->GetAABBMaxPos(index).z);
+// 		}
 		
 		ImGui::Text("ClickPos = ( %f , %f )", Application::Get().GetClickPos().x, Application::Get().GetClickPos().y);
 		//ImGui::Checkbox("Choosed",&Application::Get().Choosed);
