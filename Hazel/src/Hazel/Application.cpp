@@ -262,7 +262,7 @@ namespace Hazel
 				
 				if(AngleChanged)
 				{
-					irb120->ChangeAngle();
+					irb120->ChangeAngle(index);
 					
 					AngleChanged = false;
 				}
@@ -465,7 +465,7 @@ namespace Hazel
 				OpenGLRendererAPI::DrawInstanced(IRB120Model,shader, irb120->GetAmount());
 				if (graphicmode == GraphicMode::Normal)
 				{
-					OpenGLRendererAPI::Draw(plane,shader);
+					OpenGLRendererAPI::Draw(plane,shader);//»­ÁËÁ½±é£¿
 				}
 
 				shader->Unbind();

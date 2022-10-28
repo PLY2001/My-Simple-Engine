@@ -4,6 +4,13 @@
 Hazel::ABBIRB120::ABBIRB120(glm::vec3 Pos, glm::vec3 Rotation, glm::vec3 Scale,std::shared_ptr<Model>& model):Rotation(Rotation),Scale(Scale),model(model)
 {
 	m_Pos.push_back(Pos);
+	Angle.resize(6);
+	for (int i = 0; i < 6; i++)
+	{
+		Angle[i].push_back(0);
+	}
+	
+	
 }
 
 void Hazel::ABBIRB120::InitModelMatrices()
@@ -21,7 +28,7 @@ void Hazel::ABBIRB120::InitModelMatrices()
 
 	AABBMinPos.push_back(m_Pos[0]);
 	AABBMaxPos.push_back(m_Pos[0]);
-	SetAABB();
+	SetAABB(0);
 }
 
 
@@ -50,7 +57,11 @@ void Hazel::ABBIRB120::AddAmount()
 	}
 	AABBMinPos.push_back(m_Pos[Amount-1]);
 	AABBMaxPos.push_back(m_Pos[Amount - 1]);
-	SetAABB();
+	for (int i = 0; i < 6; i++)
+	{
+		Angle[i].push_back(0);
+	}
+	SetAABB(Amount-1);
 }
 
 int Hazel::ABBIRB120::GetAmount()
@@ -58,73 +69,73 @@ int Hazel::ABBIRB120::GetAmount()
 	return Amount;
 }
 
-void Hazel::ABBIRB120::ChangeAngle()
+void Hazel::ABBIRB120::ChangeAngle(int index)
 {
 	//น้ฮป
 	for (int j = 1; j < model->meshes.size(); j++)
 	{
-		for (int i = 0; i < Amount; i++)
-		{
-			ModelMatrices[j][i] = DefaultModelMatrices[j][i];
-		}
+// 		for (int i = 0; i < Amount; i++)
+// 		{
+ 			ModelMatrices[j][index] = DefaultModelMatrices[j][index];
+// 		}
 
 	}
 
 
 	for (int j = 1; j < model->meshes.size(); j++)
 	{
-		for (int i = 0; i < Amount; i++)
-		{
+// 		for (int i = 0; i < Amount; i++)
+// 		{
 			if (j > 0)
 			{
-				ModelMatrices[j][i] = glm::rotate(ModelMatrices[j][i], glm::radians(Angle[0]), glm::vec3(0.0f, 1.0f, 0.0f));
+				ModelMatrices[j][index] = glm::rotate(ModelMatrices[j][index], glm::radians(Angle[0][index]), glm::vec3(0.0f, 1.0f, 0.0f));
 			}
 			if (j > 1)
 			{
 
-				ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(0.0f, 290.0f, 0.0f));
-				ModelMatrices[j][i] = glm::rotate(ModelMatrices[j][i], glm::radians(Angle[1]), glm::vec3(0.0f, 0.0f, 1.0f));
-				ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(0.0f, -290.0f, 0.0f));
+				ModelMatrices[j][index] = glm::translate(ModelMatrices[j][index], glm::vec3(0.0f, 290.0f, 0.0f));
+				ModelMatrices[j][index] = glm::rotate(ModelMatrices[j][index], glm::radians(Angle[1][index]), glm::vec3(0.0f, 0.0f, 1.0f));
+				ModelMatrices[j][index] = glm::translate(ModelMatrices[j][index], glm::vec3(0.0f, -290.0f, 0.0f));
 
 			}
 			if (j > 2)
 			{
-				ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(0.0f, 560.0f, 0.0f));
-				ModelMatrices[j][i] = glm::rotate(ModelMatrices[j][i], glm::radians(Angle[2]), glm::vec3(0.0f, 0.0f, 1.0f));
-				ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(0.0f, -560.0f, 0.0f));
+				ModelMatrices[j][index] = glm::translate(ModelMatrices[j][index], glm::vec3(0.0f, 560.0f, 0.0f));
+				ModelMatrices[j][index] = glm::rotate(ModelMatrices[j][index], glm::radians(Angle[2][index]), glm::vec3(0.0f, 0.0f, 1.0f));
+				ModelMatrices[j][index] = glm::translate(ModelMatrices[j][index], glm::vec3(0.0f, -560.0f, 0.0f));
 			}
 			if (j > 3)
 			{
-				ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(0.0f, 630.0f, 0.0f));
-				ModelMatrices[j][i] = glm::rotate(ModelMatrices[j][i], glm::radians(Angle[3]), glm::vec3(1.0f, 0.0f, 0.0f));
-				ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(0.0f, -630.0f, 0.0f));
+				ModelMatrices[j][index] = glm::translate(ModelMatrices[j][index], glm::vec3(0.0f, 630.0f, 0.0f));
+				ModelMatrices[j][index] = glm::rotate(ModelMatrices[j][index], glm::radians(Angle[3][index]), glm::vec3(1.0f, 0.0f, 0.0f));
+				ModelMatrices[j][index] = glm::translate(ModelMatrices[j][index], glm::vec3(0.0f, -630.0f, 0.0f));
 			}
 			if (j > 4)
 			{
-				ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(-302.0f, 630.0f, 0.0f));
-				ModelMatrices[j][i] = glm::rotate(ModelMatrices[j][i], glm::radians(Angle[4]), glm::vec3(0.0f, 0.0f, 1.0f));
-				ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(302.0f, -630.0f, 0.0f));
+				ModelMatrices[j][index] = glm::translate(ModelMatrices[j][index], glm::vec3(-302.0f, 630.0f, 0.0f));
+				ModelMatrices[j][index] = glm::rotate(ModelMatrices[j][index], glm::radians(Angle[4][index]), glm::vec3(0.0f, 0.0f, 1.0f));
+				ModelMatrices[j][index] = glm::translate(ModelMatrices[j][index], glm::vec3(302.0f, -630.0f, 0.0f));
 			}
 			if (j > 5)
 			{
-				ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(-302.0f, 630.0f, 0.0f));
-				ModelMatrices[j][i] = glm::rotate(ModelMatrices[j][i], glm::radians(Angle[5]), glm::vec3(1.0f, 0.0f, 0.0f));
-				ModelMatrices[j][i] = glm::translate(ModelMatrices[j][i], glm::vec3(302.0f, -630.0f, 0.0f));
+				ModelMatrices[j][index] = glm::translate(ModelMatrices[j][index], glm::vec3(-302.0f, 630.0f, 0.0f));
+				ModelMatrices[j][index] = glm::rotate(ModelMatrices[j][index], glm::radians(Angle[5][index]), glm::vec3(1.0f, 0.0f, 0.0f));
+				ModelMatrices[j][index] = glm::translate(ModelMatrices[j][index], glm::vec3(302.0f, -630.0f, 0.0f));
 			}
 
-		}
+		//}
 
 	}
-	SetAABB();
+	SetAABB(index);
 	
 }
 
-float* Hazel::ABBIRB120::SetAngle(int Axis)
+float* Hazel::ABBIRB120::SetAngle(int index,int Axis)
 {
-	return &Angle[Axis - 1];
+	return &Angle[Axis - 1][index];
 }
 
-bool Hazel::ABBIRB120::SolveAngle(glm::vec3 Pos, glm::vec3 Eular)
+bool Hazel::ABBIRB120::SolveAngle(int index,glm::vec3 Pos, glm::vec3 Eular)
 {
 	glm::mat4 backwardTranslate = glm::mat4(1);;
 	backwardTranslate = glm::translate(backwardTranslate, glm::vec3(72.0f, 0.0f, 0.0f));
@@ -182,7 +193,7 @@ bool Hazel::ABBIRB120::SolveAngle(glm::vec3 Pos, glm::vec3 Eular)
 
 	if (SolvedAngles[0] < 165.0f && SolvedAngles[0] > -165.0f)
 	{
-		Angle[0] = SolvedAngles[0];
+		Angle[0][index] = SolvedAngles[0];
 	}
 	else
 	{
@@ -190,7 +201,7 @@ bool Hazel::ABBIRB120::SolveAngle(glm::vec3 Pos, glm::vec3 Eular)
 	}
 	if (SolvedAngles[1] < 110.0f && SolvedAngles[1] > -110.0f)
 	{
-		Angle[1] = SolvedAngles[1];
+		Angle[1][index] = SolvedAngles[1];
 	}
 	else
 	{
@@ -198,7 +209,7 @@ bool Hazel::ABBIRB120::SolveAngle(glm::vec3 Pos, glm::vec3 Eular)
 	}
 	if (SolvedAngles[2] < 70.0f && SolvedAngles[2] > -110.0f)
 	{
-		Angle[2] = SolvedAngles[2];
+		Angle[2][index] = SolvedAngles[2];
 	}
 	else
 	{
@@ -206,7 +217,7 @@ bool Hazel::ABBIRB120::SolveAngle(glm::vec3 Pos, glm::vec3 Eular)
 	}
 	if (SolvedAngles[3] < 160.0f && SolvedAngles[3] > -160.0f)
 	{
-		Angle[3] = SolvedAngles[3];
+		Angle[3][index] = SolvedAngles[3];
 	}
 	else
 	{
@@ -214,7 +225,7 @@ bool Hazel::ABBIRB120::SolveAngle(glm::vec3 Pos, glm::vec3 Eular)
 	}
 	if (SolvedAngles[4] < 120.0f && SolvedAngles[4] > -120.0f)
 	{
-		Angle[4] = SolvedAngles[4];
+		Angle[4][index] = SolvedAngles[4];
 	}
 	else
 	{
@@ -255,50 +266,51 @@ void Hazel::ABBIRB120::ChangePos(int index,glm::vec3 ChangedPos)
 		ModelMatrices[i][index] = glm::translate(ModelMatrices[i][index],ChangedPos/Scale);
 		DefaultModelMatrices[i][index] = glm::translate(DefaultModelMatrices[i][index], ChangedPos/Scale);
 	}
-	SetAABB();
+	ChangeAngle(index);
+	SetAABB(index);
 }
 
-void Hazel::ABBIRB120::SetAABB()
+void Hazel::ABBIRB120::SetAABB(int index)
 {
-	for(int n = 0; n < Amount; n++)
-	{
-		glm::vec4 vp = ModelMatrices[0][n] * glm::vec4(model->meshes[0].vertices[0].Position, 1.0f);
+// 	for(int n = 0; n < Amount; n++)
+// 	{
+		glm::vec4 vp = ModelMatrices[0][index] * glm::vec4(model->meshes[0].vertices[0].Position, 1.0f);
 
-		AABBMinPos[n] = glm::vec3(vp.x, vp.y, vp.z);
-		AABBMaxPos[n] = glm::vec3(vp.x, vp.y, vp.z);
+		AABBMinPos[index] = glm::vec3(vp.x, vp.y, vp.z);
+		AABBMaxPos[index] = glm::vec3(vp.x, vp.y, vp.z);
 
 
 		for (int i = 0; i < model->meshes.size(); i++)
 		{
 			for (int j = 0; j < model->meshes[i].vertices.size(); j++)
 			{
-				glm::vec4 thisvp = ModelMatrices[i][n] * glm::vec4(model->meshes[i].vertices[j].Position, 1.0f);
-				if (thisvp.x < AABBMinPos[n].x)
+				glm::vec4 thisvp = ModelMatrices[i][index] * glm::vec4(model->meshes[i].vertices[j].Position, 1.0f);
+				if (thisvp.x < AABBMinPos[index].x)
 				{
-					AABBMinPos[n].x = thisvp.x;
+					AABBMinPos[index].x = thisvp.x;
 				}
-				if (thisvp.x > AABBMaxPos[n].x)
+				if (thisvp.x > AABBMaxPos[index].x)
 				{
-					AABBMaxPos[n].x = thisvp.x;
+					AABBMaxPos[index].x = thisvp.x;
 				}
-				if (thisvp.y < AABBMinPos[n].y)
+				if (thisvp.y < AABBMinPos[index].y)
 				{
-					AABBMinPos[n].y = thisvp.y;
+					AABBMinPos[index].y = thisvp.y;
 				}
-				if (thisvp.y > AABBMaxPos[n].y)
+				if (thisvp.y > AABBMaxPos[index].y)
 				{
-					AABBMaxPos[n].y = thisvp.y;
+					AABBMaxPos[index].y = thisvp.y;
 				}
-				if (thisvp.z < AABBMinPos[n].z)
+				if (thisvp.z < AABBMinPos[index].z)
 				{
-					AABBMinPos[n].z = thisvp.z;
+					AABBMinPos[index].z = thisvp.z;
 				}
-				if (thisvp.z > AABBMaxPos[n].z)
+				if (thisvp.z > AABBMaxPos[index].z)
 				{
-					AABBMaxPos[n].z = thisvp.z;
+					AABBMaxPos[index].z = thisvp.z;
 				}
 			}
 		}
-	}
+	//}
 }
 
