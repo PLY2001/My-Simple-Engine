@@ -32,11 +32,24 @@ namespace Hazel {
 
 	void  OpenGLRendererAPI::CullFace(std::string face)
 	{
+		
 		if (face == "FRONT")
+		{
 			glCullFace(GL_FRONT);
-		else
+			glEnable(GL_CULL_FACE);
+		}	
+		else if(face == "BACK")
+		{
 			glCullFace(GL_BACK);
-		glEnable(GL_CULL_FACE);
+			glEnable(GL_CULL_FACE);
+		}
+		else if (face == "DISABLE")
+		{
+			glDisable(GL_CULL_FACE);
+		}
+			
+
+		
 	}
 
 }

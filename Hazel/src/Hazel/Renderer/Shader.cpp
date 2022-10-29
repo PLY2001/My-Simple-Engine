@@ -112,6 +112,10 @@ namespace Hazel {
 		glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &value[0][0]);
 	}
 
+	void Shader::SetUniformMat4Vector(const std::string& name, std::vector<glm::mat4>& value)
+	{
+		glUniformMatrix4fv(GetUniformLocation(name), value.size(), GL_FALSE, (float*)value.data());
+	}
 
 	int Shader::GetUniformLocation(const std::string& name)
 	{

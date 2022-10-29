@@ -15,6 +15,8 @@
 #include "Hazel/Renderer/OpenGLRendererAPI.h"
 #include "Objects/ABBIRB120.h"
 #include "Objects/Arrow.h"
+#include "Hazel/Renderer/AABB.h"
+#include "Hazel/Control/ControlLayer.h"
 
 namespace Hazel
 {
@@ -40,6 +42,7 @@ namespace Hazel
 	private:
 		std::unique_ptr<Window> m_Window;
 		ImGuiLayer* m_ImGuiLayer;
+		ControlLayer* m_ControlLayer;
 		bool m_Running = true;
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
@@ -65,17 +68,14 @@ namespace Hazel
 		std::shared_ptr<Shader> BricksShader;
 		std::shared_ptr<Shader> BloomShader;
 		std::shared_ptr<Shader> AABBShader;
-		std::shared_ptr<Shader> ArrowShader;
+		//std::shared_ptr<Shader> ArrowShader;
 
 		//灯光
 		float count = 0;
 		std::unique_ptr<Light> PointLight;
 		std::unique_ptr<Light> DirectLight;
 
-		//创建变换矩阵
 		
-		glm::mat4 ViewMatrix;
-		glm::mat4 ProjectionMatrix;
 
 		//创建实例化数组
 		std::vector<std::unique_ptr<InstanceBuffer>> insbo;
@@ -83,6 +83,7 @@ namespace Hazel
 
 		//创建Uniform缓冲对象
 		std::unique_ptr<UniformBuffer> ubo;
+		
 
 		//shadow map 分辨率
 		unsigned int ShadowMapWidth = 1024;
@@ -90,7 +91,7 @@ namespace Hazel
 
 		//创建帧缓冲1
 		std::unique_ptr<FrameBuffer> framebuffer1;
-		unsigned int QuadID;
+		unsigned int QuadID;//绘制主要内容的平面
 		//创建帧缓冲2
 		std::unique_ptr<FrameBuffer> framebuffer2;
 		//创建帧缓冲MSAA
@@ -101,23 +102,23 @@ namespace Hazel
 		std::unique_ptr<FrameBuffer> framebufferSM;
 		//创建帧缓冲4
 		std::unique_ptr<FrameBuffer> framebuffer4;
-		unsigned int QuadID4;
+		unsigned int QuadID4;//绘制阴影的平面
 		//创建帧缓冲5
 		std::unique_ptr<FrameBuffer> framebuffer5;
 		//创建帧缓冲shadowcubemap
 		std::unique_ptr<FrameBuffer> framebufferSCM;
 		//创建帧缓冲6
-		std::unique_ptr<FrameBuffer> framebuffer6;
+		//std::unique_ptr<FrameBuffer> framebuffer6;
 		//创建帧缓冲7
-		std::unique_ptr<FrameBuffer> framebuffer7;
-		unsigned int QuadID7;
+		//std::unique_ptr<FrameBuffer> framebuffer7;
+		//unsigned int QuadID7;
 
 		/*IRB120*/
 		std::shared_ptr<Model> IRB120Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		/*平面*/
 		std::shared_ptr<Model> plane;
 
-		std::shared_ptr<Model> ArrowModel;
+		//std::shared_ptr<Model> ArrowModel;
 		
 
 		//创建天空盒
@@ -135,14 +136,14 @@ namespace Hazel
 		enum class LightMode { Direct = 0, Point = 1 };
 		
 
-		//防止连按
-		//unsigned int FrameCount = 0;
+		
 
 		enum class MouseMode { Disable = 0, Enable = 1 };
-		MouseMode mousemode = MouseMode::Disable;
+		
 
-		glm::vec2 MousePos = glm::vec2(0);
-		glm::vec2 ClickPos = glm::vec2(0);
+		
+
+		std::unique_ptr<AABB> aabb;
 
 	private:
 		static Application* s_Instance;//单例，就需要在类里面直接声明当前类的唯一实例
@@ -150,6 +151,7 @@ namespace Hazel
 	public:
 		GraphicMode graphicmode = GraphicMode::Normal;
 		LightMode lightmode = LightMode::Direct;
+		MouseMode mousemode = MouseMode::Disable;
 
 		
 		bool AngleChanged = false;
@@ -158,15 +160,24 @@ namespace Hazel
 
 		inline glm::vec2 GetClickPos() { return ClickPos; }
 
-		bool Choosed = false;
-		int index = 0;
+		//bool Choosed = false;
+		//int index = 0;
 
-		std::unique_ptr<Arrow> arrow;
+		//std::unique_ptr<Arrow> arrow;
 		bool ToMove = false;
 		int axis = 0;
 
 		bool first = true;
 		glm::vec3 LastWorldClickPos = glm::vec3(1);
+
+		std::vector<int> shaderIDs;
+		glm::vec2 MousePos = glm::vec2(0);
+		glm::vec2 ClickPos = glm::vec2(0);
+
+		//创建变换矩阵
+
+		glm::mat4 ViewMatrix;
+		glm::mat4 ProjectionMatrix;
 
 	};
 

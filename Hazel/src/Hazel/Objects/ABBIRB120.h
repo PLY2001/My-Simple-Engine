@@ -16,19 +16,24 @@ namespace Hazel {
 		std::vector<std::vector<glm::mat4>> DefaultModelMatrices;//生成模型的model变换矩阵数组
 		void AddAmount();
 		int GetAmount();
-		void ChangeAngle(int index);
-		float* SetAngle(int index,int Axis);
-		bool SolveAngle(int index,glm::vec3 Pos,glm::vec3 Eular);
+		void ChangeAngle();
+		float* SetAngle(int Axis);
+		bool SolveAngle(glm::vec3 Pos,glm::vec3 Eular);
 		
 		std::shared_ptr<Model> model;
 
-		glm::vec3 GetAABBMaxPos(int index);
-		glm::vec3 GetAABBMinPos(int index);
+		glm::vec3 GetAABBMaxPos();
+		glm::vec3 GetAABBMinPos();
 		
 		glm::vec3 GetScale();
-		glm::vec3 GetPos(int index);
+		glm::vec3 GetPos();
 		
-		void ChangePos(int index,glm::vec3 ChangedPos);
+		void ChangePos(glm::vec3 ChangedPos);
+
+		void SetChoosedIndex(int index);
+		inline int GetChoosedIndex() { return m_index; }
+
+		bool CheckCollision(int index, glm::vec3 CheckPos);
 
 	private:
 		std::vector<glm::vec3> m_Pos;
@@ -43,6 +48,8 @@ namespace Hazel {
 		std::vector<glm::vec3> AABBMinPos;
 		std::vector<glm::vec3> AABBMaxPos;
 		void SetAABB(int index);
+
+		int m_index = -1;
 
 	public:
 		

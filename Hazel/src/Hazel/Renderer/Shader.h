@@ -28,6 +28,7 @@ namespace Hazel {
 		void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
 		void SetUniform1i(const std::string& name, int value);
 		void SetUniformMat4(const std::string& name, glm::mat4& value);
+		void SetUniformMat4Vector(const std::string& name, std::vector<glm::mat4>& value);
 
 	private:
 		int GetUniformLocation(const std::string& name);

@@ -122,65 +122,67 @@ namespace Hazel {
 		ImGui::SameLine();
 		ImGui::RadioButton("Pos&Eular", (int*)&Application::Get().irb120->controlmode, 1);
 
-		int index = Application::Get().index;
-
-		if((int)Application::Get().irb120->controlmode == 0)
+		//int index = Application::Get().index;
+		if(Application::Get().irb120->GetChoosedIndex()>-1)
 		{
-			if (ImGui::SliderFloat("Angle1", Application::Get().irb120->SetAngle(index, 1), -165.0f, 165.0f))
+			if ((int)Application::Get().irb120->controlmode == 0)
 			{
-				Application::Get().AngleChanged = true;
+				if (ImGui::SliderFloat("Angle1", Application::Get().irb120->SetAngle(1), -165.0f, 165.0f))
+				{
+					Application::Get().AngleChanged = true;
+				}
+				if (ImGui::SliderFloat("Angle2", Application::Get().irb120->SetAngle(2), -110.0f, 110.0f))
+				{
+					Application::Get().AngleChanged = true;
+				}
+				if (ImGui::SliderFloat("Angle3", Application::Get().irb120->SetAngle(3), -110.0f, 70.0f))
+				{
+					Application::Get().AngleChanged = true;
+				}
+				if (ImGui::SliderFloat("Angle4", Application::Get().irb120->SetAngle(4), -160.0f, 160.0f))
+				{
+					Application::Get().AngleChanged = true;
+				}
+				if (ImGui::SliderFloat("Angle5", Application::Get().irb120->SetAngle(5), -120.0f, 120.0f))
+				{
+					Application::Get().AngleChanged = true;
+				}
+				if (ImGui::SliderFloat("Angle6", Application::Get().irb120->SetAngle(6), -400.0f, 400.0f))
+				{
+					Application::Get().AngleChanged = true;
+				}
 			}
-			if (ImGui::SliderFloat("Angle2", Application::Get().irb120->SetAngle(index, 2), -110.0f, 110.0f))
-			{
-				Application::Get().AngleChanged = true;
-			}
-			if (ImGui::SliderFloat("Angle3", Application::Get().irb120->SetAngle(index, 3), -110.0f, 70.0f))
-			{
-				Application::Get().AngleChanged = true;
-			}
-			if (ImGui::SliderFloat("Angle4", Application::Get().irb120->SetAngle(index, 4), -160.0f, 160.0f))
-			{
-				Application::Get().AngleChanged = true;
-			}
-			if (ImGui::SliderFloat("Angle5", Application::Get().irb120->SetAngle(index, 5), -120.0f, 120.0f))
-			{
-				Application::Get().AngleChanged = true;
-			}
-			if (ImGui::SliderFloat("Angle6", Application::Get().irb120->SetAngle(index, 6), -400.0f, 400.0f))
-			{
-				Application::Get().AngleChanged = true;
-			}
-		}
 
-		if ((int)Application::Get().irb120->controlmode == 1)
-		{
-			glm::vec3 Scale = Application::Get().irb120->GetScale();
-			if (ImGui::SliderFloat("PosX", &Pos.x, -652.0f * Scale.x, 652.0f * Scale.x))
+			if ((int)Application::Get().irb120->controlmode == 1)
 			{
-				Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(index, Pos / Scale,Eular);
+				glm::vec3 Scale = Application::Get().irb120->GetScale();
+				if (ImGui::SliderFloat("PosX", &Pos.x, -652.0f * Scale.x, 652.0f * Scale.x))
+				{
+					Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);
+				}
+				if (ImGui::SliderFloat("PosY", &Pos.y, -184.0f * Scale.y, 1054.0f * Scale.y))
+				{
+					Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+				}
+				if (ImGui::SliderFloat("PosZ", &Pos.z, -652.0f * Scale.z, 652.0f * Scale.z))
+				{
+					Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+				}
+				if (ImGui::SliderFloat("EularX", &Eular.x, -180.0f, 180.0f))
+				{
+					Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+				}
+				if (ImGui::SliderFloat("EularY", &Eular.y, -180.0f, 180.0f))
+				{
+					Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+				}
+				if (ImGui::SliderFloat("EularZ", &Eular.z, -180.0f, 180.0f))
+				{
+					Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+				}
+
+
 			}
-			if (ImGui::SliderFloat("PosY", &Pos.y, -184.0f * Scale.y, 1054.0f * Scale.y))
-			{
-				Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(index, Pos / Scale, Eular);;
-			}
-			if (ImGui::SliderFloat("PosZ", &Pos.z, -652.0f * Scale.z, 652.0f * Scale.z))
-			{
-				Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(index, Pos / Scale, Eular);;
-			}
-			if (ImGui::SliderFloat("EularX", &Eular.x, -180.0f, 180.0f))
-			{
-				Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(index, Pos / Scale, Eular);;
-			}
-			if (ImGui::SliderFloat("EularY", &Eular.y, -180.0f, 180.0f))
-			{
-				Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(index, Pos / Scale, Eular);;
-			}
-			if (ImGui::SliderFloat("EularZ", &Eular.z, -180.0f, 180.0f))
-			{
-				Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(index, Pos / Scale, Eular);;
-			}
-			
-			
 		}
 
 		//int index = Application::Get().index;
@@ -191,7 +193,8 @@ namespace Hazel {
 // 		}
 		
 		ImGui::Text("ClickPos = ( %f , %f )", Application::Get().GetClickPos().x, Application::Get().GetClickPos().y);
-		//ImGui::Checkbox("Choosed",&Application::Get().Choosed);
+		ImGui::Text("index = %d", Application::Get().irb120->GetChoosedIndex());
+		ImGui::Checkbox("ToMove",&Application::Get().ToMove);
 
 
 // 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
