@@ -1389,7 +1389,7 @@
     <ClInclude Include="src\Hazel\Objects\ABBIRB120.h" />
     <ClInclude Include="src\Hazel\Objects\Arrow.h" />
     <ClInclude Include="src\Hazel\Renderer\AABB.h" />
-    <ClInclude Include="src\Hazel\Control\ControlLayer.h" />
+    <ClInclude Include="src\Hazel\RenderLayers\ControlLayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Hazel\Application.cpp">
@@ -1455,6 +1455,6 @@
     <ClCompile Include="src\Hazel\Objects\ABBIRB120.cpp" />
     <ClCompile Include="src\Hazel\Objects\Arrow.cpp" />
     <ClCompile Include="src\Hazel\Renderer\AABB.cpp" />
-    <ClCompile Include="src\Hazel\Control\ControlLayer.cpp" />
+    <ClCompile Include="src\Hazel\RenderLayers\ControlLayer.cpp" />
   </ItemGroup>
 </Project>

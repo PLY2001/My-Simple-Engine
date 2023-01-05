@@ -16,7 +16,7 @@
 #include "Objects/ABBIRB120.h"
 #include "Objects/Arrow.h"
 #include "Hazel/Renderer/AABB.h"
-#include "Hazel/Control/ControlLayer.h"
+#include "Hazel/RenderLayers/ControlLayer.h"
 
 namespace Hazel
 {

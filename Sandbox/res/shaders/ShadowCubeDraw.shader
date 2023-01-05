@@ -118,7 +118,7 @@ void main()
 	if(d_Receiver>far_plane)
 	shadowColor=0.0f;
 	
-	color =vec4(vec3(0.0f),shadowColor); 
+	color =vec4(vec3(0.0f),shadowColor*0.2f); 
 	//color =vec4(1.0f,0.0f,0.0f,1.0f); 
 
 }

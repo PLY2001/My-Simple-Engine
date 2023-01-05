@@ -60,7 +60,7 @@ class Sandbox : public Hazel::Application
 public:
 	Sandbox()
 	{
-		PushLayer(new ExampleLayer());//示例层，显示外设输入事件
+		PushOverlay(new ExampleLayer());//示例层，显示外设输入事件，第三层
 		//PushOverlay(new Hazel::ImGuiLayer());//ImGui层
 	}
 	~Sandbox()

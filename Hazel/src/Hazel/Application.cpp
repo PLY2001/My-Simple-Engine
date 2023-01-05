@@ -23,9 +23,9 @@ namespace Hazel
 		m_Window = std::unique_ptr<Window>(Window::Create());//创建窗口，窗口也是单例
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));//设置窗口的回调函数为OnEvent，这是窗口和Application的唯一交流通道
 
-		m_ImGuiLayer = new ImGuiLayer();//创建imgui层
+		m_ImGuiLayer = new ImGuiLayer();//创建imgui层，第一层
 		PushOverlay(m_ImGuiLayer);
-		m_ControlLayer = new ControlLayer();
+		m_ControlLayer = new ControlLayer();//控制箭头层，第二层
 		PushOverlay(m_ControlLayer);
 		
 
@@ -57,7 +57,7 @@ namespace Hazel
 // 		}
 
 		/*IRB120*/
-		IRB120Model.reset(new Model("res/models/ABB_IRB120.obj"));//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
+		IRB120Model.reset(new Model("res/models/ABB_IRB120/ABB_IRB120.obj"));//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		irb120.reset(new ABBIRB120(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f,0.01f,0.01f), IRB120Model));
 		irb120->InitModelMatrices();
 		//创建实例化数组
@@ -114,7 +114,7 @@ namespace Hazel
 		//QuadID7 = framebuffer7->GenQuad();//用于绘制贴图的四边形
 
 		//创建天空盒
-		skybox.reset(new Skybox("Church"));
+		skybox.reset(new Skybox("Factory"));
 		SkyboxID = skybox->GenBox();//用于绘制天空盒的立方体
 
 		//因为天空盒需要，设置深度函数
@@ -182,6 +182,8 @@ namespace Hazel
 		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));//窗口重设大小
 
 		//HZ_CORE_TRACE("{0}", e);//显示事件
+
+		
 		
 	}
 
@@ -604,22 +606,24 @@ namespace Hazel
 			ClickPos = glm::vec2(MousePos.x/m_Window->GetWidth()*2.0f-1.0f,MousePos.y/m_Window->GetHeight()*2.0f-1.0f);
 			//ClickPos = MousePos;
 			
- 			for(float ClipZ = 0.0f;ClipZ<1.0f;ClipZ+=0.0001f)
+ 			for(float ClipZ = 1.0f;ClipZ>0.0f;ClipZ-=0.0001f)//OpenGL的相机中，z轴指向自己，z越大越近
  			{
  				glm::vec4 WorldClickPos = glm::inverse(ViewMatrix)*glm::inverse(ProjectionMatrix) * glm::vec4(ClickPos, ClipZ, 1.0f);
  				WorldClickPos /= WorldClickPos.w;
 
 				
 				//检测irb120碰撞
-				
-				for(int i = 0; i < irb120->GetAmount(); i++)
+				if(!ToMove)
 				{
-					if (irb120->CheckCollision(i, WorldClickPos))
+					for (int i = 0; i < irb120->GetAmount(); i++)
 					{
-						irb120->SetChoosedIndex(i);
-						break;
+						if (irb120->CheckCollision(i, WorldClickPos))
+						{
+							irb120->SetChoosedIndex(i);
+							break;
+						}
+
 					}
-					
 				}
 
 				//检测arrow碰撞
