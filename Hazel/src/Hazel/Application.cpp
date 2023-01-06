@@ -672,18 +672,55 @@ namespace Hazel
 				LastWorldClickPos = WorldClickPos;
 				first = false;
 			}
-
-			if (axis == 0)
+			if (m_ControlLayer->GetArrowMode() == ControlLayer::ArrowMode::Trans)
 			{
-				irb120->ChangePos(glm::vec3(WorldClickPos.x- LastWorldClickPos.x, 0.0f, 0.0f));
+				if (axis == 0)
+				{
+					irb120->ChangePos(glm::vec3(WorldClickPos.x - LastWorldClickPos.x, 0.0f, 0.0f));
+				}
+				if (axis == 1)
+				{
+					irb120->ChangePos(glm::vec3(0.0f, WorldClickPos.y - LastWorldClickPos.y, 0.0f));
+				}
+				if (axis == 2)
+				{
+					irb120->ChangePos(glm::vec3(0.0f, 0.0f, WorldClickPos.z - LastWorldClickPos.z));
+				}
 			}
-			if (axis == 1)
+			if (m_ControlLayer->GetArrowMode() == ControlLayer::ArrowMode::Rotat)
 			{
-				irb120->ChangePos(glm::vec3(0.0f, WorldClickPos.y - LastWorldClickPos.y, 0.0f));
-			}
-			if (axis == 2)
-			{
-				irb120->ChangePos(glm::vec3(0.0f, 0.0f, WorldClickPos.z - LastWorldClickPos.z));
+				if (axis == 0)//y
+				{
+					glm::vec2 WorldClickVec = glm::normalize(glm::vec2(WorldClickPos.x, WorldClickPos.z));
+					glm::vec2 LastWorldClickVec = glm::normalize(glm::vec2(LastWorldClickPos.x, LastWorldClickPos.z));
+					float RotateAngle = -acos(glm::dot(WorldClickVec, LastWorldClickVec))*glm::cross(glm::vec3(WorldClickVec.x,0.0f, WorldClickVec.y), glm::vec3(LastWorldClickVec.x,0.0f, LastWorldClickVec.y)).y;
+					if (RotateAngle <= 180.0f && RotateAngle >= -180.0f)
+					{
+						irb120->ChangeRotate(glm::vec3(0.0f, RotateAngle, 0.0f), 1);
+					}
+				}
+				if (axis == 1)//z
+				{
+					glm::vec2 WorldClickVec = glm::normalize(glm::vec2(WorldClickPos.x, WorldClickPos.y));
+					glm::vec2 LastWorldClickVec = glm::normalize(glm::vec2(LastWorldClickPos.x, LastWorldClickPos.y));
+					float RotateAngle = -acos(glm::dot(WorldClickVec, LastWorldClickVec)) * glm::cross(glm::vec3(WorldClickVec.x, 0.0f, WorldClickVec.y), glm::vec3(LastWorldClickVec.x, 0.0f, LastWorldClickVec.y)).y;
+					if (RotateAngle<=180.0f && RotateAngle >= -180.0f)
+					{
+						irb120->ChangeRotate(glm::vec3(0.0f, 0.0f, RotateAngle), 2);
+					}
+				}
+				if (axis == 2)//x
+				{
+					glm::vec2 WorldClickVec = glm::normalize(glm::vec2(WorldClickPos.y, WorldClickPos.z));
+					glm::vec2 LastWorldClickVec = glm::normalize(glm::vec2(LastWorldClickPos.y, LastWorldClickPos.z));
+					float RotateAngle = -acos(glm::dot(WorldClickVec, LastWorldClickVec)) * glm::cross(glm::vec3(WorldClickVec.x, 0.0f, WorldClickVec.y), glm::vec3(LastWorldClickVec.x, 0.0f, LastWorldClickVec.y)).y;
+					if (RotateAngle <= 180.0f && RotateAngle >= -180.0f)
+					{
+						irb120->ChangeRotate(glm::vec3(RotateAngle, 0.0f, 0.0f), 0);
+					}
+				}
+				
+				
 			}
 			LastWorldClickPos = WorldClickPos;
 		}

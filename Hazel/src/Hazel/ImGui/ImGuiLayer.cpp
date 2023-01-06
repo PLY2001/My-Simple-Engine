@@ -194,6 +194,10 @@ namespace Hazel {
 		
 		ImGui::Text("ClickPos = ( %f , %f )", Application::Get().GetClickPos().x, Application::Get().GetClickPos().y);
 		ImGui::Text("index = %d", Application::Get().irb120->GetChoosedIndex());
+		if (Application::Get().irb120->GetChoosedIndex() > -1)
+		{
+			ImGui::Text("Rotation = ( %f , %f , %f )", Application::Get().irb120->GetRotate().x/PI*180.0f, Application::Get().irb120->GetRotate().y / PI * 180.0f, Application::Get().irb120->GetRotate().z / PI * 180.0f);
+		}
 		ImGui::Checkbox("ToMove",&Application::Get().ToMove);
 
 

@@ -15,7 +15,9 @@ namespace Hazel {
 	{
 		ArrowShader.reset(new Shader("res/shaders/Arrow.shader"));
 		ArrowModel.reset(new Model("res/models/arrow.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
-		arrow.reset(new Arrow(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f), ArrowModel));
+		arrow.reset(new Arrow(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.015f, 0.015f, 0.015f), ArrowModel));
+		RotateArrowModel.reset(new Model("res/models/rotate.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
+		rotateArrow.reset(new Arrow(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.015f, 0.015f, 0.015f), RotateArrowModel));
 		Application::Get().shaderIDs.push_back(ArrowShader->RendererID);
 	}
 
@@ -28,10 +30,27 @@ namespace Hazel {
 	{
 		if (Application::Get().irb120->GetChoosedIndex() > -1 )
 		{
-			arrow->ChangePos(Application::Get().irb120->GetPos());
+			pos = Application::Get().ProjectionMatrix * Application::Get().ViewMatrix * glm::vec4(Application::Get().irb120->GetPos(), 1.0f);
+			pos /= pos.w;
+			Arrow_pos = glm::inverse(Application::Get().ViewMatrix) * glm::inverse(Application::Get().ProjectionMatrix) * glm::vec4(pos.x,pos.y, 0.5f, 1.0f);
+			Arrow_pos /= Arrow_pos.w;
+
+			arrow->ChangePos(glm::vec3(Arrow_pos));
+			rotateArrow->ChangePos(glm::vec3(Arrow_pos));
+
+			arrow->ChangeRotate(Application::Get().irb120->GetRotate());
+			rotateArrow->ChangeRotate(Application::Get().irb120->GetRotate());
+
 			glDisable(GL_DEPTH_TEST);
 			ArrowShader->Bind();
-			ArrowShader->SetUniformMat4("model", arrow->GetModelMatrix());
+			if (arrowmode == ArrowMode::Trans)
+			{
+				ArrowShader->SetUniformMat4("model", arrow->GetModelMatrix());
+			}
+			if (arrowmode == ArrowMode::Rotat)
+			{
+				ArrowShader->SetUniformMat4("model", rotateArrow->GetModelMatrix());
+			}
 			if (Application::Get().ToMove)
 			{
 				ArrowShader->SetUniform1f("Clicked", 1.0f);
@@ -40,7 +59,15 @@ namespace Hazel {
 			{
 				ArrowShader->SetUniform1f("Clicked", 0.0f);
 			}
-			OpenGLRendererAPI::Draw(ArrowModel, ArrowShader);
+
+			if(arrowmode == ArrowMode::Trans)
+			{	
+				OpenGLRendererAPI::Draw(ArrowModel, ArrowShader);
+			}
+			if(arrowmode == ArrowMode::Rotat)
+			{
+				OpenGLRendererAPI::Draw(RotateArrowModel, ArrowShader);
+			}
 			ArrowShader->Unbind();
 			glEnable(GL_DEPTH_TEST);
 		}
@@ -50,11 +77,25 @@ namespace Hazel {
 	{
 		EventDispatcher dispatcher(event);
 		dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(OnMouseButtonEvent));//Êó±êµã»÷
+		dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(OnKeyPressedEvent));//Êó±êµã»÷
 	}
 
-	void ControlLayer::OnImGuiRender()
+	bool ControlLayer::OnKeyPressedEvent(KeyPressedEvent& e)
 	{
-
+		
+		if (e.GetKeyCode() == HZ_KEY_1)
+		{
+			arrowmode = ArrowMode::None;
+		}
+		if (e.GetKeyCode() == HZ_KEY_2)
+		{
+			arrowmode = ArrowMode::Trans;
+		}
+		if (e.GetKeyCode() == HZ_KEY_3)
+		{
+			arrowmode = ArrowMode::Rotat;
+		}
+		return true;
 	}
 
 	bool ControlLayer::OnMouseButtonEvent(MouseButtonPressedEvent& e)
@@ -74,23 +115,48 @@ namespace Hazel {
 				WorldClickPos /= WorldClickPos.w;
 
 				//¼ì²âarrowÅö×²
-				for (int i = 0; i < 3; i++)
+				if(arrowmode == ArrowMode::Trans)
 				{
-					if (WorldClickPos.x > arrow->GetAABBMinPos(i).x&& WorldClickPos.x < arrow->GetAABBMaxPos(i).x)
+					for (int i = 0; i < 3; i++)
 					{
-						if (WorldClickPos.y > arrow->GetAABBMinPos(i).y&& WorldClickPos.y < arrow->GetAABBMaxPos(i).y)
+						if (WorldClickPos.x > arrow->GetAABBMinPos(i).x&& WorldClickPos.x < arrow->GetAABBMaxPos(i).x)
 						{
-							if (WorldClickPos.z > arrow->GetAABBMinPos(i).z&& WorldClickPos.z < arrow->GetAABBMaxPos(i).z)
+							if (WorldClickPos.y > arrow->GetAABBMinPos(i).y&& WorldClickPos.y < arrow->GetAABBMaxPos(i).y)
 							{
-								Application::Get().ToMove = true;
-								//Application::Get().Choosed = true;
-								Application::Get().first = true;
-								Application::Get().axis = i;
-								break;
+								if (WorldClickPos.z > arrow->GetAABBMinPos(i).z&& WorldClickPos.z < arrow->GetAABBMaxPos(i).z)
+								{
+									Application::Get().ToMove = true;
+									//Application::Get().Choosed = true;
+									Application::Get().first = true;
+									Application::Get().axis = i;
+									break;
+								}
+
 							}
 
 						}
+					}
+				}
+				if (arrowmode == ArrowMode::Rotat)
+				{
+					for (int i = 0; i < 3; i++)
+					{
+						if (WorldClickPos.x > rotateArrow->GetAABBMinPos(i).x&& WorldClickPos.x < rotateArrow->GetAABBMaxPos(i).x)
+						{
+							if (WorldClickPos.y > rotateArrow->GetAABBMinPos(i).y&& WorldClickPos.y < rotateArrow->GetAABBMaxPos(i).y)
+							{
+								if (WorldClickPos.z > rotateArrow->GetAABBMinPos(i).z&& WorldClickPos.z < rotateArrow->GetAABBMaxPos(i).z)
+								{
+									Application::Get().ToMove = true;
+									//Application::Get().Choosed = true;
+									Application::Get().first = true;
+									Application::Get().axis = i;
+									break;
+								}
 
+							}
+
+						}
 					}
 				}
 
@@ -99,5 +165,9 @@ namespace Hazel {
 		}
 
 		return true;
+	}
+	void ControlLayer::OnImGuiRender()
+	{
+
 	}
 }

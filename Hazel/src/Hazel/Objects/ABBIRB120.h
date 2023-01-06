@@ -27,8 +27,10 @@ namespace Hazel {
 		
 		glm::vec3 GetScale();
 		glm::vec3 GetPos();
+		glm::vec3 GetRotate();
 		
 		void ChangePos(glm::vec3 ChangedPos);
+		void ChangeRotate(glm::vec3 ChangedRotate, int RotateAxis);
 
 		void SetChoosedIndex(int index);
 		inline int GetChoosedIndex() { return m_index; }
@@ -37,7 +39,7 @@ namespace Hazel {
 
 	private:
 		std::vector<glm::vec3> m_Pos;
-		glm::vec3 Rotation;
+		std::vector<glm::vec3> m_Rotate;
 		glm::vec3 Scale;
 		
 		std::vector<std::vector<float>> Angle;

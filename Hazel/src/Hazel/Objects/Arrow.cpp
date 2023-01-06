@@ -7,6 +7,7 @@ namespace Hazel{
 	{
 		ModelMatrix = glm::mat4(1);
 		ModelMatrix = glm::translate(ModelMatrix, Pos);
+		ModelMatrix = glm::scale(ModelMatrix,Scale);
 		for (int i = 0; i < 3; i++)
 		{
 			AABBMinPos.push_back(Pos);
@@ -17,7 +18,14 @@ namespace Hazel{
 
 	void Arrow::ChangePos(glm::vec3 ChangedPos)
 	{
+
 		Pos = ChangedPos;
+		SetAABB();
+	}
+
+	void Arrow::ChangeRotate(glm::vec3 ChangedRotate)
+	{
+		Rotation = ChangedRotate;
 		SetAABB();
 	}
 
@@ -25,6 +33,10 @@ namespace Hazel{
 	{
 		ModelMatrix = glm::mat4(1);
 		ModelMatrix = glm::translate(ModelMatrix, Pos);
+		ModelMatrix = glm::scale(ModelMatrix, Scale);
+		ModelMatrix = glm::rotate(ModelMatrix, Rotation.x,glm::vec3(1.0f,0.0f,0.0f));
+		ModelMatrix = glm::rotate(ModelMatrix, Rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+		ModelMatrix = glm::rotate(ModelMatrix, Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 		return ModelMatrix;
 	}
 
@@ -40,6 +52,7 @@ namespace Hazel{
 
 	void Arrow::SetAABB()
 	{
+
 		for (int n = 0; n < 3; n++)
 		{
 			glm::vec4 vp = ModelMatrix * glm::vec4(model->meshes[n].vertices[0].Position, 1.0f);

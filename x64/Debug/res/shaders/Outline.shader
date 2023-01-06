@@ -13,10 +13,10 @@ layout(std140) uniform Matrices
 
 void main() 
 { 
-	vec3 Oposition=normalize(normal)*0.05f+position;
+	vec3 Oposition=normalize(normal)*2.0f+position;
 	vec4 Cposition=u_projection*u_view*model*vec4(Oposition,1.0f);
 	Cposition.z+=0.0015f;
-	gl_Position =  Cposition;
+	gl_Position = Cposition;
 
 }
 
@@ -31,5 +31,5 @@ void main()
 {
 	
 
-	color =vec4(1.0f,1.0f,1.0f,1.0f); 
+	color =vec4(0.0f,0.0f,1.0f,1.0f); 
 }

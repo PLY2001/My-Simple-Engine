@@ -2,9 +2,10 @@
 #include "ABBIRB120.h"
 
 namespace Hazel {
-	ABBIRB120::ABBIRB120(glm::vec3 Pos, glm::vec3 Rotation, glm::vec3 Scale, std::shared_ptr<Model>& model) :Rotation(Rotation), Scale(Scale), model(model)
+	ABBIRB120::ABBIRB120(glm::vec3 Pos, glm::vec3 Rotation, glm::vec3 Scale, std::shared_ptr<Model>& model) : Scale(Scale), model(model)
 	{
 		m_Pos.push_back(Pos);
+		m_Rotate.push_back(Rotation);
 		Angle.resize(6);
 		for (int i = 0; i < 6; i++)
 		{
@@ -43,6 +44,7 @@ namespace Hazel {
 			for (int j = 0; j < increase; j++)
 			{
 				m_Pos.push_back(glm::vec3((Amount - 1) * 10.0f, 0.0f, 0.0f));
+				m_Rotate.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 			}
 			for (int i = 0; i < model->meshes.size(); i++)
 			{
@@ -50,6 +52,7 @@ namespace Hazel {
 				{
 					ModelMatrices[i].push_back(ModelMatrix(glm::vec3(m_Pos.back())).matrix);
 					ModelMatrices[i].back() = glm::scale(ModelMatrices[i].back(), Scale);
+
 					DefaultModelMatrices[i].push_back(ModelMatrix(glm::vec3(m_Pos.back())).matrix);
 					DefaultModelMatrices[i].back() = glm::scale(DefaultModelMatrices[i].back(), Scale);
 				}
@@ -259,6 +262,11 @@ namespace Hazel {
 		return m_Pos[m_index];
 	}
 
+	glm::vec3 ABBIRB120::GetRotate()
+	{
+		return m_Rotate[m_index];
+	}
+
 	void ABBIRB120::ChangePos(glm::vec3 ChangedPos)
 	{
 		m_Pos[m_index] += ChangedPos;
@@ -266,6 +274,21 @@ namespace Hazel {
 		{
 			//ModelMatrices[i][index] = glm::translate(ModelMatrices[i][index],ChangedPos/Scale);
 			DefaultModelMatrices[i][m_index] = glm::translate(DefaultModelMatrices[i][m_index], ChangedPos / Scale);
+		}
+		ChangeAngle();
+		SetAABB(m_index);
+	}
+
+	void ABBIRB120::ChangeRotate(glm::vec3 ChangedRotate,int RotateAxis)
+	{
+		
+		m_Rotate[m_index] += ChangedRotate;
+		for (int i = 0; i < model->meshes.size(); i++)
+		{
+			//ModelMatrices[i][index] = glm::translate(ModelMatrices[i][index],ChangedPos/Scale);
+			glm::vec3 RotateAxisVec3 = glm::vec3(0.0f);
+			RotateAxisVec3[RotateAxis] = 1.0f;
+			DefaultModelMatrices[i][m_index] = glm::rotate(DefaultModelMatrices[i][m_index], ChangedRotate[RotateAxis], RotateAxisVec3);
 		}
 		ChangeAngle();
 		SetAABB(m_index);

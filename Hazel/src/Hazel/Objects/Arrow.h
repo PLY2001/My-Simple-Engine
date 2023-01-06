@@ -10,6 +10,7 @@ namespace Hazel {
 		~Arrow() = default;
 
 		void ChangePos(glm::vec3 ChangedPos);
+		void ChangeRotate(glm::vec3 ChangedRotate);
 		glm::mat4 GetModelMatrix();
 		std::shared_ptr<Model> model;
 
