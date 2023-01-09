@@ -196,9 +196,12 @@ namespace Hazel {
 		ImGui::Text("index = %d", Application::Get().irb120->GetChoosedIndex());
 		if (Application::Get().irb120->GetChoosedIndex() > -1)
 		{
-			ImGui::Text("Rotation = ( %f , %f , %f )", Application::Get().irb120->GetRotate().x/PI*180.0f, Application::Get().irb120->GetRotate().y / PI * 180.0f, Application::Get().irb120->GetRotate().z / PI * 180.0f);
+			ImGui::Text("Position(mm) = ( %f , %f , %f )", Application::Get().irb120->GetPos().x*100, Application::Get().irb120->GetPos().y*100, Application::Get().irb120->GetPos().z*100);
+			ImGui::Text("Rotation(degree) = ( %f , %f , %f )", Application::Get().irb120->GetRotate().x/PI*180.0f, Application::Get().irb120->GetRotate().y / PI * 180.0f, Application::Get().irb120->GetRotate().z / PI * 180.0f);
 		}
 		ImGui::Checkbox("ToMove",&Application::Get().ToMove);
+		//ImGui::Text("LightPosition = ( %f , %f , %f )", Application::Get().DirectLight->Pos.x, Application::Get().DirectLight->Pos.y, Application::Get().DirectLight->Pos.z);
+		
 
 
 // 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f

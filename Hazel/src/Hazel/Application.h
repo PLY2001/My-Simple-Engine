@@ -36,7 +36,7 @@ namespace Hazel
 		inline static Application& Get() { return *s_Instance; }
 
 	public:
-		
+
 		//unsigned int ModelCount = 1;//模型的数量
 
 	private:
@@ -165,10 +165,12 @@ namespace Hazel
 
 		//std::unique_ptr<Arrow> arrow;
 		bool ToMove = false;
+		bool Choosed = false;
 		int axis = 0;
 
 		bool first = true;
 		glm::vec3 LastWorldClickPos = glm::vec3(1);
+		//glm::vec3 LastArrowPos = glm::vec3(1);
 
 		std::vector<int> shaderIDs;
 		glm::vec2 MousePos = glm::vec2(0);

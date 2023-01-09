@@ -18,7 +18,7 @@ namespace Hazel {
 	void ABBIRB120::InitModelMatrices()
 	{
 		//创建变换矩阵
-		ModelMatrices.resize(model->meshes.size());
+		ModelMatrices.resize(model->meshes.size());//[i][j]，i是关节索引，j是个体索引
 		DefaultModelMatrices.resize(model->meshes.size());
 		for (int i = 0; i < model->meshes.size(); i++)
 		{
@@ -273,7 +273,13 @@ namespace Hazel {
 		for (int i = 0; i < model->meshes.size(); i++)
 		{
 			//ModelMatrices[i][index] = glm::translate(ModelMatrices[i][index],ChangedPos/Scale);
+			DefaultModelMatrices[i][m_index] = glm::rotate(DefaultModelMatrices[i][m_index], -m_Rotate[m_index].x, glm::vec3(1.0f,0.0f,0.0f));
+			DefaultModelMatrices[i][m_index] = glm::rotate(DefaultModelMatrices[i][m_index], -m_Rotate[m_index].y, glm::vec3(0.0f, 1.0f, 0.0f));
+			DefaultModelMatrices[i][m_index] = glm::rotate(DefaultModelMatrices[i][m_index], -m_Rotate[m_index].z, glm::vec3(0.0f, 0.0f, 1.0f));
 			DefaultModelMatrices[i][m_index] = glm::translate(DefaultModelMatrices[i][m_index], ChangedPos / Scale);
+			DefaultModelMatrices[i][m_index] = glm::rotate(DefaultModelMatrices[i][m_index], m_Rotate[m_index].z, glm::vec3(0.0f, 0.0f, 1.0f));
+			DefaultModelMatrices[i][m_index] = glm::rotate(DefaultModelMatrices[i][m_index], m_Rotate[m_index].y, glm::vec3(0.0f, 1.0f, 0.0f));
+			DefaultModelMatrices[i][m_index] = glm::rotate(DefaultModelMatrices[i][m_index], m_Rotate[m_index].x, glm::vec3(1.0f, 0.0f, 0.0f));
 		}
 		ChangeAngle();
 		SetAABB(m_index);
@@ -288,7 +294,9 @@ namespace Hazel {
 			//ModelMatrices[i][index] = glm::translate(ModelMatrices[i][index],ChangedPos/Scale);
 			glm::vec3 RotateAxisVec3 = glm::vec3(0.0f);
 			RotateAxisVec3[RotateAxis] = 1.0f;
+			//DefaultModelMatrices[i][m_index] = glm::translate(DefaultModelMatrices[i][m_index], -m_Pos[m_index] / Scale);
 			DefaultModelMatrices[i][m_index] = glm::rotate(DefaultModelMatrices[i][m_index], ChangedRotate[RotateAxis], RotateAxisVec3);
+			//DefaultModelMatrices[i][m_index] = glm::translate(DefaultModelMatrices[i][m_index], m_Pos[m_index] / Scale);
 		}
 		ChangeAngle();
 		SetAABB(m_index);

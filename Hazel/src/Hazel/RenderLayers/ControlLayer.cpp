@@ -16,7 +16,7 @@ namespace Hazel {
 		ArrowShader.reset(new Shader("res/shaders/Arrow.shader"));
 		ArrowModel.reset(new Model("res/models/arrow.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
 		arrow.reset(new Arrow(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.015f, 0.015f, 0.015f), ArrowModel));
-		RotateArrowModel.reset(new Model("res/models/rotate.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
+		RotateArrowModel.reset(new Model("res/models/rotateY.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
 		rotateArrow.reset(new Arrow(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.015f, 0.015f, 0.015f), RotateArrowModel));
 		Application::Get().shaderIDs.push_back(ArrowShader->RendererID);
 	}
@@ -30,15 +30,16 @@ namespace Hazel {
 	{
 		if (Application::Get().irb120->GetChoosedIndex() > -1 )
 		{
+			
 			pos = Application::Get().ProjectionMatrix * Application::Get().ViewMatrix * glm::vec4(Application::Get().irb120->GetPos(), 1.0f);
 			pos /= pos.w;
-			Arrow_pos = glm::inverse(Application::Get().ViewMatrix) * glm::inverse(Application::Get().ProjectionMatrix) * glm::vec4(pos.x,pos.y, 0.5f, 1.0f);
+			Arrow_pos = glm::inverse(Application::Get().ViewMatrix) * glm::inverse(Application::Get().ProjectionMatrix) * glm::vec4(pos.x, pos.y, 0.5f, 1.0f);
 			Arrow_pos /= Arrow_pos.w;
 
-			arrow->ChangePos(glm::vec3(Arrow_pos));
+ 			arrow->ChangePos(glm::vec3(Arrow_pos));
 			rotateArrow->ChangePos(glm::vec3(Arrow_pos));
 
-			arrow->ChangeRotate(Application::Get().irb120->GetRotate());
+			
 			rotateArrow->ChangeRotate(Application::Get().irb120->GetRotate());
 
 			glDisable(GL_DEPTH_TEST);
@@ -104,7 +105,7 @@ namespace Hazel {
 		if ((int)Application::Get().mousemode == 1)
 		{
 			//irb120->SetChoosedIndex(-1);
-			//Application::Get().Choosed = false;
+			Application::Get().Choosed = false;
 			Application::Get().ToMove = false;
 			Application::Get().ClickPos = glm::vec2(Application::Get().MousePos.x / Application::Get().GetWindow().GetWidth() * 2.0f - 1.0f, Application::Get().MousePos.y / Application::Get().GetWindow().GetHeight() * 2.0f - 1.0f);
 			//ClickPos = MousePos;
@@ -126,7 +127,7 @@ namespace Hazel {
 								if (WorldClickPos.z > arrow->GetAABBMinPos(i).z&& WorldClickPos.z < arrow->GetAABBMaxPos(i).z)
 								{
 									Application::Get().ToMove = true;
-									//Application::Get().Choosed = true;
+									Application::Get().Choosed = true;
 									Application::Get().first = true;
 									Application::Get().axis = i;
 									break;
@@ -148,7 +149,7 @@ namespace Hazel {
 								if (WorldClickPos.z > rotateArrow->GetAABBMinPos(i).z&& WorldClickPos.z < rotateArrow->GetAABBMaxPos(i).z)
 								{
 									Application::Get().ToMove = true;
-									//Application::Get().Choosed = true;
+									Application::Get().Choosed = true;
 									Application::Get().first = true;
 									Application::Get().axis = i;
 									break;

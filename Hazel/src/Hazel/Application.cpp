@@ -135,7 +135,7 @@ namespace Hazel
 		//´´½¨µÆ¹â
 		
 		PointLight.reset(new Light(glm::vec3(0.0f, 40.0f, 0.0f)));
-		DirectLight.reset(new Light(glm::vec3(40.0f, 0.0f, 0.0f)));
+		DirectLight.reset(new Light(glm::vec3(27.372f, 29.168f, 0.0f)));
 
 		camera.reset(new Camera);
 
@@ -620,8 +620,14 @@ namespace Hazel
 						if (irb120->CheckCollision(i, WorldClickPos))
 						{
 							irb120->SetChoosedIndex(i);
+							Choosed = true;
 							break;
 						}
+// 						else
+// 						{
+// 							irb120->SetChoosedIndex(-1);
+// 
+// 						}
 
 					}
 				}
@@ -648,6 +654,10 @@ namespace Hazel
 // 				}
   			
  			}
+			if (!Choosed)
+			{
+				irb120->SetChoosedIndex(-1);
+			}
 
 		}
 
@@ -667,9 +677,13 @@ namespace Hazel
 			glm::vec4 WorldClickPos = glm::inverse(ViewMatrix) * glm::inverse(ProjectionMatrix) * glm::vec4(ClickPos, irb120ScreenPos.z, 1.0f);
 			WorldClickPos /= WorldClickPos.w;
 
+			
+
+
 			if (first)
 			{
 				LastWorldClickPos = WorldClickPos;
+				//LastArrowPos = ArrowPos;
 				first = false;
 			}
 			if (m_ControlLayer->GetArrowMode() == ControlLayer::ArrowMode::Trans)
@@ -677,52 +691,66 @@ namespace Hazel
 				if (axis == 0)
 				{
 					irb120->ChangePos(glm::vec3(WorldClickPos.x - LastWorldClickPos.x, 0.0f, 0.0f));
+					//m_ControlLayer->arrow->ChangePos(glm::vec3(ArrowPos.x-LastArrowPos.x,0.0f,0.0f));
+					//m_ControlLayer->rotateArrow->ChangePos(glm::vec3(ArrowPos.x - LastArrowPos.x, 0.0f, 0.0f));
+
 				}
 				if (axis == 1)
 				{
 					irb120->ChangePos(glm::vec3(0.0f, WorldClickPos.y - LastWorldClickPos.y, 0.0f));
+					//m_ControlLayer->arrow->ChangePos(glm::vec3(0.0f,ArrowPos.y - LastArrowPos.y, 0.0f));
+					//m_ControlLayer->rotateArrow->ChangePos(glm::vec3(ArrowPos.x - LastArrowPos.x, 0.0f, 0.0f));
+
 				}
 				if (axis == 2)
 				{
 					irb120->ChangePos(glm::vec3(0.0f, 0.0f, WorldClickPos.z - LastWorldClickPos.z));
+					//m_ControlLayer->arrow->ChangePos(glm::vec3(0.0f, 0.0f, ArrowPos.z - LastArrowPos.z ));
+					//m_ControlLayer->rotateArrow->ChangePos(glm::vec3(ArrowPos.x - LastArrowPos.x, 0.0f, 0.0f));
+
 				}
 			}
 			if (m_ControlLayer->GetArrowMode() == ControlLayer::ArrowMode::Rotat)
 			{
 				if (axis == 0)//y
 				{
-					glm::vec2 WorldClickVec = glm::normalize(glm::vec2(WorldClickPos.x, WorldClickPos.z));
-					glm::vec2 LastWorldClickVec = glm::normalize(glm::vec2(LastWorldClickPos.x, LastWorldClickPos.z));
-					float RotateAngle = -acos(glm::dot(WorldClickVec, LastWorldClickVec))*glm::cross(glm::vec3(WorldClickVec.x,0.0f, WorldClickVec.y), glm::vec3(LastWorldClickVec.x,0.0f, LastWorldClickVec.y)).y;
+					glm::vec2 WorldClickVec = glm::normalize(glm::vec2(WorldClickPos.x - irb120->GetPos().x, WorldClickPos.z - irb120->GetPos().z));
+					glm::vec2 LastWorldClickVec = glm::normalize(glm::vec2(LastWorldClickPos.x - irb120->GetPos().x, LastWorldClickPos.z - irb120->GetPos().z));
+					float RotateAngle = -acos(glm::dot(WorldClickVec, LastWorldClickVec))*(glm::cross(glm::vec3(WorldClickVec.x,0.0f, WorldClickVec.y), glm::vec3(LastWorldClickVec.x,0.0f, LastWorldClickVec.y)).y > 0 ? 1.0f : -1.0f);
 					if (RotateAngle <= 180.0f && RotateAngle >= -180.0f)
 					{
 						irb120->ChangeRotate(glm::vec3(0.0f, RotateAngle, 0.0f), 1);
+						//m_ControlLayer->rotateArrow->ChangeRotate(glm::vec3(0.0f, RotateAngle, 0.0f), 1);
 					}
 				}
-				if (axis == 1)//z
-				{
-					glm::vec2 WorldClickVec = glm::normalize(glm::vec2(WorldClickPos.x, WorldClickPos.y));
-					glm::vec2 LastWorldClickVec = glm::normalize(glm::vec2(LastWorldClickPos.x, LastWorldClickPos.y));
-					float RotateAngle = -acos(glm::dot(WorldClickVec, LastWorldClickVec)) * glm::cross(glm::vec3(WorldClickVec.x, 0.0f, WorldClickVec.y), glm::vec3(LastWorldClickVec.x, 0.0f, LastWorldClickVec.y)).y;
-					if (RotateAngle<=180.0f && RotateAngle >= -180.0f)
-					{
-						irb120->ChangeRotate(glm::vec3(0.0f, 0.0f, RotateAngle), 2);
-					}
-				}
-				if (axis == 2)//x
-				{
-					glm::vec2 WorldClickVec = glm::normalize(glm::vec2(WorldClickPos.y, WorldClickPos.z));
-					glm::vec2 LastWorldClickVec = glm::normalize(glm::vec2(LastWorldClickPos.y, LastWorldClickPos.z));
-					float RotateAngle = -acos(glm::dot(WorldClickVec, LastWorldClickVec)) * glm::cross(glm::vec3(WorldClickVec.x, 0.0f, WorldClickVec.y), glm::vec3(LastWorldClickVec.x, 0.0f, LastWorldClickVec.y)).y;
-					if (RotateAngle <= 180.0f && RotateAngle >= -180.0f)
-					{
-						irb120->ChangeRotate(glm::vec3(RotateAngle, 0.0f, 0.0f), 0);
-					}
-				}
+// 				if (axis == 1)//x
+// 				{
+// 					glm::vec2 WorldClickVec = glm::normalize(glm::vec2(WorldClickPos.y - irb120->GetPos().y, WorldClickPos.z - irb120->GetPos().z));
+// 					glm::vec2 LastWorldClickVec = glm::normalize(glm::vec2(LastWorldClickPos.y - irb120->GetPos().y, LastWorldClickPos.z - irb120->GetPos().z));
+// 					float RotateAngle = acos(glm::dot(WorldClickVec, LastWorldClickVec)) * (glm::cross(glm::vec3(WorldClickVec.x, 0.0f, WorldClickVec.y), glm::vec3(LastWorldClickVec.x, 0.0f, LastWorldClickVec.y)).y > 0 ? 1.0f : -1.0f);
+// 					if (RotateAngle <= 180.0f && RotateAngle >= -180.0f)
+// 					{
+// 						irb120->ChangeRotate(glm::vec3(RotateAngle, 0.0f, 0.0f), 0);
+// 						//m_ControlLayer->rotateArrow->ChangeRotate(glm::vec3(RotateAngle, 0.0f, 0.0f), 0);
+// 					}
+// 				}
+// 				if (axis == 2)//z
+// 				{
+// 					glm::vec2 WorldClickVec = glm::normalize(glm::vec2(WorldClickPos.x - irb120->GetPos().x, WorldClickPos.y - irb120->GetPos().y));
+// 					glm::vec2 LastWorldClickVec = glm::normalize(glm::vec2(LastWorldClickPos.x - irb120->GetPos().x, LastWorldClickPos.y - irb120->GetPos().y));
+// 					float RotateAngle = acos(glm::dot(WorldClickVec, LastWorldClickVec)) * (glm::cross(glm::vec3(WorldClickVec.x, 0.0f, WorldClickVec.y), glm::vec3(LastWorldClickVec.x, 0.0f, LastWorldClickVec.y)).y > 0 ? 1.0f : -1.0f);
+// 					if (RotateAngle<=180.0f && RotateAngle >= -180.0f)
+// 					{
+// 						irb120->ChangeRotate(glm::vec3(0.0f, 0.0f, RotateAngle), 2);
+// 						//m_ControlLayer->rotateArrow->ChangeRotate(glm::vec3(0.0f, 0.0f, RotateAngle), 2);
+// 					}
+//				}
+				
 				
 				
 			}
 			LastWorldClickPos = WorldClickPos;
+			//LastArrowPos = ArrowPos;
 		}
 		return true;
 	}

@@ -1,10 +1,12 @@
 #include "hzpch.h"
 #include "Arrow.h"
+#include "Application.h"
 
 namespace Hazel{
 
 	Arrow::Arrow(glm::vec3 Pos, glm::vec3 Rotation, glm::vec3 Scale, std::shared_ptr<Model>& model) :Pos(Pos), Rotation(Rotation), Scale(Scale), model(model)
 	{
+		
 		ModelMatrix = glm::mat4(1);
 		ModelMatrix = glm::translate(ModelMatrix, Pos);
 		ModelMatrix = glm::scale(ModelMatrix,Scale);
@@ -31,12 +33,16 @@ namespace Hazel{
 
 	glm::mat4 Arrow::GetModelMatrix()
 	{
-		ModelMatrix = glm::mat4(1);
-		ModelMatrix = glm::translate(ModelMatrix, Pos);
-		ModelMatrix = glm::scale(ModelMatrix, Scale);
-		ModelMatrix = glm::rotate(ModelMatrix, Rotation.x,glm::vec3(1.0f,0.0f,0.0f));
-		ModelMatrix = glm::rotate(ModelMatrix, Rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-		ModelMatrix = glm::rotate(ModelMatrix, Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+ 		ModelMatrix = glm::mat4(1);
+ 		ModelMatrix = glm::translate(ModelMatrix, Pos);
+ 		ModelMatrix = glm::scale(ModelMatrix, Scale);
+ 		ModelMatrix = glm::rotate(ModelMatrix, Rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+ 		ModelMatrix = glm::rotate(ModelMatrix, Rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+ 		ModelMatrix = glm::rotate(ModelMatrix, Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+ 		return ModelMatrix;
+// 		ModelMatrix = Application::Get().irb120->GetDefaltModelMatrices();
+// 		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(100.0f, 100.0f, 100.0f));
+
 		return ModelMatrix;
 	}
 

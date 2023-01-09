@@ -14,6 +14,7 @@ namespace Hazel {
 		void InitModelMatrices();
 		std::vector<std::vector<glm::mat4>> ModelMatrices;//生成模型的model变换矩阵数组
 		std::vector<std::vector<glm::mat4>> DefaultModelMatrices;//生成模型的model变换矩阵数组
+		inline glm::mat4 GetDefaltModelMatrices() { return DefaultModelMatrices[0][m_index]; }
 		void AddAmount();
 		int GetAmount();
 		void ChangeAngle();
