@@ -145,6 +145,9 @@
   <ItemGroup>
     <ClInclude Include="src\Hazel.h" />
     <ClInclude Include="src\Hazel\Application.h" />
+    <ClInclude Include="src\Hazel\Objects\Belt.h" />
+    <ClInclude Include="src\Hazel\Objects\ModelMatrix.h" />
+    <ClInclude Include="src\Hazel\Objects\Objects.h" />
     <ClInclude Include="src\Hazel\RenderLayers\ControlLayer.h" />
     <ClInclude Include="src\Hazel\Core.h" />
     <ClInclude Include="src\Hazel\EntryPoint.h" />
@@ -596,6 +599,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Hazel\Application.cpp" />
+    <ClCompile Include="src\Hazel\Objects\Belt.cpp" />
+    <ClCompile Include="src\Hazel\Objects\Objects.cpp" />
     <ClCompile Include="src\Hazel\RenderLayers\ControlLayer.cpp" />
     <ClCompile Include="src\Hazel\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\Hazel\ImGui\ImGuiLayer.cpp" />

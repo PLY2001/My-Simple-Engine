@@ -20,7 +20,12 @@ namespace Hazel {
 		void Begin();
 		void End();
 	private:
-		float m_Time = 0.0f;
+		float m_Time = 0.0f; 
+		glm::vec3 irb120Pos = glm::vec3(0.0f);
+		glm::vec3 irb120Rotate = glm::vec3(0.0f);
+		glm::vec3 beltPos = glm::vec3(0.0f);
+		glm::vec3 beltRotate = glm::vec3(0.0f);
+
 	};
 
 }

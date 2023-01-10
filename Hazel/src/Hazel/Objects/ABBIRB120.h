@@ -1,5 +1,6 @@
 #pragma once
 #include "Renderer/Model.h"
+#include "ModelMatrix.h"
 
 #define PI 3.1415926
 
@@ -45,7 +46,7 @@ namespace Hazel {
 		
 		std::vector<std::vector<float>> Angle;
 		int Amount = 1;
-		enum class ControlMode { Angles = 0, PosEular = 1 };
+		enum class ControlMode { None = 0, Angles = 1, PosEular = 2 };
 
 		//float XMin, XMax, YMin, YMax, ZMin, ZMax = 0;
 		std::vector<glm::vec3> AABBMinPos;
@@ -60,14 +61,6 @@ namespace Hazel {
 	};
 
 
-	class ModelMatrix
- 	{
- 	public:
- 		glm::mat4 matrix = glm::mat4(1.0f);
- 		ModelMatrix(glm::vec3 Pos)
- 		{
- 			matrix = glm::translate(matrix, Pos);
- 		}
- 
- 	};
+
+
 }

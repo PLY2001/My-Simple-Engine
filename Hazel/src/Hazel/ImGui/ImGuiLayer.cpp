@@ -38,9 +38,12 @@ namespace Hazel {
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
+		io.Fonts->AddFontFromFileTTF("res/fonts/msyh.ttc", 40.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());//字体、大小
+
+		
 
 		// Setup Dear ImGui style
-		ImGui::StyleColorsDark();
+		ImGui::StyleColorsLight();
 		//ImGui::StyleColorsClassic();
 
 		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
@@ -48,7 +51,7 @@ namespace Hazel {
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			style.WindowRounding = 0.0f;
-			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 0.8f;
 		}
 
 		Application& app = Application::Get();
@@ -96,89 +99,92 @@ namespace Hazel {
 	{
 		//static bool show = true;
 		//ImGui::ShowDemoWindow(&show);//显示imgui示例界面
-
-
+		
+		
+		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
 		
 		//自定义imgui窗口
-		ImGui::Begin("Control");                          // Create a window called "Hello, world!" and append into it.
+		ImGui::Begin(u8"编辑");                          // Create a window called "Hello, world!" and append into it.
 
-		ImGui::Text("Change Graphic Mode");           
-		ImGui::RadioButton("Normal", (int*)&Application::Get().graphicmode , 0);      
+		ImGui::Text(u8"切换渲染风格");           
+		ImGui::RadioButton(u8"真实", (int*)&Application::Get().graphicmode , 0);
 		ImGui::SameLine();
-		ImGui::RadioButton("Outline", (int*)&Application::Get().graphicmode, 1);
+		ImGui::RadioButton(u8"描边", (int*)&Application::Get().graphicmode, 1);
 
-		ImGui::Text("Change Light Mode");      
-		ImGui::RadioButton("Direct", (int*)&Application::Get().lightmode, 0);           
+		ImGui::Text(u8"切换灯光类型");
+		ImGui::RadioButton(u8"直射光", (int*)&Application::Get().lightmode, 0);
 		ImGui::SameLine();
-		ImGui::RadioButton("Point", (int*)&Application::Get().lightmode, 1);
-
-		if (ImGui::Button("Increase Model Count"))                            
-			Application::Get().irb120->AddAmount();
-		ImGui::SameLine();
-		ImGui::Text("counter = %d", Application::Get().irb120->GetAmount());
-
-		ImGui::Text("Change Control Mode");
-		ImGui::RadioButton("Angles", (int*)&Application::Get().irb120->controlmode, 0);
-		ImGui::SameLine();
-		ImGui::RadioButton("Pos&Eular", (int*)&Application::Get().irb120->controlmode, 1);
-
-		//int index = Application::Get().index;
-		if(Application::Get().irb120->GetChoosedIndex()>-1)
+		ImGui::RadioButton(u8"点光源", (int*)&Application::Get().lightmode, 1);
+		if (Application::Get().objects->GetChoosedIndex() > -1)
 		{
-			if ((int)Application::Get().irb120->controlmode == 0)
+			if (ImGui::Button(u8"增加模型"))
+				Application::Get().objects->AddAmount();
+			ImGui::SameLine();
+			ImGui::Text(u8"模型总计 %d 个", Application::Get().objects->GetMyAmount());
+
+			if ((int)Application::Get().objects->GetControlMode() > 0)
 			{
-				if (ImGui::SliderFloat("Angle1", Application::Get().irb120->SetAngle(1), -165.0f, 165.0f))
+				ImGui::Text(u8"机器人控制");
+				ImGui::RadioButton(u8"正向运动学", Application::Get().objects->GetControlModeAddress(), 1);
+				ImGui::SameLine();
+				ImGui::RadioButton(u8"逆向运动学", Application::Get().objects->GetControlModeAddress(), 2);
+			}
+		
+			if ((int)Application::Get().objects->GetControlMode() == 1)
+			{
+				if (ImGui::SliderFloat("Angle1", Application::Get().objects->SetAngle(1), -165.0f, 165.0f))
 				{
 					Application::Get().AngleChanged = true;
 				}
-				if (ImGui::SliderFloat("Angle2", Application::Get().irb120->SetAngle(2), -110.0f, 110.0f))
+				if (ImGui::SliderFloat("Angle2", Application::Get().objects->SetAngle(2), -110.0f, 110.0f))
 				{
 					Application::Get().AngleChanged = true;
 				}
-				if (ImGui::SliderFloat("Angle3", Application::Get().irb120->SetAngle(3), -110.0f, 70.0f))
+				if (ImGui::SliderFloat("Angle3", Application::Get().objects->SetAngle(3), -110.0f, 70.0f))
 				{
 					Application::Get().AngleChanged = true;
 				}
-				if (ImGui::SliderFloat("Angle4", Application::Get().irb120->SetAngle(4), -160.0f, 160.0f))
+				if (ImGui::SliderFloat("Angle4", Application::Get().objects->SetAngle(4), -160.0f, 160.0f))
 				{
 					Application::Get().AngleChanged = true;
 				}
-				if (ImGui::SliderFloat("Angle5", Application::Get().irb120->SetAngle(5), -120.0f, 120.0f))
+				if (ImGui::SliderFloat("Angle5", Application::Get().objects->SetAngle(5), -120.0f, 120.0f))
 				{
 					Application::Get().AngleChanged = true;
 				}
-				if (ImGui::SliderFloat("Angle6", Application::Get().irb120->SetAngle(6), -400.0f, 400.0f))
+				if (ImGui::SliderFloat("Angle6", Application::Get().objects->SetAngle(6), -400.0f, 400.0f))
 				{
 					Application::Get().AngleChanged = true;
 				}
 			}
 
-			if ((int)Application::Get().irb120->controlmode == 1)
+			if ((int)Application::Get().objects->GetControlMode() == 2)
 			{
-				glm::vec3 Scale = Application::Get().irb120->GetScale();
+				glm::vec3 Scale = Application::Get().objects->GetScale();
 				if (ImGui::SliderFloat("PosX", &Pos.x, -652.0f * Scale.x, 652.0f * Scale.x))
 				{
-					Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle(Pos / Scale, Eular);
 				}
 				if (ImGui::SliderFloat("PosY", &Pos.y, -184.0f * Scale.y, 1054.0f * Scale.y))
 				{
-					Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle(Pos / Scale, Eular);;
 				}
 				if (ImGui::SliderFloat("PosZ", &Pos.z, -652.0f * Scale.z, 652.0f * Scale.z))
 				{
-					Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle(Pos / Scale, Eular);;
 				}
 				if (ImGui::SliderFloat("EularX", &Eular.x, -180.0f, 180.0f))
 				{
-					Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle(Pos / Scale, Eular);;
 				}
 				if (ImGui::SliderFloat("EularY", &Eular.y, -180.0f, 180.0f))
 				{
-					Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle(Pos / Scale, Eular);;
 				}
 				if (ImGui::SliderFloat("EularZ", &Eular.z, -180.0f, 180.0f))
 				{
-					Application::Get().AngleChanged = Application::Get().irb120->SolveAngle(Pos / Scale, Eular);;
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle(Pos / Scale, Eular);;
 				}
 
 
@@ -192,13 +198,23 @@ namespace Hazel {
 // 			ImGui::Text("IRB 120 AABB: XMin = %.3f , XMax = %.3f , YMin = %.3f , YMax = %.3f , ZMin = %.3f , ZMax = %.3f", Application::Get().irb120->GetAABBMinPos(index).x, Application::Get().irb120->GetAABBMaxPos(index).x, Application::Get().irb120->GetAABBMinPos(index).y, Application::Get().irb120->GetAABBMaxPos(index).y, Application::Get().irb120->GetAABBMinPos(index).z, Application::Get().irb120->GetAABBMaxPos(index).z);
 // 		}
 		
-		ImGui::Text("ClickPos = ( %f , %f )", Application::Get().GetClickPos().x, Application::Get().GetClickPos().y);
-		ImGui::Text("index = %d", Application::Get().irb120->GetChoosedIndex());
-		if (Application::Get().irb120->GetChoosedIndex() > -1)
+		ImGui::Text(u8"鼠标点击坐标 = ( %f , %f )", Application::Get().GetClickPos().x, Application::Get().GetClickPos().y);
+		ImGui::Text(u8"当前选择模型索引 = %d", Application::Get().objects->GetChoosedIndex());
+		if (Application::Get().objects->GetChoosedIndex() > -1)
 		{
-			ImGui::Text("Position(mm) = ( %f , %f , %f )", Application::Get().irb120->GetPos().x*100, Application::Get().irb120->GetPos().y*100, Application::Get().irb120->GetPos().z*100);
-			ImGui::Text("Rotation(degree) = ( %f , %f , %f )", Application::Get().irb120->GetRotate().x/PI*180.0f, Application::Get().irb120->GetRotate().y / PI * 180.0f, Application::Get().irb120->GetRotate().z / PI * 180.0f);
+			irb120Pos = Application::Get().objects->GetPos()/10.0f;
+			irb120Rotate = Application::Get().objects->GetRotate() * glm::vec3(180.0f/PI);
+			if (ImGui::InputFloat3(u8"平移(m)", (float*)&irb120Pos))
+			{
+				Application::Get().objects->ChangePos(irb120Pos*10.0f - Application::Get().objects->GetPos());
+			}
+			if (ImGui::InputFloat3(u8"旋转(degree)", (float*)&irb120Rotate))
+			{
+				Application::Get().objects->ChangeRotate(glm::vec3(0.0f,irb120Rotate.y*PI/180.0f- Application::Get().objects->GetRotate().y,0.0f),1);
+			}
+			
 		}
+		
 		ImGui::Checkbox("ToMove",&Application::Get().ToMove);
 		//ImGui::Text("LightPosition = ( %f , %f , %f )", Application::Get().DirectLight->Pos.x, Application::Get().DirectLight->Pos.y, Application::Get().DirectLight->Pos.z);
 		
@@ -212,7 +228,9 @@ namespace Hazel {
 // 		ImGui::SameLine();
 // 		ImGui::Text("counter = %d", counter);
 // 
- 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+ 		ImGui::Text(u8"每帧平均 %.3f ms (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+
 		ImGui::End();
 		
 	}

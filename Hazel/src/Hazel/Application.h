@@ -13,10 +13,12 @@
 #include "Hazel/Renderer/Light.h"
 #include "Hazel/Renderer/Camera.h"
 #include "Hazel/Renderer/OpenGLRendererAPI.h"
-#include "Objects/ABBIRB120.h"
+//#include "Objects/ABBIRB120.h"
 #include "Objects/Arrow.h"
 #include "Hazel/Renderer/AABB.h"
 #include "Hazel/RenderLayers/ControlLayer.h"
+//#include "Objects/Belt.h"
+#include "Objects/Objects.h"
 
 namespace Hazel
 {
@@ -51,6 +53,9 @@ namespace Hazel
 		bool OnMouseButtonEvent(MouseButtonPressedEvent& e);
 		bool OnMousePos(MouseMovedEvent& e);
 		bool OnMouseReleaseEvent(MouseButtonReleasedEvent& e);
+		bool OnKeyPressedEvent(KeyPressedEvent& e);
+		
+
 		LayerStack m_LayerStack;
 
 		//shader
@@ -78,8 +83,9 @@ namespace Hazel
 		
 
 		//创建实例化数组
-		std::vector<std::unique_ptr<InstanceBuffer>> insbo;
-		std::unique_ptr<InstanceBuffer> insboplane;
+		std::vector<std::unique_ptr<InstanceBuffer>> insbo;//irb120
+		std::vector<std::unique_ptr<InstanceBuffer>> insbobelt;//belt
+		std::unique_ptr<InstanceBuffer> insboplane;//plane
 
 		//创建Uniform缓冲对象
 		std::unique_ptr<UniformBuffer> ubo;
@@ -115,6 +121,8 @@ namespace Hazel
 
 		/*IRB120*/
 		std::shared_ptr<Model> IRB120Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
+		/*IRB120*/
+		std::shared_ptr<Model> BeltModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		/*平面*/
 		std::shared_ptr<Model> plane;
 
@@ -156,7 +164,9 @@ namespace Hazel
 		
 		bool AngleChanged = false;
 
-		std::unique_ptr<ABBIRB120> irb120;
+		//std::unique_ptr<ABBIRB120> irb120;
+		//std::unique_ptr<Belt> belt;
+		std::unique_ptr<Objects> objects;
 
 		inline glm::vec2 GetClickPos() { return ClickPos; }
 
@@ -165,7 +175,7 @@ namespace Hazel
 
 		//std::unique_ptr<Arrow> arrow;
 		bool ToMove = false;
-		bool Choosed = false;
+		//bool Choosed = false;
 		int axis = 0;
 
 		bool first = true;

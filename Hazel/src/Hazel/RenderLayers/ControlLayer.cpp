@@ -28,10 +28,10 @@ namespace Hazel {
 
 	void ControlLayer::OnUpdate()
 	{
-		if (Application::Get().irb120->GetChoosedIndex() > -1 )
+		if (Application::Get().objects->GetChoosedIndex() > -1 )
 		{
 			
-			pos = Application::Get().ProjectionMatrix * Application::Get().ViewMatrix * glm::vec4(Application::Get().irb120->GetPos(), 1.0f);
+			pos = Application::Get().ProjectionMatrix * Application::Get().ViewMatrix * glm::vec4(Application::Get().objects->GetPos(), 1.0f);
 			pos /= pos.w;
 			Arrow_pos = glm::inverse(Application::Get().ViewMatrix) * glm::inverse(Application::Get().ProjectionMatrix) * glm::vec4(pos.x, pos.y, 0.5f, 1.0f);
 			Arrow_pos /= Arrow_pos.w;
@@ -40,7 +40,7 @@ namespace Hazel {
 			rotateArrow->ChangePos(glm::vec3(Arrow_pos));
 
 			
-			rotateArrow->ChangeRotate(Application::Get().irb120->GetRotate());
+			rotateArrow->ChangeRotate(Application::Get().objects->GetRotate());
 
 			glDisable(GL_DEPTH_TEST);
 			ArrowShader->Bind();
@@ -78,7 +78,7 @@ namespace Hazel {
 	{
 		EventDispatcher dispatcher(event);
 		dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(OnMouseButtonEvent));//鼠标点击
-		dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(OnKeyPressedEvent));//鼠标点击
+		dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(OnKeyPressedEvent));
 	}
 
 	bool ControlLayer::OnKeyPressedEvent(KeyPressedEvent& e)
@@ -105,7 +105,7 @@ namespace Hazel {
 		if ((int)Application::Get().mousemode == 1)
 		{
 			//irb120->SetChoosedIndex(-1);
-			Application::Get().Choosed = false;
+			//Application::Get().Choosed = false;
 			Application::Get().ToMove = false;
 			Application::Get().ClickPos = glm::vec2(Application::Get().MousePos.x / Application::Get().GetWindow().GetWidth() * 2.0f - 1.0f, Application::Get().MousePos.y / Application::Get().GetWindow().GetHeight() * 2.0f - 1.0f);
 			//ClickPos = MousePos;
@@ -127,7 +127,7 @@ namespace Hazel {
 								if (WorldClickPos.z > arrow->GetAABBMinPos(i).z&& WorldClickPos.z < arrow->GetAABBMaxPos(i).z)
 								{
 									Application::Get().ToMove = true;
-									Application::Get().Choosed = true;
+									//Application::Get().Choosed = true;
 									Application::Get().first = true;
 									Application::Get().axis = i;
 									break;
@@ -149,7 +149,7 @@ namespace Hazel {
 								if (WorldClickPos.z > rotateArrow->GetAABBMinPos(i).z&& WorldClickPos.z < rotateArrow->GetAABBMaxPos(i).z)
 								{
 									Application::Get().ToMove = true;
-									Application::Get().Choosed = true;
+									//Application::Get().Choosed = true;
 									Application::Get().first = true;
 									Application::Get().axis = i;
 									break;

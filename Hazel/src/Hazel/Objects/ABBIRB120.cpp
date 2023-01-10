@@ -6,8 +6,8 @@ namespace Hazel {
 	{
 		m_Pos.push_back(Pos);
 		m_Rotate.push_back(Rotation);
-		Angle.resize(6);
-		for (int i = 0; i < 6; i++)
+		Angle.resize(model->meshes.size());
+		for (int i = 0; i < model->meshes.size(); i++)
 		{
 			Angle[i].push_back(0);
 		}
@@ -261,6 +261,7 @@ namespace Hazel {
 	{
 		return m_Pos[m_index];
 	}
+
 
 	glm::vec3 ABBIRB120::GetRotate()
 	{
