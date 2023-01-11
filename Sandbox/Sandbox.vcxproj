@@ -147,6 +147,7 @@
   <ItemGroup>
     <None Include="res\shaders\AABB.shader" />
     <None Include="res\shaders\Arrow.shader" />
+    <None Include="res\shaders\Plane.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,0 +1,27 @@
+newmtl phong365SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd AVG_wheelcenter.png
+Ni 1.00
+Ks 0.50 0.50 0.50
+Ns 18.00
+newmtl phong366SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd AVG_wheel.png
+Ni 1.00
+Ks 0.50 0.50 0.50
+Ns 18.00
+newmtl phong367SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd AVG_body.png
+Ni 1.00
+Ks 0.50 0.50 0.50
+Ns 18.00

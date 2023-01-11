@@ -145,9 +145,9 @@
   <ItemGroup>
     <ClInclude Include="src\Hazel.h" />
     <ClInclude Include="src\Hazel\Application.h" />
-    <ClInclude Include="src\Hazel\Objects\Belt.h" />
     <ClInclude Include="src\Hazel\Objects\ModelMatrix.h" />
     <ClInclude Include="src\Hazel\Objects\Objects.h" />
+    <ClInclude Include="src\Hazel\Renderer\InstanceBufferObjects.h" />
     <ClInclude Include="src\Hazel\RenderLayers\ControlLayer.h" />
     <ClInclude Include="src\Hazel\Core.h" />
     <ClInclude Include="src\Hazel\EntryPoint.h" />
@@ -175,7 +175,6 @@
     <ClInclude Include="src\Hazel\Renderer\Shader.h" />
     <ClInclude Include="src\Hazel\Renderer\Skybox.h" />
     <ClInclude Include="src\Hazel\Renderer\Texture.h" />
-    <ClInclude Include="src\Hazel\Objects\ABBIRB120.h" />
     <ClInclude Include="src\Hazel\Window.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
@@ -599,8 +598,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Hazel\Application.cpp" />
-    <ClCompile Include="src\Hazel\Objects\Belt.cpp" />
     <ClCompile Include="src\Hazel\Objects\Objects.cpp" />
+    <ClCompile Include="src\Hazel\Renderer\InstanceBufferObjects.cpp" />
     <ClCompile Include="src\Hazel\RenderLayers\ControlLayer.cpp" />
     <ClCompile Include="src\Hazel\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\Hazel\ImGui\ImGuiLayer.cpp" />
@@ -619,7 +618,6 @@
     <ClCompile Include="src\Hazel\Renderer\Shader.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Skybox.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Texture.cpp" />
-    <ClCompile Include="src\Hazel\Objects\ABBIRB120.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\hzpch.cpp">

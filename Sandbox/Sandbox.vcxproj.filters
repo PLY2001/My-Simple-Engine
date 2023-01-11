@@ -22,5 +22,6 @@
   <ItemGroup>
     <None Include="res\shaders\AABB.shader" />
     <None Include="res\shaders\Arrow.shader" />
+    <None Include="res\shaders\Plane.shader" />
   </ItemGroup>
 </Project>

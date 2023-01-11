@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include "Renderer/Model.h"
 #include "ModelMatrix.h"
 
@@ -10,14 +9,14 @@ namespace Hazel {
 	class Objects
 	{
 	public:
-		Objects();
+		Objects() = default;
 		void AddObject(glm::vec3 Pos, glm::vec3 Rotation, glm::vec3 Scale, std::shared_ptr<Model>& model, bool hasAngle);
 		~Objects() = default;
 
 		void InitModelMatrices(int ObjectIndex);
 		std::vector<std::vector<std::vector<glm::mat4>>> ModelMatrices;//生成模型的model变换矩阵数组
 		std::vector<std::vector<std::vector<glm::mat4>>> DefaultModelMatrices;//生成模型的model变换矩阵数组
-		//inline glm::mat4 GetDefaltModelMatrices() { return DefaultModelMatrices[ObjectIndex][0][m_index]; }
+		glm::mat4* GetModelMatrix(int ObjectIndex, int index);
 		void AddAmount();
 		int GetAmount(int ObjectIndex);
 		int GetMyAmount();

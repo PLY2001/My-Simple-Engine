@@ -19,6 +19,7 @@
 #include "Hazel/RenderLayers/ControlLayer.h"
 //#include "Objects/Belt.h"
 #include "Objects/Objects.h"
+#include "Hazel/Renderer/InstanceBufferObjects.h"
 
 namespace Hazel
 {
@@ -83,8 +84,10 @@ namespace Hazel
 		
 
 		//创建实例化数组
-		std::vector<std::unique_ptr<InstanceBuffer>> insbo;//irb120
-		std::vector<std::unique_ptr<InstanceBuffer>> insbobelt;//belt
+		std::unique_ptr<InstanceBufferObjects> insbos;
+		//std::vector<std::unique_ptr<InstanceBuffer>> insbo;//irb120
+		//std::vector<std::unique_ptr<InstanceBuffer>> insbobelt;//belt
+		//std::vector<std::unique_ptr<InstanceBuffer>> insboAVG;//AVG
 		std::unique_ptr<InstanceBuffer> insboplane;//plane
 
 		//创建Uniform缓冲对象
@@ -92,8 +95,8 @@ namespace Hazel
 		
 
 		//shadow map 分辨率
-		unsigned int ShadowMapWidth = 1024;
-		unsigned int ShadowMapHeight = 1024;
+		unsigned int ShadowMapWidth = 2048;
+		unsigned int ShadowMapHeight = 2048;
 
 		//创建帧缓冲1
 		std::unique_ptr<FrameBuffer> framebuffer1;
@@ -121,8 +124,8 @@ namespace Hazel
 
 		/*IRB120*/
 		std::shared_ptr<Model> IRB120Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
-		/*IRB120*/
 		std::shared_ptr<Model> BeltModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
+		std::shared_ptr<Model> AVGModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		/*平面*/
 		std::shared_ptr<Model> plane;
 
@@ -166,7 +169,7 @@ namespace Hazel
 
 		//std::unique_ptr<ABBIRB120> irb120;
 		//std::unique_ptr<Belt> belt;
-		std::unique_ptr<Objects> objects;
+		std::shared_ptr<Objects> objects;
 
 		inline glm::vec2 GetClickPos() { return ClickPos; }
 

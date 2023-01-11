@@ -1386,13 +1386,12 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Hazel\Objects\ABBIRB120.h" />
     <ClInclude Include="src\Hazel\Objects\Arrow.h" />
     <ClInclude Include="src\Hazel\Renderer\AABB.h" />
     <ClInclude Include="src\Hazel\RenderLayers\ControlLayer.h" />
-    <ClInclude Include="src\Hazel\Objects\Belt.h" />
     <ClInclude Include="src\Hazel\Objects\ModelMatrix.h" />
     <ClInclude Include="src\Hazel\Objects\Objects.h" />
+    <ClInclude Include="src\Hazel\Renderer\InstanceBufferObjects.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Hazel\Application.cpp">
@@ -1455,11 +1454,10 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Hazel\Objects\ABBIRB120.cpp" />
     <ClCompile Include="src\Hazel\Objects\Arrow.cpp" />
     <ClCompile Include="src\Hazel\Renderer\AABB.cpp" />
     <ClCompile Include="src\Hazel\RenderLayers\ControlLayer.cpp" />
-    <ClCompile Include="src\Hazel\Objects\Belt.cpp" />
     <ClCompile Include="src\Hazel\Objects\Objects.cpp" />
+    <ClCompile Include="src\Hazel\Renderer\InstanceBufferObjects.cpp" />
   </ItemGroup>
 </Project>

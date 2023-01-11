@@ -3,10 +3,7 @@
 
 namespace Hazel {
 
-	Objects::Objects()
-	{
 
-	}
 
 	void Objects::AddObject(glm::vec3 Pos, glm::vec3 Rotation, glm::vec3 Scale, std::shared_ptr<Model>& model, bool hasAngle)
 	{
@@ -42,6 +39,7 @@ namespace Hazel {
 		{
 			Angle[ObjectAmount-1][i].push_back(0);
 		}
+		InitModelMatrices(ObjectAmount - 1);
 		
 	}
 
@@ -59,9 +57,11 @@ namespace Hazel {
 			if (haveAngle[ObjectIndex])
 			{
 				ModelMatrices[ObjectIndex][i].push_back(m_model[ObjectIndex]->mModelMatrix);
+				ModelMatrices[ObjectIndex][i].back() = glm::translate(ModelMatrices[ObjectIndex][i].back(), m_Pos[ObjectIndex][0]);
 				ModelMatrices[ObjectIndex][i].back() = glm::scale(ModelMatrices[ObjectIndex][i].back(), m_Scale[ObjectIndex]);
 			}
 			DefaultModelMatrices[ObjectIndex][i].push_back(m_model[ObjectIndex]->mModelMatrix);
+			DefaultModelMatrices[ObjectIndex][i].back() = glm::translate(DefaultModelMatrices[ObjectIndex][i].back(), m_Pos[ObjectIndex][0]);
 			DefaultModelMatrices[ObjectIndex][i].back() = glm::scale(DefaultModelMatrices[ObjectIndex][i].back(), m_Scale[ObjectIndex]);
 		}
 
@@ -74,6 +74,18 @@ namespace Hazel {
 
 
 
+	glm::mat4* Objects::GetModelMatrix(int ObjectIndex, int index)
+	{
+		if (haveAngle[ObjectIndex])
+		{
+			return ModelMatrices[ObjectIndex][index].data();
+		}
+		else
+		{
+			return DefaultModelMatrices[ObjectIndex][index].data();
+		}
+	}
+
 	void Objects::AddAmount()
 	{
 		//增加模型
@@ -82,8 +94,8 @@ namespace Hazel {
 		{
 			for (int j = 0; j < increase; j++)
 			{
-				m_Pos[m_Objectindex].push_back(glm::vec3((Amount[m_Objectindex] - 1) * 10.0f, 0.0f, 0.0f));
-				m_Rotate[m_Objectindex].push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+				m_Pos[m_Objectindex].push_back(m_Pos[m_Objectindex][m_index]);
+				m_Rotate[m_Objectindex].push_back(m_Rotate[m_Objectindex][m_index]);
 			}
 			for (int i = 0; i < m_model[m_Objectindex]->meshes.size(); i++)
 			{

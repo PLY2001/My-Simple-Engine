@@ -2,6 +2,8 @@
 
 #include "Shader.h"
 #include <glad/glad.h>
+//#include "Model.h"
+//#include "Objects/Objects.h"
 
 namespace Hazel {
 
@@ -53,6 +55,7 @@ namespace Hazel {
 		void AddInstanceBuffermat4(unsigned int vaID, unsigned int AttribIndex);
 		void SetDatamat4(unsigned int size, const glm::mat4* data);
 	};
+
 
 	///////////////////////////////////////////////////UniformBuffer//////////////////////////////////////////////////////
 	class UniformBuffer
