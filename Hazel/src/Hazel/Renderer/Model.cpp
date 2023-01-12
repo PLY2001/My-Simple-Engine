@@ -2,7 +2,7 @@
 #include "Model.h"
 
 namespace Hazel {
-	Model::Model(std::string path, glm::vec3 Pos) :Pos(Pos)
+	Model::Model(std::string path, glm::vec3 Pos) :m_path(path), Pos(Pos)
 	{
 		Assimp::Importer import;
 		const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);// | aiProcess_CalcTangentSpace);
@@ -20,7 +20,7 @@ namespace Hazel {
 		
 	}
 
-	Model::Model(std::string path) :Pos(glm::vec3(0))
+	Model::Model(std::string path) :m_path(path),Pos(glm::vec3(0))
 	{
 		Assimp::Importer import;
 		const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);// | aiProcess_CalcTangentSpace);

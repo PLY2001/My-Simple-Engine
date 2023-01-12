@@ -38,7 +38,7 @@ namespace Hazel {
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
-		io.Fonts->AddFontFromFileTTF("res/fonts/msyh.ttc", 40.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());//字体、大小
+		io.Fonts->AddFontFromFileTTF("res/fonts/msyh.ttc", 30.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());//字体、大小
 
 		
 
@@ -51,7 +51,7 @@ namespace Hazel {
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			style.WindowRounding = 0.0f;
-			style.Colors[ImGuiCol_WindowBg].w = 0.8f;
+			style.Colors[ImGuiCol_WindowBg].w = 0.5f;
 		}
 
 		Application& app = Application::Get();
@@ -118,10 +118,10 @@ namespace Hazel {
 		ImGui::RadioButton(u8"点光源", (int*)&Application::Get().lightmode, 1);
 		if (Application::Get().objects->GetChoosedIndex() > -1)
 		{
-			if (ImGui::Button(u8"增加模型"))
+			if (ImGui::Button(u8"复制所选模型"))
 				Application::Get().objects->AddAmount();
 			ImGui::SameLine();
-			ImGui::Text(u8"模型总计 %d 个", Application::Get().objects->GetMyAmount());
+			ImGui::Text(u8"所选模型总计 %d 个", Application::Get().objects->GetMyAmount());
 
 			if ((int)Application::Get().objects->GetControlMode() > 0)
 			{
@@ -215,7 +215,8 @@ namespace Hazel {
 			
 		}
 		
-		ImGui::Checkbox("ToMove",&Application::Get().ToMove);
+
+		//ImGui::Checkbox("ToMove",&Application::Get().ToMove);
 		//ImGui::Text("LightPosition = ( %f , %f , %f )", Application::Get().DirectLight->Pos.x, Application::Get().DirectLight->Pos.y, Application::Get().DirectLight->Pos.z);
 		
 
@@ -232,6 +233,64 @@ namespace Hazel {
 
 
 		ImGui::End();
+
+
+
+
+		ImGui::Begin(u8"设备栏");
+		if (ImGui::Button(u8"ABB IRB120 六轴机械臂"))
+		{
+			if (std::find(Application::Get().objects->ObjectsMap.begin(), Application::Get().objects->ObjectsMap.end(), "irb120") == Application::Get().objects->ObjectsMap.end())
+			{
+				//ObjectsMap.insert(std::pair<std::string, bool>("irb120", true));
+				Application::Get().objects->AddObject("irb120", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), Application::Get().IRB120Model, true);
+				Application::Get().insbos->AddObject(Application::Get().IRB120Model);
+			}
+			else
+			{
+				Application::Get().objects->AddAmount("irb120");
+			}
+		}
+		if (ImGui::Button(u8"传送带"))
+		{
+			if (std::find(Application::Get().objects->ObjectsMap.begin(), Application::Get().objects->ObjectsMap.end(), "belt") == Application::Get().objects->ObjectsMap.end())
+			{
+				//ObjectsMap.insert(std::pair<std::string, bool>("irb120", true));
+				Application::Get().objects->AddObject("belt", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), Application::Get().BeltModel, false);
+				Application::Get().insbos->AddObject(Application::Get().BeltModel);
+			}
+			else
+			{
+				Application::Get().objects->AddAmount("belt");
+			}
+		}
+		if (ImGui::Button(u8"AVG运输车"))
+		{
+			if (std::find(Application::Get().objects->ObjectsMap.begin(), Application::Get().objects->ObjectsMap.end(), "AVG") == Application::Get().objects->ObjectsMap.end())
+			{
+				//ObjectsMap.insert(std::pair<std::string, bool>("irb120", true));
+				Application::Get().objects->AddObject("AVG", glm::vec3(0, 0.8f, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), Application::Get().AVGModel, false);
+				Application::Get().insbos->AddObject(Application::Get().AVGModel);
+			}
+			else
+			{
+				Application::Get().objects->AddAmount("AVG");
+			}
+		}
+		if (ImGui::Button(u8"保存场景"))
+		{
+			if (Application::Get().objects->SaveScene())
+			{
+				Save = true;	
+			}
+		}
+		if (Save)
+		{
+			ImGui::Text(u8"保存成功");
+		}
+
+		ImGui::End();
+
 		
 	}
 

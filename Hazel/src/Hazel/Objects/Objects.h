@@ -1,6 +1,9 @@
 #pragma once
 #include "Renderer/Model.h"
 #include "ModelMatrix.h"
+#include <map>
+#include <fstream>
+#include "rapidjson/writer.h"
 
 #define PI 3.1415926
 
@@ -9,8 +12,9 @@ namespace Hazel {
 	class Objects
 	{
 	public:
+		
 		Objects() = default;
-		void AddObject(glm::vec3 Pos, glm::vec3 Rotation, glm::vec3 Scale, std::shared_ptr<Model>& model, bool hasAngle);
+		void AddObject(std::string name, glm::vec3 Pos, glm::vec3 Rotation, glm::vec3 Scale, std::shared_ptr<Model>& model, bool hasAngle);
 		~Objects() = default;
 
 		void InitModelMatrices(int ObjectIndex);
@@ -18,6 +22,7 @@ namespace Hazel {
 		std::vector<std::vector<std::vector<glm::mat4>>> DefaultModelMatrices;//生成模型的model变换矩阵数组
 		glm::mat4* GetModelMatrix(int ObjectIndex, int index);
 		void AddAmount();
+		void AddAmount(std::string name);
 		int GetAmount(int ObjectIndex);
 		int GetMyAmount();
 		int GetObjectAmount();
@@ -67,6 +72,11 @@ namespace Hazel {
 		std::vector<ControlMode> controlmode;
 		ControlMode GetControlMode();
 		int* GetControlModeAddress();
+		std::vector<std::string> ObjectsMap;
+
+		bool SaveScene();
+
+
 	};
 
 

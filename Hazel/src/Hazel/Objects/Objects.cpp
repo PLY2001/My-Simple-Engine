@@ -5,7 +5,7 @@ namespace Hazel {
 
 
 
-	void Objects::AddObject(glm::vec3 Pos, glm::vec3 Rotation, glm::vec3 Scale, std::shared_ptr<Model>& model, bool hasAngle)
+	void Objects::AddObject(std::string name, glm::vec3 Pos, glm::vec3 Rotation, glm::vec3 Scale, std::shared_ptr<Model>& model, bool hasAngle)
 	{
 		ObjectAmount++;
 		m_Pos.resize(ObjectAmount);
@@ -16,7 +16,7 @@ namespace Hazel {
 		m_model.push_back(model);
 		haveAngle.push_back(hasAngle);
 
-		
+		ObjectsMap.push_back(name);
 		
 		Amount.push_back(1);
 		if (hasAngle)
@@ -34,8 +34,8 @@ namespace Hazel {
 		AABBMaxPos.resize(ObjectAmount);
 
 		Angle.resize(ObjectAmount);
-		Angle.back().resize(model->meshes.size());
-		for (int i = 0; i < model->meshes.size(); i++)
+		Angle.back().resize(model->meshes.size()-1);//[i][j][k]，i是物体种类，j是关节索引，k是重复物体索引
+		for (int i = 0; i < model->meshes.size()-1; i++)
 		{
 			Angle[ObjectAmount-1][i].push_back(0);
 		}
@@ -104,9 +104,11 @@ namespace Hazel {
 					if (haveAngle[m_Objectindex])
 					{
 						ModelMatrices[m_Objectindex][i].push_back(ModelMatrix(glm::vec3(m_Pos[m_Objectindex].back())).matrix);
+						ModelMatrices[m_Objectindex][i].back() = glm::rotate(ModelMatrices[m_Objectindex][i].back(), m_Rotate[m_Objectindex].back().y, glm::vec3(0.0f,1.0f,0.0f));
 						ModelMatrices[m_Objectindex][i].back() = glm::scale(ModelMatrices[m_Objectindex][i].back(), m_Scale[m_Objectindex]);
 					}
 					DefaultModelMatrices[m_Objectindex][i].push_back(ModelMatrix(glm::vec3(m_Pos[m_Objectindex].back())).matrix);
+					DefaultModelMatrices[m_Objectindex][i].back() = glm::rotate(DefaultModelMatrices[m_Objectindex][i].back(), m_Rotate[m_Objectindex].back().y, glm::vec3(0.0f, 1.0f, 0.0f));
 					DefaultModelMatrices[m_Objectindex][i].back() = glm::scale(DefaultModelMatrices[m_Objectindex][i].back(), m_Scale[m_Objectindex]);
 				}
 			}
@@ -115,12 +117,29 @@ namespace Hazel {
 		AABBMinPos[m_Objectindex].push_back(m_Pos[m_Objectindex][Amount[m_Objectindex] - 1]);
 		AABBMaxPos[m_Objectindex].push_back(m_Pos[m_Objectindex][Amount[m_Objectindex] - 1]);
 		
-		for (int i = 0; i < m_model[m_Objectindex]->meshes.size(); i++)
+		for (int i = 0; i < m_model[m_Objectindex]->meshes.size()-1; i++)
 		{
 			Angle[m_Objectindex][i].push_back(0);
 		}
 		
 		SetAABB(m_Objectindex,Amount[m_Objectindex] - 1);
+	}
+
+	void Objects::AddAmount(std::string name)
+	{
+		auto it = std::find(ObjectsMap.begin(), ObjectsMap.end(), name);
+		int i = 0;
+		for (auto itt = ObjectsMap.begin(); itt != ObjectsMap.end(); itt++)
+		{
+			if (itt == it)
+			{
+				m_Objectindex = i;
+				break;
+			}
+			i++;
+		}
+		
+		AddAmount();
 	}
 
 	int Objects::GetAmount(int ObjectIndex)
@@ -465,6 +484,187 @@ namespace Hazel {
 	int* Objects::GetControlModeAddress()
 	{
 		return (int*)&controlmode[m_Objectindex];
+	}
+
+	bool Objects::SaveScene()
+	{
+
+		//Objects
+		std::fstream file("res/save/Objects.json", std::ios::out);
+
+		if (!file.is_open())
+		{
+			std::cout << "can not open json file to write." << std::endl;
+			return false;
+		}
+
+		rapidjson::StringBuffer strBuffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(strBuffer);
+
+		writer.StartObject();
+
+		writer.Key("Objects");
+		writer.StartArray();
+		int i = 0;
+		for (auto it = ObjectsMap.begin(); it != ObjectsMap.end(); it++)
+		{
+			writer.StartObject();
+			writer.Key("index");
+			writer.Int(i);
+			writer.Key("name");
+			writer.String((*it).c_str());
+			writer.Key("amount");
+			writer.Int(Amount[i]);
+			writer.Key("filepath");
+			//std::string pp = m_model[i]->m_path;
+			//const char* p = m_model[i]->m_path.c_str();
+			writer.String(m_model[i]->m_path.c_str());
+			writer.Key("haveangle");
+			writer.Bool(haveAngle[i]);
+			writer.EndObject();
+			i++;
+		}
+		writer.EndArray();
+		//1. 整数类型
+// 		writer.Key("Int");
+// 		writer.Int(1);
+// 
+// 		//2. 浮点类型
+// 		writer.Key("Double");
+// 		writer.Double(12.0000001);
+// 
+// 		//3. 字符串类型
+// 		writer.Key("String");
+// 		writer.String("This is a string");
+// 
+// 		//4. 结构体类型
+// 		writer.Key("Object");
+// 		writer.StartObject();
+// 		writer.Key("name");
+// 		writer.String("qq849635649");
+// 		writer.Key("age");
+// 		writer.Int(25);
+// 		writer.EndObject();
+// 
+// 		//5. 数组类型
+// 		//5.1 整型数组
+// 		writer.Key("IntArray");
+// 		writer.StartArray();
+// 		//顺序写入即可
+// 		writer.Int(10);
+// 		writer.Int(20);
+// 		writer.Int(30);
+// 		writer.EndArray();
+// 
+// 		//5.2 浮点型数组
+// 		writer.Key("DoubleArray");
+// 		writer.StartArray();
+// 		for (int i = 1; i < 4; i++)
+// 		{
+// 			writer.Double(i * 1.0);
+// 		}
+// 		writer.EndArray();
+// 
+// 		//5.3 字符串数组
+// 		writer.Key("StringArray");
+// 		writer.StartArray();
+// 		writer.String("one");
+// 		writer.String("two");
+// 		writer.String("three");
+// 		writer.EndArray();
+// 
+// 		//5.4 混合型数组
+// 		//这说明了，一个json数组内容是不限制类型的
+// 		writer.Key("MixedArray");
+// 		writer.StartArray();
+// 		writer.String("one");
+// 		writer.Int(50);
+// 		writer.Bool(false);
+// 		writer.Double(12.005);
+// 		writer.EndArray();
+// 
+// 		//5.5 结构体数组
+// 		writer.Key("People");
+// 		writer.StartArray();
+// 		for (int i = 0; i < 3; i++)
+// 		{
+// 			writer.StartObject();
+// 			writer.Key("name");
+// 			writer.String("qq849635649");
+// 			writer.Key("age");
+// 			writer.Int(i * 10);
+// 			writer.Key("sex");
+// 			writer.Bool((i % 2) == 0);
+// 			writer.EndObject();
+// 		}
+// 		writer.EndArray();
+
+		writer.EndObject();
+		file << strBuffer.GetString() << std::endl;
+
+
+
+		//One Object
+		std::fstream file1("res/save/ObjectsDetail.json", std::ios::out);
+
+		if (!file1.is_open())
+		{
+			std::cout << "can not open json file to write." << std::endl;
+			return false;
+		}
+
+		rapidjson::StringBuffer strBuffer1;
+		rapidjson::Writer<rapidjson::StringBuffer> writer1(strBuffer1);
+
+		writer1.StartObject();
+
+		writer1.Key("ObjectsDetail");
+		writer1.StartArray();
+		for(int j = 0; j < ObjectAmount; j++)
+		{
+			
+			writer1.StartObject();
+			writer1.Key((ObjectsMap[j]+"s").c_str());
+			writer1.StartArray();
+			for (int i = 0; i<Amount[j]; i++)
+			{
+				writer1.StartObject();
+				writer1.Key("index");
+				writer1.Int(i);
+				writer1.Key("pos");
+				writer1.StartArray();
+				writer1.Double(m_Pos[j][i].x);
+				writer1.Double(m_Pos[j][i].y);
+				writer1.Double(m_Pos[j][i].z);
+				writer1.EndArray();
+				writer1.Key("rotate");
+				writer1.StartArray();
+				writer1.Double(m_Rotate[j][i].x);
+				writer1.Double(m_Rotate[j][i].y);
+				writer1.Double(m_Rotate[j][i].z);
+				writer1.EndArray();
+				if (haveAngle[j])
+				{
+					writer1.Key("angle");
+					writer1.StartArray();
+					for (std::vector<float> m_angle : Angle[j])
+					{
+						writer1.Double(m_angle[i]);
+					}
+					writer1.EndArray();
+				}
+
+				
+				writer1.EndObject();
+			}
+			writer1.EndArray();
+			writer1.EndObject();
+		}
+		writer1.EndArray();
+		writer1.EndObject();
+		file1 << strBuffer1.GetString() << std::endl;
+
+		return true;
 	}
 
 }

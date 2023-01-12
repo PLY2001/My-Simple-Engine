@@ -10,6 +10,7 @@ namespace Hazel {
 	private:
 		glm::vec3 Pos;
 		std::string directory;
+		
 		void processNode(aiNode* node, const aiScene* scene);
 		Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 		std::vector<myTexture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
@@ -22,6 +23,7 @@ namespace Hazel {
 	public:
 		Model(std::string path, glm::vec3 Pos);
 		Model(std::string path);
+		std::string m_path;
 		void Draw(const std::shared_ptr<Shader>& shader);
 		void DrawInstanced(const std::shared_ptr<Shader>& shader, int amount);
 		glm::mat4 mModelMatrix = glm::mat4(1.0f);

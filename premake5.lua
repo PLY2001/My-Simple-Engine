@@ -15,6 +15,7 @@ IncludeDir["Glad"] = "Hazel/vendor/GLAD/include"    --定义GLFW项对应的目�
 IncludeDir["ImGui"] = "Hazel/vendor/imgui"
 IncludeDir["glm"] = "Hazel/vendor/glm"
 IncludeDir["assimp"] = "Hazel/vendor/assimp/include"
+IncludeDir["rapidjson"] = "Hazel/vendor/rapidjson/include"
 
 group "Dependencies"
 	include "Hazel/vendor/GLFW"                     --将该目录下的premake5.lua内容复制过来，那里存的就是GLFW项目的布局和配置
@@ -56,7 +57,8 @@ project "Hazel"                                     --项目名称Hazel
                     "%{IncludeDir.ImGui}",
                     "%{IncludeDir.glm}",
                     "%{IncludeDir.assimp}",
-                    "%{prj.name}/vendor/stb_image"
+                    "%{prj.name}/vendor/stb_image",
+                    "%{IncludeDir.rapidjson}"
                 }
 
     links { 
@@ -118,7 +120,8 @@ project "Sandbox"
                     "%{IncludeDir.GLFW}",
                     "%{IncludeDir.Glad}",
                     "%{IncludeDir.assimp}",
-                    "Hazel/vendor/stb_image"
+                    "Hazel/vendor/stb_image",
+                    "%{IncludeDir.rapidjson}",
                 }
 
     links{

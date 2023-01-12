@@ -84,7 +84,7 @@ namespace Hazel
 		
 
 		//创建实例化数组
-		std::unique_ptr<InstanceBufferObjects> insbos;
+		
 		//std::vector<std::unique_ptr<InstanceBuffer>> insbo;//irb120
 		//std::vector<std::unique_ptr<InstanceBuffer>> insbobelt;//belt
 		//std::vector<std::unique_ptr<InstanceBuffer>> insboAVG;//AVG
@@ -123,9 +123,7 @@ namespace Hazel
 		//unsigned int QuadID7;
 
 		/*IRB120*/
-		std::shared_ptr<Model> IRB120Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
-		std::shared_ptr<Model> BeltModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
-		std::shared_ptr<Model> AVGModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
+		
 		/*平面*/
 		std::shared_ptr<Model> plane;
 
@@ -193,6 +191,11 @@ namespace Hazel
 
 		glm::mat4 ViewMatrix;
 		glm::mat4 ProjectionMatrix;
+
+		std::unique_ptr<InstanceBufferObjects> insbos;
+		std::shared_ptr<Model> IRB120Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
+		std::shared_ptr<Model> BeltModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
+		std::shared_ptr<Model> AVGModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 
 	};
 
