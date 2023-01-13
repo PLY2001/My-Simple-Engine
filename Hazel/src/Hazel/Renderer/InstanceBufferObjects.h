@@ -12,7 +12,8 @@ namespace Hazel {
 		std::vector<std::vector<std::unique_ptr<InstanceBuffer>>> m_insbos;
 	public:
 		InstanceBufferObjects() = default;
-		void AddObject(std::shared_ptr<Model>& model);
+		void AddObjects(std::shared_ptr<Objects>& objects);
+		void AddObject(std::shared_ptr<Objects>& objects);
 		void SetDatamat4(std::shared_ptr<Objects>& objects);
 
 	};

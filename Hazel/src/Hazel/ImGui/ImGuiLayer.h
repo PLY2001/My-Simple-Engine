@@ -27,6 +27,7 @@ namespace Hazel {
 		glm::vec3 beltPos = glm::vec3(0.0f);
 		glm::vec3 beltRotate = glm::vec3(0.0f);
 		bool Save = false;
+		bool Loaded = false;
 
 	};
 

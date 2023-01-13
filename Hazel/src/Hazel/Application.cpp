@@ -55,46 +55,16 @@ namespace Hazel
 // 		{
 // 			ss << line;
 // 		}
-		objects.reset(new Objects());
+		
 		insbos.reset(new InstanceBufferObjects());
 		/*IRB120*/
 		IRB120Model.reset(new Model("res/models/ABB_IRB120/ABB_IRB120.obj"));//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
-		//irb120.reset(new ABBIRB120(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), IRB120Model));
-		//////objects->AddObject(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), IRB120Model, true);
-		//irb120->InitModelMatrices();
-		//objects->InitModelMatrices(0);
-		//创建实例化数组
-		//////insbos->AddObject(IRB120Model);
-		//for (int i = 0; i < IRB120Model->meshes.size(); i++)//该模型有多个网格时，每个网格都有自己的顶点数组对象ID，要想把实例化数组缓冲区绑定在每个顶点数组对象上，就必须遍历
-		//{
-		//	insbo.push_back(NULL);
-		//	insbo.back().reset(new InstanceBuffer(100 * sizeof(glm::mat4), NULL));
-		//	insbo.back()->AddInstanceBuffermat4(IRB120Model->meshes[i].vaID, 3);
-		//}
-
 		BeltModel.reset(new Model("res/models/belt/belt.obj"));
-		//belt.reset(new Belt(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), BeltModel));
-		///objects->AddObject(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), BeltModel, false);
-		//belt->InitModelMatrices();
-		//objects->InitModelMatrices(1);
-		//insbos->AddObject(BeltModel);
-		//for (int i = 0; i < BeltModel->meshes.size(); i++)//该模型有多个网格时，每个网格都有自己的顶点数组对象ID，要想把实例化数组缓冲区绑定在每个顶点数组对象上，就必须遍历
-		//{
-		//	insbobelt.push_back(NULL);
-		//	insbobelt.back().reset(new InstanceBuffer(100 * sizeof(glm::mat4), NULL));
-		//	insbobelt.back()->AddInstanceBuffermat4(BeltModel->meshes[i].vaID, 3);
-		//}
-
 		AVGModel.reset(new Model("res/models/AVGcar/AVGcar.obj"));
-		/////objects->AddObject(glm::vec3(0, 0.8f, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), AVGModel, false);
-		//objects->InitModelMatrices(2);
-		/////insbos->AddObject(AVGModel);
-// 		for (int i = 0; i < AVGModel->meshes.size(); i++)//该模型有多个网格时，每个网格都有自己的顶点数组对象ID，要想把实例化数组缓冲区绑定在每个顶点数组对象上，就必须遍历
-// 		{
-// 			insboAVG.push_back(NULL);
-// 			insboAVG.back().reset(new InstanceBuffer(100 * sizeof(glm::mat4), NULL));
-// 			insboAVG.back()->AddInstanceBuffermat4(AVGModel->meshes[i].vaID, 3);
-// 		}
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("irb120",IRB120Model));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt", BeltModel));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("AVG", AVGModel));
+		objects.reset(new Objects(modelmap));
 
 		/*平面*/
 		plane.reset(new Model("res/models/plane.obj", glm::vec3(0.0f, 0.0f, 0.0f)));

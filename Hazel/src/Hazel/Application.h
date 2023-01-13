@@ -192,11 +192,11 @@ namespace Hazel
 		glm::mat4 ViewMatrix;
 		glm::mat4 ProjectionMatrix;
 
-		std::unique_ptr<InstanceBufferObjects> insbos;
+		std::shared_ptr<InstanceBufferObjects> insbos;
 		std::shared_ptr<Model> IRB120Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::shared_ptr<Model> BeltModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::shared_ptr<Model> AVGModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
-
+		std::map<std::string, std::shared_ptr<Model>> modelmap;
 	};
 
 	Application* CreateApplication();

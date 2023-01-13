@@ -243,8 +243,8 @@ namespace Hazel {
 			if (std::find(Application::Get().objects->ObjectsMap.begin(), Application::Get().objects->ObjectsMap.end(), "irb120") == Application::Get().objects->ObjectsMap.end())
 			{
 				//ObjectsMap.insert(std::pair<std::string, bool>("irb120", true));
-				Application::Get().objects->AddObject("irb120", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), Application::Get().IRB120Model, true);
-				Application::Get().insbos->AddObject(Application::Get().IRB120Model);
+				Application::Get().objects->AddObject("irb120", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
+				Application::Get().insbos->AddObject(Application::Get().objects);
 			}
 			else
 			{
@@ -256,8 +256,8 @@ namespace Hazel {
 			if (std::find(Application::Get().objects->ObjectsMap.begin(), Application::Get().objects->ObjectsMap.end(), "belt") == Application::Get().objects->ObjectsMap.end())
 			{
 				//ObjectsMap.insert(std::pair<std::string, bool>("irb120", true));
-				Application::Get().objects->AddObject("belt", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), Application::Get().BeltModel, false);
-				Application::Get().insbos->AddObject(Application::Get().BeltModel);
+				Application::Get().objects->AddObject("belt", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+				Application::Get().insbos->AddObject(Application::Get().objects);
 			}
 			else
 			{
@@ -269,8 +269,8 @@ namespace Hazel {
 			if (std::find(Application::Get().objects->ObjectsMap.begin(), Application::Get().objects->ObjectsMap.end(), "AVG") == Application::Get().objects->ObjectsMap.end())
 			{
 				//ObjectsMap.insert(std::pair<std::string, bool>("irb120", true));
-				Application::Get().objects->AddObject("AVG", glm::vec3(0, 0.8f, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), Application::Get().AVGModel, false);
-				Application::Get().insbos->AddObject(Application::Get().AVGModel);
+				Application::Get().objects->AddObject("AVG", glm::vec3(0, 0.8f, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+				Application::Get().insbos->AddObject(Application::Get().objects);
 			}
 			else
 			{
@@ -288,7 +288,26 @@ namespace Hazel {
 		{
 			ImGui::Text(u8"保存成功");
 		}
-
+		if (ImGui::Button(u8"读取场景"))
+		{
+			Application::Get().objects.reset(new Objects(Application::Get().modelmap));
+			Application::Get().insbos.reset(new InstanceBufferObjects());
+			
+			if (Application::Get().objects->LoadScene())
+			{
+				Application::Get().insbos->AddObjects(Application::Get().objects);
+				Loaded = true;
+			}
+		}
+		if (Loaded)
+		{
+			ImGui::Text(u8"读取成功");
+		}
+		if (ImGui::Button(u8"清空场景"))
+		{
+			Application::Get().objects.reset(new Objects(Application::Get().modelmap));
+			Application::Get().insbos.reset(new InstanceBufferObjects());
+		}
 		ImGui::End();
 
 		

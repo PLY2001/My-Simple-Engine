@@ -3,9 +3,12 @@
 
 namespace Hazel {
 
+	Objects::Objects(std::map<std::string, std::shared_ptr<Model>>& modelmap)
+	{
+		m_modelmap = modelmap;
+	}
 
-
-	void Objects::AddObject(std::string name, glm::vec3 Pos, glm::vec3 Rotation, glm::vec3 Scale, std::shared_ptr<Model>& model, bool hasAngle)
+	void Objects::AddObject(std::string name, glm::vec3 Pos, glm::vec3 Rotation, glm::vec3 Scale, bool hasAngle)
 	{
 		ObjectAmount++;
 		m_Pos.resize(ObjectAmount);
@@ -13,7 +16,7 @@ namespace Hazel {
 		m_Rotate.resize(ObjectAmount);
 		m_Rotate.back().push_back(Rotation);
 		m_Scale.push_back(Scale);
-		m_model.push_back(model);
+		m_model.push_back(m_modelmap[name]);
 		haveAngle.push_back(hasAngle);
 
 		ObjectsMap.push_back(name);
@@ -34,8 +37,8 @@ namespace Hazel {
 		AABBMaxPos.resize(ObjectAmount);
 
 		Angle.resize(ObjectAmount);
-		Angle.back().resize(model->meshes.size()-1);//[i][j][k]，i是物体种类，j是关节索引，k是重复物体索引
-		for (int i = 0; i < model->meshes.size()-1; i++)
+		Angle.back().resize(m_modelmap[name]->meshes.size()-1);//[i][j][k]，i是物体种类，j是关节索引，k是重复物体索引
+		for (int i = 0; i < m_modelmap[name]->meshes.size()-1; i++)
 		{
 			Angle[ObjectAmount-1][i].push_back(0);
 		}
@@ -88,8 +91,13 @@ namespace Hazel {
 
 	void Objects::AddAmount()
 	{
+		
 		//增加模型
 		Amount[m_Objectindex]++;
+		if (m_index < 0)
+		{
+			m_index = Amount[m_Objectindex] - 1;
+		}
 		if (int increase = Amount[m_Objectindex] - DefaultModelMatrices[m_Objectindex][0].size() > 0)
 		{
 			for (int j = 0; j < increase; j++)
@@ -140,6 +148,47 @@ namespace Hazel {
 		}
 		
 		AddAmount();
+	}
+
+	void Objects::Load_AddAmount()
+	{
+		
+		//增加模型
+		Amount[m_Objectindex]++;
+		//m_index = Amount[m_Objectindex] - 1;
+		if (int increase = Amount[m_Objectindex] - DefaultModelMatrices[m_Objectindex][0].size() > 0)
+		{
+			for (int j = 0; j < increase; j++)
+			{
+				m_Pos[m_Objectindex].push_back(glm::vec3(0.0f));
+				m_Rotate[m_Objectindex].push_back(glm::vec3(0.0f));
+			}
+			for (int i = 0; i < m_model[m_Objectindex]->meshes.size(); i++)
+			{
+				for (int j = 0; j < increase; j++)
+				{
+					if (haveAngle[m_Objectindex])
+					{
+						ModelMatrices[m_Objectindex][i].push_back(ModelMatrix(glm::vec3(m_Pos[m_Objectindex].back())).matrix);
+						ModelMatrices[m_Objectindex][i].back() = glm::rotate(ModelMatrices[m_Objectindex][i].back(), m_Rotate[m_Objectindex].back().y, glm::vec3(0.0f, 1.0f, 0.0f));
+						ModelMatrices[m_Objectindex][i].back() = glm::scale(ModelMatrices[m_Objectindex][i].back(), m_Scale[m_Objectindex]);
+					}
+					DefaultModelMatrices[m_Objectindex][i].push_back(ModelMatrix(glm::vec3(m_Pos[m_Objectindex].back())).matrix);
+					DefaultModelMatrices[m_Objectindex][i].back() = glm::rotate(DefaultModelMatrices[m_Objectindex][i].back(), m_Rotate[m_Objectindex].back().y, glm::vec3(0.0f, 1.0f, 0.0f));
+					DefaultModelMatrices[m_Objectindex][i].back() = glm::scale(DefaultModelMatrices[m_Objectindex][i].back(), m_Scale[m_Objectindex]);
+				}
+			}
+
+		}
+		AABBMinPos[m_Objectindex].push_back(m_Pos[m_Objectindex][Amount[m_Objectindex] - 1]);
+		AABBMaxPos[m_Objectindex].push_back(m_Pos[m_Objectindex][Amount[m_Objectindex] - 1]);
+
+		for (int i = 0; i < m_model[m_Objectindex]->meshes.size() - 1; i++)
+		{
+			Angle[m_Objectindex][i].push_back(0);
+		}
+
+		SetAABB(m_Objectindex, Amount[m_Objectindex] - 1);
 	}
 
 	int Objects::GetAmount(int ObjectIndex)
@@ -504,11 +553,11 @@ namespace Hazel {
 		writer.StartObject();
 
 		writer.Key("Objects");
-		writer.StartArray();
+		writer.StartArray();//层1
 		int i = 0;
 		for (auto it = ObjectsMap.begin(); it != ObjectsMap.end(); it++)
 		{
-			writer.StartObject();
+			writer.StartObject();//层2
 			writer.Key("index");
 			writer.Int(i);
 			writer.Key("name");
@@ -516,89 +565,19 @@ namespace Hazel {
 			writer.Key("amount");
 			writer.Int(Amount[i]);
 			writer.Key("filepath");
-			//std::string pp = m_model[i]->m_path;
-			//const char* p = m_model[i]->m_path.c_str();
 			writer.String(m_model[i]->m_path.c_str());
 			writer.Key("haveangle");
 			writer.Bool(haveAngle[i]);
+			writer.Key("scale");
+			writer.StartArray();
+			writer.Double(m_Scale[i].x);
+			writer.Double(m_Scale[i].y);
+			writer.Double(m_Scale[i].z);
+			writer.EndArray();
 			writer.EndObject();
 			i++;
 		}
 		writer.EndArray();
-		//1. 整数类型
-// 		writer.Key("Int");
-// 		writer.Int(1);
-// 
-// 		//2. 浮点类型
-// 		writer.Key("Double");
-// 		writer.Double(12.0000001);
-// 
-// 		//3. 字符串类型
-// 		writer.Key("String");
-// 		writer.String("This is a string");
-// 
-// 		//4. 结构体类型
-// 		writer.Key("Object");
-// 		writer.StartObject();
-// 		writer.Key("name");
-// 		writer.String("qq849635649");
-// 		writer.Key("age");
-// 		writer.Int(25);
-// 		writer.EndObject();
-// 
-// 		//5. 数组类型
-// 		//5.1 整型数组
-// 		writer.Key("IntArray");
-// 		writer.StartArray();
-// 		//顺序写入即可
-// 		writer.Int(10);
-// 		writer.Int(20);
-// 		writer.Int(30);
-// 		writer.EndArray();
-// 
-// 		//5.2 浮点型数组
-// 		writer.Key("DoubleArray");
-// 		writer.StartArray();
-// 		for (int i = 1; i < 4; i++)
-// 		{
-// 			writer.Double(i * 1.0);
-// 		}
-// 		writer.EndArray();
-// 
-// 		//5.3 字符串数组
-// 		writer.Key("StringArray");
-// 		writer.StartArray();
-// 		writer.String("one");
-// 		writer.String("two");
-// 		writer.String("three");
-// 		writer.EndArray();
-// 
-// 		//5.4 混合型数组
-// 		//这说明了，一个json数组内容是不限制类型的
-// 		writer.Key("MixedArray");
-// 		writer.StartArray();
-// 		writer.String("one");
-// 		writer.Int(50);
-// 		writer.Bool(false);
-// 		writer.Double(12.005);
-// 		writer.EndArray();
-// 
-// 		//5.5 结构体数组
-// 		writer.Key("People");
-// 		writer.StartArray();
-// 		for (int i = 0; i < 3; i++)
-// 		{
-// 			writer.StartObject();
-// 			writer.Key("name");
-// 			writer.String("qq849635649");
-// 			writer.Key("age");
-// 			writer.Int(i * 10);
-// 			writer.Key("sex");
-// 			writer.Bool((i % 2) == 0);
-// 			writer.EndObject();
-// 		}
-// 		writer.EndArray();
-
 		writer.EndObject();
 		file << strBuffer.GetString() << std::endl;
 
@@ -619,16 +598,16 @@ namespace Hazel {
 		writer1.StartObject();
 
 		writer1.Key("ObjectsDetail");
-		writer1.StartArray();
+		writer1.StartArray();//层1
 		for(int j = 0; j < ObjectAmount; j++)
 		{
 			
-			writer1.StartObject();
-			writer1.Key((ObjectsMap[j]+"s").c_str());
-			writer1.StartArray();
+			writer1.StartObject();//层2
+			writer1.Key(ObjectsMap[j].c_str());
+			writer1.StartArray();//层3
 			for (int i = 0; i<Amount[j]; i++)
 			{
-				writer1.StartObject();
+				writer1.StartObject();//层4
 				writer1.Key("index");
 				writer1.Int(i);
 				writer1.Key("pos");
@@ -643,17 +622,14 @@ namespace Hazel {
 				writer1.Double(m_Rotate[j][i].y);
 				writer1.Double(m_Rotate[j][i].z);
 				writer1.EndArray();
-				if (haveAngle[j])
+				
+				writer1.Key("angle");
+				writer1.StartArray();
+				for (std::vector<float> m_angle : Angle[j])
 				{
-					writer1.Key("angle");
-					writer1.StartArray();
-					for (std::vector<float> m_angle : Angle[j])
-					{
-						writer1.Double(m_angle[i]);
-					}
-					writer1.EndArray();
+					writer1.Double(m_angle[i]);
 				}
-
+				writer1.EndArray();
 				
 				writer1.EndObject();
 			}
@@ -667,5 +643,294 @@ namespace Hazel {
 		return true;
 	}
 
+	bool Objects::LoadScene()
+	{
+		std::ifstream file("res/save/Objects.json", std::ios::in);
+		if (!file.is_open())
+		{
+			std::cout << "can not open json file to read." << std::endl;
+			return false;
+		}
+		std::string data;
+		std::stringstream ss;
+		while (getline(file, data))
+		{
+			ss << data;
+		}
+
+
+		std::string ObjectsData = ss.str();
+
+		//创建解析对象
+		rapidjson::Document doc;
+		//首先进行解析，没有解析错误才能进行具体字段的解析
+		if (!doc.Parse(ObjectsData.data()).HasParseError())
+		{
+			if (doc.HasMember("Objects") && doc["Objects"].IsArray())
+			{
+				const rapidjson::Value& array = doc["Objects"];
+				size_t len = array.Size();
+				for (size_t i = 0; i < len; i++)
+				{
+					const rapidjson::Value& object = array[i];
+					//为防止类型不匹配，一般会添加类型校验
+					if (object.IsObject())
+					{
+						if (object.HasMember("index") && object["index"].IsInt())
+						{
+							load_objectindex = object["index"].GetInt();
+						}
+						if (object.HasMember("name") && object["name"].IsString())
+						{
+							load_name = object["name"].GetString();
+						}
+						if (object.HasMember("amount") && object["amount"].IsInt())
+						{
+							load_amount = object["amount"].GetInt();
+						}
+						if (object.HasMember("filepath") && object["filepath"].IsString())
+						{
+							load_filepath = object["filepath"].GetString();
+						}
+						if (object.HasMember("haveangle") && object["haveangle"].IsBool())
+						{
+							load_haveangle = object["haveangle"].GetBool();
+						}
+						if (object.HasMember("scale") && object["scale"].IsArray())
+						{
+							const rapidjson::Value& array1 = object["scale"];
+							load_scale[0] = array1[0].GetDouble();
+							load_scale[1] = array1[1].GetDouble();
+							load_scale[2] = array1[2].GetDouble();
+						}
+						AddObject(load_name, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), load_scale, load_haveangle);
+					}
+				}
+			}
+			//1. 解析整数
+// 			if (doc.HasMember("Int") && doc["Int"].IsInt())
+// 			{
+// 				cout << "Int = " << doc["Int"].GetInt() << endl;
+// 			}
+// 			//2. 解析浮点型
+// 			if (doc.HasMember("Double") && doc["Double"].IsDouble())
+// 			{
+// 				cout << "Double = " << doc["Double"].GetDouble() << endl;
+// 			}
+// 			//3. 解析字符串
+// 			if (doc.HasMember("String") && doc["String"].IsString())
+// 			{
+// 				cout << "String = " << doc["String"].GetString() << endl;
+// 			}
+// 			//4. 解析结构体
+// 			if (doc.HasMember("Object") && doc["Object"].IsObject())
+// 			{
+// 				const rapidjson::Value& object = doc["Object"];
+// 				if (object.HasMember("name") && object["name"].IsString())
+// 				{
+// 					cout << "Object.name = " << object["name"].GetString() << endl;
+// 				}
+// 				if (object.HasMember("age") && object["age"].IsInt())
+// 				{
+// 					cout << "Object.age = " << object["age"].GetInt() << endl;
+// 				}
+// 			}
+// 			//5. 解析数组类型
+// 			//5.1 整型数组类型
+// 			if (doc.HasMember("IntArray") && doc["IntArray"].IsArray())
+// 			{
+// 				//5.1.1 将字段转换成为rapidjson::Value类型
+// 				const rapidjson::Value& array = doc["IntArray"];
+// 				//5.1.2 获取数组长度
+// 				size_t len = array.Size();
+// 				//5.1.3 根据下标遍历，注意将元素转换为相应类型，即需要调用GetInt()
+// 				for (size_t i = 0; i < len; i++)
+// 				{
+// 					cout << "IntArray[" << i << "] = " << array[i].GetInt() << endl;
+// 				}
+// 			}
+// 			//5.2 浮点型数组类型
+// 			if (doc.HasMember("DoubleArray") && doc["DoubleArray"].IsArray())
+// 			{
+// 				const rapidjson::Value& array = doc["DoubleArray"];
+// 				size_t len = array.Size();
+// 				for (size_t i = 0; i < len; i++)
+// 				{
+// 					//为防止类型不匹配，一般会添加类型校验
+// 					if (array[i].IsDouble())
+// 					{
+// 						cout << "DoubleArray[" << i << "] = " << array[i].GetDouble() << endl;
+// 					}
+// 				}
+// 			}
+// 			//5.3 字符串数组类型
+// 			if (doc.HasMember("StringArray") && doc["StringArray"].IsArray())
+// 			{
+// 				const rapidjson::Value& array = doc["StringArray"];
+// 				size_t len = array.Size();
+// 				for (size_t i = 0; i < len; i++)
+// 				{
+// 					//为防止类型不匹配，一般会添加类型校验
+// 					if (array[i].IsString())
+// 					{
+// 						cout << "StringArray[" << i << "] = " << array[i].GetString() << endl;
+// 					}
+// 				}
+// 			}
+// 			//5.4 混合型
+// 			if (doc.HasMember("MixedArray") && doc["MixedArray"].IsArray())
+// 			{
+// 				const rapidjson::Value& array = doc["MixedArray"];
+// 				size_t len = array.Size();
+// 				for (size_t i = 0; i < len; i++)
+// 				{
+// 					//为防止类型不匹配，一般会添加类型校验
+// 					if (array[i].IsString())
+// 					{
+// 						cout << "MixedArray[" << i << "] = " << array[i].GetString() << endl;
+// 					}
+// 					else if (array[i].IsBool())
+// 					{
+// 						cout << "MixedArray[" << i << "] = " << array[i].GetBool() << endl;
+// 					}
+// 					else if (array[i].IsInt())
+// 					{
+// 						cout << "MixedArray[" << i << "] = " << array[i].GetInt() << endl;
+// 					}
+// 					else if (array[i].IsDouble())
+// 					{
+// 						cout << "MixedArray[" << i << "] = " << array[i].GetDouble() << endl;
+// 					}
+// 				}
+// 			}
+// 			//5.5 结构体数组类型
+// 			if (doc.HasMember("People") && doc["People"].IsArray())
+// 			{
+// 				const rapidjson::Value& array = doc["People"];
+// 				size_t len = array.Size();
+// 				for (size_t i = 0; i < len; i++)
+// 				{
+// 					const rapidjson::Value& object = array[i];
+// 					//为防止类型不匹配，一般会添加类型校验
+// 					if (object.IsObject())
+// 					{
+// 						cout << "ObjectArray[" << i << "]: ";
+// 						if (object.HasMember("name") && object["name"].IsString())
+// 						{
+// 							cout << "name=" << object["name"].GetString();
+// 						}
+// 						if (object.HasMember("age") && object["age"].IsInt())
+// 						{
+// 							cout << ", age=" << object["age"].GetInt();
+// 						}
+// 						if (object.HasMember("sex") && object["sex"].IsBool())
+// 						{
+// 							cout << ", sex=" << (object["sex"].GetBool() ? "男" : "女") << endl;
+// 						}
+// 					}
+// 				}
+// 			}
+// 		}
+		/**
+		 *    最后注意：因为rapidjson不会做安全校验，所以要自己做安全校验，以int整型为例
+		 * “if(object.HasMember("age") && object["age"].IsInt()) {}”
+		 * 这句校验很重要，既要校验有该子段，也要校验类型正确，否则会引发程序崩溃
+		 */
+		
+		std::ifstream file1("res/save/ObjectsDetail.json", std::ios::in);
+		if (!file1.is_open())
+		{
+			std::cout << "can not open json file to read." << std::endl;
+			return false;
+		}
+		std::string data1;
+		std::stringstream ss1;
+		while (getline(file1, data1))
+		{
+			ss1 << data1;
+		}
+
+
+		std::string ObjectsDetailData = ss1.str();
+
+		//创建解析对象
+		rapidjson::Document doc1;
+		//首先进行解析，没有解析错误才能进行具体字段的解析
+		if (!doc1.Parse(ObjectsDetailData.data()).HasParseError())
+		{
+			if (doc1.HasMember("ObjectsDetail") && doc1["ObjectsDetail"].IsArray())
+			{
+				const rapidjson::Value& array2 = doc1["ObjectsDetail"];
+				size_t len1 = array2.Size();
+				for (size_t i = 0; i < len1; i++)//每种物体
+				{
+					const rapidjson::Value& object1 = array2[i];
+
+					//为防止类型不匹配，一般会添加类型校验
+					if (object1.IsObject())
+					{
+						if (object1.HasMember(ObjectsMap[i].c_str()) && object1[ObjectsMap[i].c_str()].IsArray())
+						{
+							const rapidjson::Value& array3 = object1[ObjectsMap[i].c_str()];
+							size_t len2 = array3.Size();
+							for (size_t j = 0; j < len2; j++)//每个重复物体
+							{
+								const rapidjson::Value& object2 = array3[j];
+								//为防止类型不匹配，一般会添加类型校验
+								if (object2.IsObject())
+								{
+									if (object2.HasMember("pos") && object2["pos"].IsArray())
+									{
+										const rapidjson::Value& array4 = object2["pos"];
+										load_pos[0] = array4[0].GetDouble();
+										load_pos[1] = array4[1].GetDouble();
+										load_pos[2] = array4[2].GetDouble();
+									}
+									if (object2.HasMember("rotate") && object2["rotate"].IsArray())
+									{
+										const rapidjson::Value& array5 = object2["rotate"];
+										load_rotate[0] = array5[0].GetDouble();
+										load_rotate[1] = array5[1].GetDouble();
+										load_rotate[2] = array5[2].GetDouble();
+									}
+
+									
+									m_Objectindex = i;
+									m_index = j;
+									if (j > 0)
+									{
+										Load_AddAmount();
+									}
+									ChangePos(load_pos);
+									ChangeRotate(glm::vec3(0.0f, load_rotate.y, 0.0f), 1);
+									if (object2.HasMember("angle") && object2["angle"].IsArray())
+									{
+										const rapidjson::Value& array6 = object2["angle"];
+
+										size_t len3 = array6.Size();
+										for (size_t k = 0; k < len3; k++)//每个关节
+										{
+											Angle[m_Objectindex][k][m_index] = array6[k].GetDouble();
+										}
+									}
+									if (haveAngle[m_Objectindex])
+									{
+										ChangeAngle();
+									}
+									
+										
+									
+								}
+							}
+
+						}
+					}
+				}
+			}
+
+		}
+		}
+		return true;
+	}
 }
 

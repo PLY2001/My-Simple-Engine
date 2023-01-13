@@ -4,6 +4,9 @@
 #include <map>
 #include <fstream>
 #include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/document.h"
+#include "Hazel/Renderer/Model.h"
 
 #define PI 3.1415926
 
@@ -13,8 +16,8 @@ namespace Hazel {
 	{
 	public:
 		
-		Objects() = default;
-		void AddObject(std::string name, glm::vec3 Pos, glm::vec3 Rotation, glm::vec3 Scale, std::shared_ptr<Model>& model, bool hasAngle);
+		Objects(std::map<std::string, std::shared_ptr<Model>>& modelmap);
+		void AddObject(std::string name, glm::vec3 Pos, glm::vec3 Rotation, glm::vec3 Scale, bool hasAngle);
 		~Objects() = default;
 
 		void InitModelMatrices(int ObjectIndex);
@@ -23,6 +26,7 @@ namespace Hazel {
 		glm::mat4* GetModelMatrix(int ObjectIndex, int index);
 		void AddAmount();
 		void AddAmount(std::string name);
+		void Load_AddAmount();
 		int GetAmount(int ObjectIndex);
 		int GetMyAmount();
 		int GetObjectAmount();
@@ -31,6 +35,7 @@ namespace Hazel {
 		bool SolveAngle(glm::vec3 Pos, glm::vec3 Eular);
 
 		std::vector<std::shared_ptr<Model>> m_model;
+		std::map<std::string, std::shared_ptr<Model>> m_modelmap;
 
 		glm::vec3 GetAABBMaxPos();
 		glm::vec3 GetAABBMinPos();
@@ -75,8 +80,18 @@ namespace Hazel {
 		std::vector<std::string> ObjectsMap;
 
 		bool SaveScene();
+		bool LoadScene();
 
+		int load_objectindex = 0;
+		std::string load_name;
+		int load_amount = 0;
+		bool load_haveangle = 0;
+		std::string load_filepath;
+		glm::vec3 load_scale = glm::vec3(1.0f);
 
+		glm::vec3 load_pos = glm::vec3(0.0f);
+		glm::vec3 load_rotate = glm::vec3(0.0f);
+		//std::vector<float> load_angle;
 	};
 
 
