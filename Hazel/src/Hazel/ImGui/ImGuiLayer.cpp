@@ -230,8 +230,8 @@ namespace Hazel {
 // 		ImGui::Text("counter = %d", counter);
 // 
  		ImGui::Text(u8"Ã¿Ö¡Æ½¾ù %.3f ms (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-
+		//ImGui::InputFloat(u8"radius", &Application::Get().radius);
+		//ImGui::InputFloat(u8"bias1", &Application::Get().bias1);
 		ImGui::End();
 
 

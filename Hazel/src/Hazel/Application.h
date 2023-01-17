@@ -197,6 +197,10 @@ namespace Hazel
 		std::shared_ptr<Model> BeltModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::shared_ptr<Model> AVGModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::map<std::string, std::shared_ptr<Model>> modelmap;
+
+		float bias = 0.0003f;
+		float radius = 0.011f;
+		float bias1 = 0.009f;
 	};
 
 	Application* CreateApplication();

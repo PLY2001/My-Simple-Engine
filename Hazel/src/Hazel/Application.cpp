@@ -206,6 +206,8 @@ namespace Hazel
 
 			//相机键盘输入控制
 			camera->KeyControl(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), deltaTime);
+			//ShadowMapWidth = (int)(8192.0f / camera->GetPosition().y);
+			//ShadowMapHeight = (int)(8192.0f / camera->GetPosition().y);
 
 			//点光源控制
 			float LightSpeed = static_cast<float>(10 * deltaTime);
@@ -372,6 +374,7 @@ namespace Hazel
 			glActiveTexture(GL_TEXTURE5);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubemapTexture);
 			shader->SetUniform1i("skybox", 5);
+			
 
 			//绘制真实物体
 			for (int i = 0; i < objects->GetObjectAmount(); i++)
@@ -433,7 +436,11 @@ namespace Hazel
 					glActiveTexture(GL_TEXTURE7);
 					glBindTexture(GL_TEXTURE_2D, framebufferSM->GetTexID());
 					ShadowDrawShader->SetUniform1i("shadowmap", 7);
-
+					ShadowDrawShader->SetUniform4f("u_LightPosition", 100.0f * DirectLight->Pos.x, 100.0f * DirectLight->Pos.y, 100.0f * DirectLight->Pos.z, 1.0f);
+					ShadowDrawShader->SetUniform1f("bias", bias);
+					ShadowDrawShader->SetUniform1f("radius", radius);
+					ShadowDrawShader->SetUniform1f("bias1", bias1);
+					ShadowDrawShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
 					ShadowDrawShader->SetUniformMat4("view", LightViewMatrix);
 					ShadowDrawShader->SetUniformMat4("projection", LightProjectionMatrix);
 

@@ -11,6 +11,7 @@ out VS_OUT{
 	vec4 v_WorldNormal;
 	//vec4 v_ViewNormal;
 	vec4 v_WorldPosition;
+
 }vs_out;
 
 
@@ -21,8 +22,12 @@ layout(std140) uniform Matrices
 };
 
 
+
 void main() 
 { 
+	
+	
+
 	vs_out.v_texcoord=texcoord;
 	vs_out.v_WorldNormal=model*vec4(normalize(normal),0.0f);
 	//vs_out.v_ViewNormal=u_view*model*vec4(normalize(normal),0.0f);
@@ -114,7 +119,10 @@ in VS_OUT{
 	vec2 v_texcoord;//从顶点着色器传入的变量
 	vec4 v_WorldNormal;
 	vec4 v_WorldPosition;
+	//vec4 v_TangentPosition;
+
 }fs_in;
+
 
 
 void main() 
@@ -136,7 +144,11 @@ void main()
 	vec3 R=reflect(-CameraDir,Normal);
 	vec3 reflectColor = texture(skybox,R).xyz;
 
+	
+	
 
-	//color =vec4(diffuseColor/2.0f,1.0f);
+
+	//color =vec4(gl_FragCoord.z,gl_FragCoord.z,gl_FragCoord.z,1.0f);
+	//color =vec4(1.0f,1.0f,1.0f,1.0f);
 	color =vec4((reflectColor*0.05f+ambientColor+diffuseColor+specularColor*reflectColor),1.0f);//*(1.0f-shadowColor) //texColor;//u_color;//vec4(0.2,0.7,0.3,1.0); 
 }
