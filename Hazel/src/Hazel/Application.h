@@ -196,6 +196,8 @@ namespace Hazel
 		std::shared_ptr<Model> IRB120Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::shared_ptr<Model> BeltModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::shared_ptr<Model> AVGModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
+		std::shared_ptr<Model> BoxModel;
+		std::shared_ptr<Model> MachineModel;
 		std::map<std::string, std::shared_ptr<Model>> modelmap;
 
 		float bias = 0.0003f;

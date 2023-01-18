@@ -42,6 +42,8 @@ namespace Hazel {
 		{
 			Angle[ObjectAmount-1][i].push_back(0);
 		}
+		Pos_Eular.resize(ObjectAmount);
+		Pos_Eular.back().push_back({-5.18f, 6.3f, 0.0f, 0.0f, 0.0f, 0.0f});
 		InitModelMatrices(ObjectAmount - 1);
 		
 	}
@@ -129,8 +131,11 @@ namespace Hazel {
 		{
 			Angle[m_Objectindex][i].push_back(0);
 		}
+		Pos_Eular[m_Objectindex].push_back({ -5.18f, 6.3f, 0.0f, 0.0f, 0.0f, 0.0f });
+
 		
 		SetAABB(m_Objectindex,Amount[m_Objectindex] - 1);
+		m_index = Amount[m_Objectindex] - 1;
 	}
 
 	void Objects::AddAmount(std::string name)
@@ -148,6 +153,45 @@ namespace Hazel {
 		}
 		
 		AddAmount();
+	}
+
+	void Objects::ReduceAmount()
+	{
+		Amount[m_Objectindex]--;
+		if (m_index < 0)
+		{
+			m_index = Amount[m_Objectindex];
+		}
+		if (int decrease = DefaultModelMatrices[m_Objectindex][0].size() - Amount[m_Objectindex] > 0)
+		{
+			for (int j = 0; j < decrease; j++)
+			{
+				m_Pos[m_Objectindex].erase(m_Pos[m_Objectindex].begin() + m_index);
+				m_Rotate[m_Objectindex].erase(m_Rotate[m_Objectindex].begin() + m_index);
+			}
+			for (int i = 0; i < m_model[m_Objectindex]->meshes.size(); i++)
+			{
+				for (int j = 0; j < decrease; j++)
+				{
+					if (haveAngle[m_Objectindex])
+					{
+						ModelMatrices[m_Objectindex][i].erase(ModelMatrices[m_Objectindex][i].begin() + m_index);
+					}
+					DefaultModelMatrices[m_Objectindex][i].erase(DefaultModelMatrices[m_Objectindex][i].begin() + m_index);
+				}
+			}
+
+		}
+		AABBMinPos[m_Objectindex].erase(AABBMinPos[m_Objectindex].begin() + m_index);
+		AABBMaxPos[m_Objectindex].erase(AABBMaxPos[m_Objectindex].begin() + m_index);
+
+		for (int i = 0; i < m_model[m_Objectindex]->meshes.size() - 1; i++)
+		{
+			Angle[m_Objectindex][i].erase(Angle[m_Objectindex][i].begin() + m_index);
+		}
+		Pos_Eular[m_Objectindex].erase(Pos_Eular[m_Objectindex].begin() + m_index);
+
+		m_index = -1;
 	}
 
 	void Objects::Load_AddAmount()
@@ -187,6 +231,8 @@ namespace Hazel {
 		{
 			Angle[m_Objectindex][i].push_back(0);
 		}
+		Pos_Eular[m_Objectindex].push_back({ -5.18f, 6.3f, 0.0f, 0.0f, 0.0f, 0.0f });
+
 
 		SetAABB(m_Objectindex, Amount[m_Objectindex] - 1);
 	}
@@ -272,10 +318,17 @@ namespace Hazel {
 		return &Angle[m_Objectindex][Axis - 1][m_index];
 	}
 
-	bool Objects::SolveAngle(glm::vec3 Pos, glm::vec3 Eular)
+	float* Objects::SetPos_Eular(int index)
 	{
+		return &Pos_Eular[m_Objectindex][m_index][index];
+	}
+
+	bool Objects::SolveAngle()
+	{
+		glm::vec3 Pos = glm::vec3(Pos_Eular[m_Objectindex][m_index][0], Pos_Eular[m_Objectindex][m_index][1], Pos_Eular[m_Objectindex][m_index][2])/m_Scale[m_Objectindex];
+		glm::vec3 Eular = glm::vec3(Pos_Eular[m_Objectindex][m_index][3], Pos_Eular[m_Objectindex][m_index][4], Pos_Eular[m_Objectindex][m_index][5]);
 		glm::mat4 backwardTranslate = glm::mat4(1);;
-		backwardTranslate = glm::translate(backwardTranslate, glm::vec3(72.0f, 0.0f, 0.0f));
+		backwardTranslate = glm::translate(backwardTranslate, glm::vec3(216.0f, 0.0f, 0.0f));//夹具中心到上一轴的距离为72+144
 
 
 		glm::mat4 backwardEular = glm::mat4(1);
@@ -368,7 +421,7 @@ namespace Hazel {
 		{
 			return false;
 		}
-
+		//ChangeAngle();
 		return true;
 
 	}
@@ -629,6 +682,16 @@ namespace Hazel {
 				{
 					writer1.Double(m_angle[i]);
 				}
+				writer1.EndArray();
+
+				writer1.Key("poseular");
+				writer1.StartArray();
+				writer1.Double(Pos_Eular[j][i][0]);
+				writer1.Double(Pos_Eular[j][i][1]);
+				writer1.Double(Pos_Eular[j][i][2]);
+				writer1.Double(Pos_Eular[j][i][3]);
+				writer1.Double(Pos_Eular[j][i][4]);
+				writer1.Double(Pos_Eular[j][i][5]);
 				writer1.EndArray();
 				
 				writer1.EndObject();
@@ -893,7 +956,7 @@ namespace Hazel {
 										load_rotate[1] = array5[1].GetDouble();
 										load_rotate[2] = array5[2].GetDouble();
 									}
-
+									
 									
 									m_Objectindex = i;
 									m_index = j;
@@ -917,6 +980,18 @@ namespace Hazel {
 									{
 										ChangeAngle();
 									}
+									if (object2.HasMember("poseular") && object2["poseular"].IsArray())
+									{
+										const rapidjson::Value& array7 = object2["poseular"];
+										Pos_Eular[i][j][0] = array7[0].GetDouble();
+										Pos_Eular[i][j][1] = array7[1].GetDouble();
+										Pos_Eular[i][j][2] = array7[2].GetDouble();
+										Pos_Eular[i][j][3] = array7[3].GetDouble();
+										Pos_Eular[i][j][4] = array7[4].GetDouble();
+										Pos_Eular[i][j][5] = array7[5].GetDouble();
+
+									}
+
 									
 										
 									

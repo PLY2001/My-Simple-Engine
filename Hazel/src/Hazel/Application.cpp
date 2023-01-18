@@ -61,9 +61,13 @@ namespace Hazel
 		IRB120Model.reset(new Model("res/models/ABB_IRB120/ABB_IRB120.obj"));//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		BeltModel.reset(new Model("res/models/belt/belt.obj"));
 		AVGModel.reset(new Model("res/models/AVGcar/AVGcar.obj"));
+		BoxModel.reset(new Model("res/models/box/box.obj"));
+		MachineModel.reset(new Model("res/models/machine/machine.obj"));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("irb120",IRB120Model));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt", BeltModel));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("AVG", AVGModel));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("box", BoxModel));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("machine", MachineModel));
 		objects.reset(new Objects(modelmap));
 
 		/*平面*/

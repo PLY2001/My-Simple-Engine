@@ -16,8 +16,8 @@
 
 namespace Hazel {
 
-	glm::vec3 Pos = glm::vec3(-3.74f,6.3f,0.0f);
-	glm::vec3 Eular = glm::vec3(0.0f, 0.0f, 0.0f);
+	//glm::vec3 Pos = glm::vec3(-5.18f,6.3f,0.0f);
+	//glm::vec3 Eular = glm::vec3(0.0f, 0.0f, 0.0f);
 
 
 	ImGuiLayer::ImGuiLayer()
@@ -100,6 +100,80 @@ namespace Hazel {
 		//static bool show = true;
 		//ImGui::ShowDemoWindow(&show);//显示imgui示例界面
 		
+		if (ImGui::BeginMainMenuBar())
+		{
+			if (ImGui::BeginMenu(u8"  文件  "))
+			{
+				if (ImGui::MenuItem(u8"读取场景"))
+				{
+
+					Application::Get().objects.reset(new Objects(Application::Get().modelmap));
+					Application::Get().insbos.reset(new InstanceBufferObjects());
+					
+					if (Application::Get().objects->LoadScene())
+					{
+						
+						Application::Get().insbos->AddObjects(Application::Get().objects);
+						Loaded = true;
+
+						
+
+					}
+				}
+				
+
+
+				if (ImGui::MenuItem(u8"保存场景"))
+				{
+					if (Application::Get().objects->SaveScene())
+					{
+						Save = true;
+						//ImGui::OpenPopup(u8"保存提示");
+					}
+				}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu(u8"编辑"))
+			{
+				if (ImGui::MenuItem(u8"清空全部"))
+				{
+					Application::Get().objects.reset(new Objects(Application::Get().modelmap));
+					Application::Get().insbos.reset(new InstanceBufferObjects());
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMainMenuBar();
+		}
+
+		if (Loaded||Save)
+		{
+			ImGui::OpenPopup(u8"提示");
+		}
+		// Always center this window when appearing
+		ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+		ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+		if (ImGui::BeginPopupModal(u8"提示", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			if(Loaded)
+			{
+				ImGui::Text(u8"读取场景成功");
+			}
+			if(Save)
+			{
+				ImGui::Text(u8"保存场景成功");
+			}
+			ImGui::Separator();
+			if (ImGui::Button(u8"确定", ImVec2(120, 0)))
+			{
+				ImGui::CloseCurrentPopup();
+				Loaded = false;
+				Save = false;
+			}
+			ImGui::EndPopup();
+		}
+		
+
 		
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
 		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
@@ -122,6 +196,8 @@ namespace Hazel {
 				Application::Get().objects->AddAmount();
 			ImGui::SameLine();
 			ImGui::Text(u8"所选模型总计 %d 个", Application::Get().objects->GetMyAmount());
+			if (ImGui::Button(u8"删除所选模型"))
+				Application::Get().objects->ReduceAmount();
 
 			if ((int)Application::Get().objects->GetControlMode() > 0)
 			{
@@ -162,29 +238,29 @@ namespace Hazel {
 			if ((int)Application::Get().objects->GetControlMode() == 2)
 			{
 				glm::vec3 Scale = Application::Get().objects->GetScale();
-				if (ImGui::SliderFloat("PosX", &Pos.x, -652.0f * Scale.x, 652.0f * Scale.x))
+				if (ImGui::SliderFloat("PosX", Application::Get().objects->SetPos_Eular(0), -652.0f * Scale.x, 652.0f * Scale.x))
 				{
-					Application::Get().AngleChanged = Application::Get().objects->SolveAngle(Pos / Scale, Eular);
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
-				if (ImGui::SliderFloat("PosY", &Pos.y, -184.0f * Scale.y, 1054.0f * Scale.y))
+				if (ImGui::SliderFloat("PosY", Application::Get().objects->SetPos_Eular(1), -184.0f * Scale.y, 1054.0f * Scale.y))
 				{
-					Application::Get().AngleChanged = Application::Get().objects->SolveAngle(Pos / Scale, Eular);;
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
-				if (ImGui::SliderFloat("PosZ", &Pos.z, -652.0f * Scale.z, 652.0f * Scale.z))
+				if (ImGui::SliderFloat("PosZ", Application::Get().objects->SetPos_Eular(2), -652.0f * Scale.z, 652.0f * Scale.z))
 				{
-					Application::Get().AngleChanged = Application::Get().objects->SolveAngle(Pos / Scale, Eular);;
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
-				if (ImGui::SliderFloat("EularX", &Eular.x, -180.0f, 180.0f))
+				if (ImGui::SliderFloat("EularX", Application::Get().objects->SetPos_Eular(3), -180.0f, 180.0f))
 				{
-					Application::Get().AngleChanged = Application::Get().objects->SolveAngle(Pos / Scale, Eular);;
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
-				if (ImGui::SliderFloat("EularY", &Eular.y, -180.0f, 180.0f))
+				if (ImGui::SliderFloat("EularY", Application::Get().objects->SetPos_Eular(4), -180.0f, 180.0f))
 				{
-					Application::Get().AngleChanged = Application::Get().objects->SolveAngle(Pos / Scale, Eular);;
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
-				if (ImGui::SliderFloat("EularZ", &Eular.z, -180.0f, 180.0f))
+				if (ImGui::SliderFloat("EularZ", Application::Get().objects->SetPos_Eular(5), -180.0f, 180.0f))
 				{
-					Application::Get().AngleChanged = Application::Get().objects->SolveAngle(Pos / Scale, Eular);;
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
 
 
@@ -264,7 +340,7 @@ namespace Hazel {
 				Application::Get().objects->AddAmount("belt");
 			}
 		}
-		if (ImGui::Button(u8"AVG运输车"))
+		if (ImGui::Button(u8"AGV运输车"))
 		{
 			if (std::find(Application::Get().objects->ObjectsMap.begin(), Application::Get().objects->ObjectsMap.end(), "AVG") == Application::Get().objects->ObjectsMap.end())
 			{
@@ -277,37 +353,35 @@ namespace Hazel {
 				Application::Get().objects->AddAmount("AVG");
 			}
 		}
-		if (ImGui::Button(u8"保存场景"))
+		if (ImGui::Button(u8"塑料盒"))
 		{
-			if (Application::Get().objects->SaveScene())
+			if (std::find(Application::Get().objects->ObjectsMap.begin(), Application::Get().objects->ObjectsMap.end(), "box") == Application::Get().objects->ObjectsMap.end())
 			{
-				Save = true;	
+				//ObjectsMap.insert(std::pair<std::string, bool>("irb120", true));
+				Application::Get().objects->AddObject("box", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), false);
+				Application::Get().insbos->AddObject(Application::Get().objects);
+			}
+			else
+			{
+				Application::Get().objects->AddAmount("box");
 			}
 		}
-		if (Save)
+		if (ImGui::Button(u8"吹塑机"))
 		{
-			ImGui::Text(u8"保存成功");
-		}
-		if (ImGui::Button(u8"读取场景"))
-		{
-			Application::Get().objects.reset(new Objects(Application::Get().modelmap));
-			Application::Get().insbos.reset(new InstanceBufferObjects());
 			
-			if (Application::Get().objects->LoadScene())
+			if (std::find(Application::Get().objects->ObjectsMap.begin(), Application::Get().objects->ObjectsMap.end(), "machine") == Application::Get().objects->ObjectsMap.end())
 			{
-				Application::Get().insbos->AddObjects(Application::Get().objects);
-				Loaded = true;
+				//ObjectsMap.insert(std::pair<std::string, bool>("irb120", true));
+				Application::Get().objects->AddObject("machine", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.45f, 0.45f, 0.45f), false);
+				Application::Get().insbos->AddObject(Application::Get().objects);
+			}
+			else
+			{
+				Application::Get().objects->AddAmount("machine");
 			}
 		}
-		if (Loaded)
-		{
-			ImGui::Text(u8"读取成功");
-		}
-		if (ImGui::Button(u8"清空场景"))
-		{
-			Application::Get().objects.reset(new Objects(Application::Get().modelmap));
-			Application::Get().insbos.reset(new InstanceBufferObjects());
-		}
+		
+		
 		ImGui::End();
 
 		

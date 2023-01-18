@@ -26,13 +26,15 @@ namespace Hazel {
 		glm::mat4* GetModelMatrix(int ObjectIndex, int index);
 		void AddAmount();
 		void AddAmount(std::string name);
+		void ReduceAmount();
 		void Load_AddAmount();
 		int GetAmount(int ObjectIndex);
 		int GetMyAmount();
 		int GetObjectAmount();
 		void ChangeAngle();
 		float* SetAngle(int Axis);
-		bool SolveAngle(glm::vec3 Pos, glm::vec3 Eular);
+		float* SetPos_Eular(int index);
+		bool SolveAngle();
 
 		std::vector<std::shared_ptr<Model>> m_model;
 		std::map<std::string, std::shared_ptr<Model>> m_modelmap;
@@ -57,7 +59,8 @@ namespace Hazel {
 		std::vector<std::vector<glm::vec3>> m_Pos;
 		std::vector<std::vector<glm::vec3>> m_Rotate;
 		std::vector<glm::vec3> m_Scale;
-
+		std::vector<std::vector<std::vector<float>>> Pos_Eular;
+		//std::map<std::string, glm::vec3[2]> Pos_Eular_map;
 		std::vector<std::vector<std::vector<float>>> Angle;
 		std::vector<int> Amount;
 		int ObjectAmount = 0;
