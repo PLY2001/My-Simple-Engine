@@ -185,6 +185,8 @@ namespace Hazel {
 		ImGui::RadioButton(u8"真实", (int*)&Application::Get().graphicmode , 0);
 		ImGui::SameLine();
 		ImGui::RadioButton(u8"描边", (int*)&Application::Get().graphicmode, 1);
+		ImGui::SameLine();
+		ImGui::RadioButton(u8"无阴影", (int*)&Application::Get().graphicmode, 2);
 
 		ImGui::Text(u8"切换灯光类型");
 		ImGui::RadioButton(u8"直射光", (int*)&Application::Get().lightmode, 0);
@@ -308,6 +310,7 @@ namespace Hazel {
  		ImGui::Text(u8"每帧平均 %.3f ms (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		//ImGui::InputFloat(u8"radius", &Application::Get().radius);
 		//ImGui::InputFloat(u8"bias1", &Application::Get().bias1);
+		//ImGui::InputFloat(u8"bias2", &Application::Get().bias2);
 		ImGui::End();
 
 

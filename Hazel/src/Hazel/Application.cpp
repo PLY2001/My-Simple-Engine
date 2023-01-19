@@ -38,6 +38,7 @@ namespace Hazel
 		ScreenBasicShader.reset(new Shader("res/shaders/ScreenBasic.shader"));
 		ShadowMapShader.reset(new Shader("res/shaders/ShadowMap.shader"));
 		ShadowDrawShader.reset(new Shader("res/shaders/ShadowDraw.shader"));
+		//ShadowDrawPlaneShader.reset(new Shader("res/shaders/ShadowDrawPlane.shader"));
 		GaussianShader.reset(new Shader("res/shaders/Gaussian.shader"));
 		ShadowCubeMapShader.reset(new Shader("res/shaders/ShadowCubeMap.shader"));
 		ShadowCubeDrawShader.reset(new Shader("res/shaders/ShadowCubeDraw.shader"));
@@ -45,6 +46,7 @@ namespace Hazel
 		BloomShader.reset(new Shader("res/shaders/Bloom.shader"));
 		AABBShader.reset(new Shader("res/shaders/AABB.shader"));
 		//ArrowShader.reset(new Shader("res/shaders/Arrow.shader"));
+		CameraDepthMapShader.reset(new Shader("res/shaders/CameraDepthMap.shader"));
 
 
 		//加载模型
@@ -115,6 +117,8 @@ namespace Hazel
 		//framebuffer7.reset(new FrameBuffer(s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight()));
 		//framebuffer7->GenTexture2D();
 		//QuadID7 = framebuffer7->GenQuad();//用于绘制贴图的四边形
+		framebufferCM.reset(new FrameBuffer(s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight()));
+		framebufferCM->GenTexture2DShadowMap();
 
 		//创建天空盒
 		skybox.reset(new Skybox("Factory"));
@@ -128,9 +132,11 @@ namespace Hazel
 		shaderIDs.push_back(shader->RendererID);
 		shaderIDs.push_back(OutlineShader->RendererID);
 		shaderIDs.push_back(ShadowDrawShader->RendererID);
+		//shaderIDs.push_back(ShadowDrawPlaneShader->RendererID);
 		shaderIDs.push_back(ShadowCubeDrawShader->RendererID);
 		shaderIDs.push_back(AABBShader->RendererID);
 		//shaderIDs.push_back(ArrowShader->RendererID);
+		shaderIDs.push_back(CameraDepthMapShader->RendererID);
 		ubo->Bind(shaderIDs, "Matrices");
 
 
@@ -145,6 +151,8 @@ namespace Hazel
 		glfwSetInputMode(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		aabb.reset(new AABB(AABBShader));
+
+		//hbaotexture.reset(new Texture("res/textures/hbao.png"));
 	}
 
 
@@ -333,7 +341,18 @@ namespace Hazel
 				glViewport(0, 0, s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight());//还原视口尺寸
 			}
 
+			//摄像机深度信息
+			CameraDepthMapShader->Bind();
 
+			framebufferCM->Bind();//绑定帧缓冲对象，接收深度
+			OpenGLRendererAPI::ClearDepth();//只需清除深度，不需清除颜色
+			for (int i = 0; i < objects->GetObjectAmount(); i++)
+			{
+				OpenGLRendererAPI::DrawInstanced(objects->m_model[i], CameraDepthMapShader, objects->GetAmount(i));//绘制需要投射阴影的物体
+			}
+
+			CameraDepthMapShader->Unbind();
+			framebufferCM->Unbind();
 
 			//first pass
 			framebufferMSAA->Bind();//使用带抗锯齿的帧缓冲
@@ -412,7 +431,19 @@ namespace Hazel
 				framebuffer1->Unbind();
 				framebuffer2->Draw(ScreenPostShader, QuadID);//二值化后，绘制边缘检测
 			}
-			else
+			if (graphicmode == GraphicMode::NoShadow)
+			{
+				//third pass
+				//framebuffer stuff
+				framebuffer1->GetColorAfterMSAA(framebufferMSAA->GetID());//从抗锯齿帧缓冲获取颜色到其他缓冲
+				framebuffer1->Unbind();
+				OpenGLRendererAPI::SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				OpenGLRendererAPI::ClearColor();
+				framebuffer1->Draw(ScreenBasicShader, QuadID);
+
+				
+			}
+			if (graphicmode == GraphicMode::Normal)
 			{
 
 
@@ -440,6 +471,12 @@ namespace Hazel
 					glActiveTexture(GL_TEXTURE7);
 					glBindTexture(GL_TEXTURE_2D, framebufferSM->GetTexID());
 					ShadowDrawShader->SetUniform1i("shadowmap", 7);
+					glActiveTexture(GL_TEXTURE9);
+					glBindTexture(GL_TEXTURE_2D, framebufferCM->GetTexID());
+					ShadowDrawShader->SetUniform1i("cameramap", 9);
+					//hbaotexture->Bind(10);
+					//ShadowDrawShader->SetUniform1i("hbaoPos", 10);
+
 					ShadowDrawShader->SetUniform4f("u_LightPosition", 100.0f * DirectLight->Pos.x, 100.0f * DirectLight->Pos.y, 100.0f * DirectLight->Pos.z, 1.0f);
 					ShadowDrawShader->SetUniform1f("bias", bias);
 					ShadowDrawShader->SetUniform1f("radius", radius);
@@ -458,8 +495,39 @@ namespace Hazel
 					}
 					OpenGLRendererAPI::Draw(plane, ShadowDrawShader);
 
+					/*
+					ShadowDrawPlaneShader->Unbind();
 
-					ShadowDrawShader->Unbind();
+					ShadowDrawPlaneShader->Bind();
+
+					glActiveTexture(GL_TEXTURE7);
+					glBindTexture(GL_TEXTURE_2D, framebufferSM->GetTexID());
+					ShadowDrawPlaneShader->SetUniform1i("shadowmap", 7);
+					glActiveTexture(GL_TEXTURE9);
+					glBindTexture(GL_TEXTURE_2D, framebufferCM->GetTexID());
+					ShadowDrawPlaneShader->SetUniform1i("cameramap", 9);
+
+					ShadowDrawPlaneShader->SetUniform4f("u_LightPosition", 100.0f * DirectLight->Pos.x, 100.0f * DirectLight->Pos.y, 100.0f * DirectLight->Pos.z, 1.0f);
+					ShadowDrawPlaneShader->SetUniform1f("bias", bias);
+					ShadowDrawPlaneShader->SetUniform1f("radius", radius);
+					ShadowDrawPlaneShader->SetUniform1f("bias1", bias1);
+					ShadowDrawPlaneShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
+					ShadowDrawPlaneShader->SetUniformMat4("view", LightViewMatrix);
+					ShadowDrawPlaneShader->SetUniformMat4("projection", LightProjectionMatrix);
+
+					//framebuffer4->Bind();
+					//OpenGLRendererAPI::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+					//OpenGLRendererAPI::ClearColor();
+					//OpenGLRendererAPI::ClearDepth();
+// 					for (int i = 0; i < objects->GetObjectAmount(); i++)
+// 					{
+// 						OpenGLRendererAPI::DrawInstanced(objects->m_model[i], ShadowDrawShader, objects->GetAmount(i));
+// 					}
+					OpenGLRendererAPI::Draw(plane, ShadowDrawPlaneShader);
+
+
+					ShadowDrawPlaneShader->Unbind();
+					*/
 				}
 
 
@@ -471,7 +539,13 @@ namespace Hazel
 					glActiveTexture(GL_TEXTURE8);
 					glBindTexture(GL_TEXTURE_CUBE_MAP, framebufferSCM->GetTexID());
 					ShadowCubeDrawShader->SetUniform1i("shadowcubemap", 8);
-
+					glActiveTexture(GL_TEXTURE10);
+					glBindTexture(GL_TEXTURE_2D, framebufferCM->GetTexID());
+					ShadowCubeDrawShader->SetUniform1i("cameramap", 10);
+					ShadowCubeDrawShader->SetUniform1f("bias2", bias2);
+					ShadowCubeDrawShader->SetUniform1f("radius", radius);
+					ShadowCubeDrawShader->SetUniform1f("bias1", bias1);
+					ShadowCubeDrawShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
 					ShadowCubeDrawShader->SetUniform3f("lightPos", PointLight->Pos.x, PointLight->Pos.y, PointLight->Pos.z);
 					ShadowCubeDrawShader->SetUniform1f("far_plane", farplane);
 
@@ -588,6 +662,7 @@ namespace Hazel
 		framebuffer5->ResetWindow(WinWidth, WinHeight);
 		//framebuffer6->ResetWindow(WinWidth, WinHeight);
 		//framebuffer7->ResetWindow(WinWidth, WinHeight);
+		framebufferCM->ResetWindow(WinWidth, WinHeight);
 		return true;
 	}
 

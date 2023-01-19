@@ -68,6 +68,7 @@ namespace Hazel
 		std::shared_ptr<Shader> ScreenBasicShader;
 		std::shared_ptr<Shader> ShadowMapShader;
 		std::shared_ptr<Shader> ShadowDrawShader;
+		//std::shared_ptr<Shader> ShadowDrawPlaneShader;
 		std::shared_ptr<Shader> GaussianShader;
 		std::shared_ptr<Shader> ShadowCubeMapShader;
 		std::shared_ptr<Shader> ShadowCubeDrawShader;
@@ -75,6 +76,7 @@ namespace Hazel
 		std::shared_ptr<Shader> BloomShader;
 		std::shared_ptr<Shader> AABBShader;
 		//std::shared_ptr<Shader> ArrowShader;
+		std::shared_ptr<Shader> CameraDepthMapShader;
 
 		//灯光
 		float count = 0;
@@ -121,6 +123,8 @@ namespace Hazel
 		//创建帧缓冲7
 		//std::unique_ptr<FrameBuffer> framebuffer7;
 		//unsigned int QuadID7;
+		std::unique_ptr<FrameBuffer> framebufferCM;
+		//创建帧缓冲4
 
 		/*IRB120*/
 		
@@ -141,7 +145,7 @@ namespace Hazel
 		
 
 		//模式
-		enum class GraphicMode { Normal = 0, Outline = 1 };
+		enum class GraphicMode { Normal = 0, Outline = 1, NoShadow = 2 };
 		enum class LightMode { Direct = 0, Point = 1 };
 		
 
@@ -201,8 +205,11 @@ namespace Hazel
 		std::map<std::string, std::shared_ptr<Model>> modelmap;
 
 		float bias = 0.0003f;
-		float radius = 0.011f;
-		float bias1 = 0.009f;
+		float radius = 0.06f;
+		float bias1 = 0.01f;
+		float bias2 = 0.03f;
+
+		//std::unique_ptr<Texture> hbaotexture;
 	};
 
 	Application* CreateApplication();
