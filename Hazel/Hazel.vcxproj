@@ -161,6 +161,7 @@
     <ClInclude Include="src\Hazel\Objects\Arrow.h" />
     <ClInclude Include="src\Hazel\Objects\ModelMatrix.h" />
     <ClInclude Include="src\Hazel\Objects\Objects.h" />
+    <ClInclude Include="src\Hazel\Renderer\Animation.h" />
     <ClInclude Include="src\Hazel\RenderLayers\ControlLayer.h" />
     <ClInclude Include="src\Hazel\Renderer\AABB.h" />
     <ClInclude Include="src\Hazel\Renderer\Buffer.h" />
@@ -605,6 +606,7 @@
     <ClCompile Include="src\Hazel\Log.cpp" />
     <ClCompile Include="src\Hazel\Objects\Arrow.cpp" />
     <ClCompile Include="src\Hazel\Objects\Objects.cpp" />
+    <ClCompile Include="src\Hazel\Renderer\Animation.cpp" />
     <ClCompile Include="src\Hazel\RenderLayers\ControlLayer.cpp" />
     <ClCompile Include="src\Hazel\Renderer\AABB.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Buffer.cpp" />

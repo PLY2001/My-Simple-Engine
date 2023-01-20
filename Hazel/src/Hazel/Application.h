@@ -20,6 +20,7 @@
 //#include "Objects/Belt.h"
 #include "Objects/Objects.h"
 #include "Hazel/Renderer/InstanceBufferObjects.h"
+#include "Hazel/Renderer/Animation.h"
 
 namespace Hazel
 {
@@ -144,14 +145,7 @@ namespace Hazel
 		float lastTime = 0;
 		
 
-		//模式
-		enum class GraphicMode { Normal = 0, Outline = 1, NoShadow = 2 };
-		enum class LightMode { Direct = 0, Point = 1 };
 		
-
-		
-
-		enum class MouseMode { Disable = 0, Enable = 1 };
 		
 
 		
@@ -162,6 +156,10 @@ namespace Hazel
 		static Application* s_Instance;//单例，就需要在类里面直接声明当前类的唯一实例
 
 	public:
+		//模式
+		enum class GraphicMode { Normal = 0, Outline = 1, NoShadow = 2 };
+		enum class LightMode { Direct = 0, Point = 1 };
+		enum class MouseMode { Disable = 0, Enable = 1 };
 		GraphicMode graphicmode = GraphicMode::Normal;
 		LightMode lightmode = LightMode::Direct;
 		MouseMode mousemode = MouseMode::Disable;
@@ -204,12 +202,15 @@ namespace Hazel
 		std::shared_ptr<Model> MachineModel;
 		std::map<std::string, std::shared_ptr<Model>> modelmap;
 
-		float bias = 0.0003f;
-		float radius = 0.06f;
-		float bias1 = 0.01f;
-		float bias2 = 0.03f;
-
+		float bias = 0.0003f;//直射光阴影自遮挡偏置
+		float radius = 0.06f;//hbao半球半径
+		float bias1 = 0.01f;//hbao自遮挡偏置
+		float bias2 = 0.03f;//点光源阴影自遮挡偏置
+		float bias3 = 0.5f;//hbao距离限制
 		//std::unique_ptr<Texture> hbaotexture;
+
+		bool ShadowGaussian = true;
+		std::unique_ptr<Animation> anim;
 	};
 
 	Application* CreateApplication();

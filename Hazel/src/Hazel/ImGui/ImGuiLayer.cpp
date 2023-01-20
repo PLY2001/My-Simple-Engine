@@ -187,7 +187,11 @@ namespace Hazel {
 		ImGui::RadioButton(u8"描边", (int*)&Application::Get().graphicmode, 1);
 		ImGui::SameLine();
 		ImGui::RadioButton(u8"无阴影", (int*)&Application::Get().graphicmode, 2);
-
+		
+		if (Application::Get().graphicmode == Application::GraphicMode::Normal)
+		{
+			ImGui::Checkbox(u8"阴影高斯模糊", &Application::Get().ShadowGaussian);
+		}
 		ImGui::Text(u8"切换灯光类型");
 		ImGui::RadioButton(u8"直射光", (int*)&Application::Get().lightmode, 0);
 		ImGui::SameLine();
@@ -240,27 +244,27 @@ namespace Hazel {
 			if ((int)Application::Get().objects->GetControlMode() == 2)
 			{
 				glm::vec3 Scale = Application::Get().objects->GetScale();
-				if (ImGui::SliderFloat("PosX", Application::Get().objects->SetPos_Eular(0), -652.0f * Scale.x, 652.0f * Scale.x))
+				if (ImGui::SliderFloat("PosX", Application::Get().objects->SetHandPos(0), -652.0f * Scale.x, 652.0f * Scale.x))
 				{
 					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
-				if (ImGui::SliderFloat("PosY", Application::Get().objects->SetPos_Eular(1), -184.0f * Scale.y, 1054.0f * Scale.y))
+				if (ImGui::SliderFloat("PosY", Application::Get().objects->SetHandPos(1), -184.0f * Scale.y, 1054.0f * Scale.y))
 				{
 					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
-				if (ImGui::SliderFloat("PosZ", Application::Get().objects->SetPos_Eular(2), -652.0f * Scale.z, 652.0f * Scale.z))
+				if (ImGui::SliderFloat("PosZ", Application::Get().objects->SetHandPos(2), -652.0f * Scale.z, 652.0f * Scale.z))
 				{
 					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
-				if (ImGui::SliderFloat("EularX", Application::Get().objects->SetPos_Eular(3), -180.0f, 180.0f))
+				if (ImGui::SliderFloat("EularX", Application::Get().objects->SetHandEular(0), -180.0f, 180.0f))
 				{
 					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
-				if (ImGui::SliderFloat("EularY", Application::Get().objects->SetPos_Eular(4), -180.0f, 180.0f))
+				if (ImGui::SliderFloat("EularY", Application::Get().objects->SetHandEular(1), -180.0f, 180.0f))
 				{
 					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
-				if (ImGui::SliderFloat("EularZ", Application::Get().objects->SetPos_Eular(5), -180.0f, 180.0f))
+				if (ImGui::SliderFloat("EularZ", Application::Get().objects->SetHandEular(2), -180.0f, 180.0f))
 				{
 					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
@@ -311,6 +315,19 @@ namespace Hazel {
 		//ImGui::InputFloat(u8"radius", &Application::Get().radius);
 		//ImGui::InputFloat(u8"bias1", &Application::Get().bias1);
 		//ImGui::InputFloat(u8"bias2", &Application::Get().bias2);
+		//ImGui::InputFloat(u8"bias3", &Application::Get().bias3);
+		if (ImGui::Button(u8"设点"))
+		{
+			Application::Get().anim->SetPathPos(irb120Pos * 10.0f);
+			Application::Get().anim->SetPathRotate(irb120Rotate * PI / 180.0f);
+		}
+		if (ImGui::Button(u8"播放"))
+		{
+			Application::Get().anim->Reset();
+			Application::Get().anim->Playing = true;
+			Application::Get().objects->ChangePos(Application::Get().anim->GetPathKeyPos(0) - irb120Pos*10.0f);
+			Application::Get().objects->ChangeRotate(Application::Get().anim->GetPathKeyRotate(0) - irb120Rotate * PI / 180.0f,1);
+		}
 		ImGui::End();
 
 

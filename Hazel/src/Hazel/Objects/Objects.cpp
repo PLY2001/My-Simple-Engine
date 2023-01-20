@@ -42,8 +42,11 @@ namespace Hazel {
 		{
 			Angle[ObjectAmount-1][i].push_back(0);
 		}
-		Pos_Eular.resize(ObjectAmount);
-		Pos_Eular.back().push_back({-5.18f, 6.3f, 0.0f, 0.0f, 0.0f, 0.0f});
+		m_HandPos.resize(ObjectAmount);
+		m_HandPos.back().push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
+		m_HandEular.resize(ObjectAmount);
+		m_HandEular.back().push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+
 		InitModelMatrices(ObjectAmount - 1);
 		
 	}
@@ -131,8 +134,8 @@ namespace Hazel {
 		{
 			Angle[m_Objectindex][i].push_back(0);
 		}
-		Pos_Eular[m_Objectindex].push_back({ -5.18f, 6.3f, 0.0f, 0.0f, 0.0f, 0.0f });
-
+		m_HandPos[m_Objectindex].push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
+		m_HandEular[m_Objectindex].push_back(glm::vec3(0.0f,0.0f, 0.0f));
 		
 		SetAABB(m_Objectindex,Amount[m_Objectindex] - 1);
 		m_index = Amount[m_Objectindex] - 1;
@@ -189,7 +192,8 @@ namespace Hazel {
 		{
 			Angle[m_Objectindex][i].erase(Angle[m_Objectindex][i].begin() + m_index);
 		}
-		Pos_Eular[m_Objectindex].erase(Pos_Eular[m_Objectindex].begin() + m_index);
+		m_HandPos[m_Objectindex].erase(m_HandPos[m_Objectindex].begin() + m_index);
+		m_HandEular[m_Objectindex].erase(m_HandEular[m_Objectindex].begin() + m_index);
 
 		m_index = -1;
 	}
@@ -231,8 +235,8 @@ namespace Hazel {
 		{
 			Angle[m_Objectindex][i].push_back(0);
 		}
-		Pos_Eular[m_Objectindex].push_back({ -5.18f, 6.3f, 0.0f, 0.0f, 0.0f, 0.0f });
-
+		m_HandPos[m_Objectindex].push_back(glm::vec3( -5.18f, 6.3f, 0.0f));
+		m_HandEular[m_Objectindex].push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 
 		SetAABB(m_Objectindex, Amount[m_Objectindex] - 1);
 	}
@@ -318,15 +322,20 @@ namespace Hazel {
 		return &Angle[m_Objectindex][Axis - 1][m_index];
 	}
 
-	float* Objects::SetPos_Eular(int index)
+	float* Objects::SetHandPos(int index)
 	{
-		return &Pos_Eular[m_Objectindex][m_index][index];
+		return &m_HandPos[m_Objectindex][m_index][index];
+	}
+
+	float* Objects::SetHandEular(int index)
+	{
+		return &m_HandEular[m_Objectindex][m_index][index];
 	}
 
 	bool Objects::SolveAngle()
 	{
-		glm::vec3 Pos = glm::vec3(Pos_Eular[m_Objectindex][m_index][0], Pos_Eular[m_Objectindex][m_index][1], Pos_Eular[m_Objectindex][m_index][2])/m_Scale[m_Objectindex];
-		glm::vec3 Eular = glm::vec3(Pos_Eular[m_Objectindex][m_index][3], Pos_Eular[m_Objectindex][m_index][4], Pos_Eular[m_Objectindex][m_index][5]);
+		glm::vec3 Pos = m_HandPos[m_Objectindex][m_index]/m_Scale[m_Objectindex];
+		glm::vec3 Eular = m_HandEular[m_Objectindex][m_index];
 		glm::mat4 backwardTranslate = glm::mat4(1);;
 		backwardTranslate = glm::translate(backwardTranslate, glm::vec3(216.0f, 0.0f, 0.0f));//夹具中心到上一轴的距离为72+144
 
@@ -686,12 +695,12 @@ namespace Hazel {
 
 				writer1.Key("poseular");
 				writer1.StartArray();
-				writer1.Double(Pos_Eular[j][i][0]);
-				writer1.Double(Pos_Eular[j][i][1]);
-				writer1.Double(Pos_Eular[j][i][2]);
-				writer1.Double(Pos_Eular[j][i][3]);
-				writer1.Double(Pos_Eular[j][i][4]);
-				writer1.Double(Pos_Eular[j][i][5]);
+				writer1.Double(m_HandPos[j][i].x);
+				writer1.Double(m_HandPos[j][i].y);
+				writer1.Double(m_HandPos[j][i].z);
+				writer1.Double(m_HandEular[j][i].x);
+				writer1.Double(m_HandEular[j][i].y);
+				writer1.Double(m_HandEular[j][i].z);
 				writer1.EndArray();
 				
 				writer1.EndObject();
@@ -983,12 +992,12 @@ namespace Hazel {
 									if (object2.HasMember("poseular") && object2["poseular"].IsArray())
 									{
 										const rapidjson::Value& array7 = object2["poseular"];
-										Pos_Eular[i][j][0] = array7[0].GetDouble();
-										Pos_Eular[i][j][1] = array7[1].GetDouble();
-										Pos_Eular[i][j][2] = array7[2].GetDouble();
-										Pos_Eular[i][j][3] = array7[3].GetDouble();
-										Pos_Eular[i][j][4] = array7[4].GetDouble();
-										Pos_Eular[i][j][5] = array7[5].GetDouble();
+										m_HandPos[i][j].x = array7[0].GetDouble();
+										m_HandPos[i][j].y = array7[1].GetDouble();
+										m_HandPos[i][j].z = array7[2].GetDouble();
+										m_HandEular[i][j].x = array7[3].GetDouble();
+										m_HandEular[i][j].y = array7[4].GetDouble();
+										m_HandEular[i][j].z = array7[5].GetDouble();
 
 									}
 

@@ -8,7 +8,7 @@
 #include "rapidjson/document.h"
 #include "Hazel/Renderer/Model.h"
 
-#define PI 3.1415926
+#define PI 3.1415926f
 
 namespace Hazel {
 
@@ -33,7 +33,8 @@ namespace Hazel {
 		int GetObjectAmount();
 		void ChangeAngle();
 		float* SetAngle(int Axis);
-		float* SetPos_Eular(int index);
+		float* SetHandPos(int index);
+		float* SetHandEular(int index);
 		bool SolveAngle();
 
 		std::vector<std::shared_ptr<Model>> m_model;
@@ -59,7 +60,8 @@ namespace Hazel {
 		std::vector<std::vector<glm::vec3>> m_Pos;
 		std::vector<std::vector<glm::vec3>> m_Rotate;
 		std::vector<glm::vec3> m_Scale;
-		std::vector<std::vector<std::vector<float>>> Pos_Eular;
+		std::vector<std::vector<glm::vec3>> m_HandPos;
+		std::vector<std::vector<glm::vec3>> m_HandEular;
 		//std::map<std::string, glm::vec3[2]> Pos_Eular_map;
 		std::vector<std::vector<std::vector<float>>> Angle;
 		std::vector<int> Amount;

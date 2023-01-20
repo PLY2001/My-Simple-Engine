@@ -153,6 +153,7 @@ namespace Hazel
 		aabb.reset(new AABB(AABBShader));
 
 		//hbaotexture.reset(new Texture("res/textures/hbao.png"));
+		anim.reset(new Animation(true));
 	}
 
 
@@ -481,6 +482,7 @@ namespace Hazel
 					ShadowDrawShader->SetUniform1f("bias", bias);
 					ShadowDrawShader->SetUniform1f("radius", radius);
 					ShadowDrawShader->SetUniform1f("bias1", bias1);
+					ShadowDrawShader->SetUniform1f("bias3", bias3);
 					ShadowDrawShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
 					ShadowDrawShader->SetUniformMat4("view", LightViewMatrix);
 					ShadowDrawShader->SetUniformMat4("projection", LightProjectionMatrix);
@@ -545,6 +547,7 @@ namespace Hazel
 					ShadowCubeDrawShader->SetUniform1f("bias2", bias2);
 					ShadowCubeDrawShader->SetUniform1f("radius", radius);
 					ShadowCubeDrawShader->SetUniform1f("bias1", bias1);
+					ShadowCubeDrawShader->SetUniform1f("bias3", bias3);
 					ShadowCubeDrawShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
 					ShadowCubeDrawShader->SetUniform3f("lightPos", PointLight->Pos.x, PointLight->Pos.y, PointLight->Pos.z);
 					ShadowCubeDrawShader->SetUniform1f("far_plane", farplane);
@@ -576,22 +579,33 @@ namespace Hazel
 // 					glDisable(GL_BLEND);
 
 
+				if(ShadowGaussian)
+				{
+					//fifth pass
+					//对阴影高斯滤波
+					framebuffer5->Bind();
+					OpenGLRendererAPI::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+					OpenGLRendererAPI::ClearColor();
+					framebuffer4->Draw(ScreenBasicShader, QuadID4);
 
-				//fifth pass
-				//对阴影高斯滤波
-				framebuffer5->Bind();
-				OpenGLRendererAPI::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
-				OpenGLRendererAPI::ClearColor();
-				framebuffer4->Draw(ScreenBasicShader, QuadID4);
-
-				//sixth pass
-				//将阴影叠加在原图上
-				framebuffer5->Unbind();
-				//renderer.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				framebuffer5->Draw(GaussianShader, QuadID4);
-				glDisable(GL_BLEND);
+					//sixth pass
+					//将阴影叠加在原图上
+					framebuffer5->Unbind();
+					//renderer.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+					glEnable(GL_BLEND);
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					framebuffer5->Draw(GaussianShader, QuadID4);
+					glDisable(GL_BLEND);
+				}
+				else
+				{
+					framebuffer4->Unbind();
+					//renderer.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+					glEnable(GL_BLEND);
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					framebuffer4->Draw(ScreenBasicShader, QuadID4);
+					glDisable(GL_BLEND);
+				}
 
 				//绘制移动箭头
 // 					if(irb120->GetChoosedIndex()>-1||Choosed)
@@ -619,7 +633,12 @@ namespace Hazel
 
 			}
 
-
+			if (anim->Playing)
+			{
+				PathPoint pathpoint = anim->GetPathPoint(3.0f, deltaTime);
+				objects->ChangePos(pathpoint.Path_Pos);//动画3s
+				objects->ChangeRotate(pathpoint.Path_Rotate,1);//动画3s
+			}
 
 
 

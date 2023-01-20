@@ -39,6 +39,7 @@ uniform sampler2D cameramap;
 uniform float far_plane;
 uniform vec3 lightPos;
 uniform float bias2;
+uniform float bias3;
 uniform float radius;
 uniform float bias1;
 uniform vec4 u_CameraPosition;
@@ -186,9 +187,9 @@ void main()
 			ViewPositionZ = -thisViewPosition.z;
 			LinearZ = (2.0f * near * far)/(far + near - ((texture(cameramap, thisProjPosition3.xy).r) * 2.0f - 1.0f) * (far - near));
 			dis = (ViewPositionZ-bias1*sin_hbao_bias) - LinearZ;
-			if(dis>0&&dis<0.5f)
+			if(dis>0&&dis<bias3)
 			{
-				hbao++;
+				hbao ++;
 			}
 		}
 	}
