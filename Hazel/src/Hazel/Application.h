@@ -78,6 +78,7 @@ namespace Hazel
 		std::shared_ptr<Shader> AABBShader;
 		//std::shared_ptr<Shader> ArrowShader;
 		std::shared_ptr<Shader> CameraDepthMapShader;
+		//std::shared_ptr<Shader> ShadowColorMapShader;
 
 		//µÆ¹â
 		float count = 0;
@@ -126,6 +127,7 @@ namespace Hazel
 		//unsigned int QuadID7;
 		std::unique_ptr<FrameBuffer> framebufferCM;
 		//´´½¨Ö¡»º³å4
+		//std::unique_ptr<FrameBuffer> framebufferColorSM;
 
 		/*IRB120*/
 		
@@ -210,7 +212,7 @@ namespace Hazel
 		//std::unique_ptr<Texture> hbaotexture;
 
 		bool ShadowGaussian = true;
-		std::unique_ptr<Animation> anim;
+		//std::unique_ptr<Animation> anim;
 	};
 
 	Application* CreateApplication();

@@ -156,6 +156,7 @@
     <None Include="res\shaders\Plane.shader" />
     <None Include="res\shaders\Postprocessing.shader" />
     <None Include="res\shaders\ScreenBasic.shader" />
+    <None Include="res\shaders\ShadowColorMap.shader" />
     <None Include="res\shaders\ShadowCubeDraw.shader" />
     <None Include="res\shaders\ShadowCubeMap.shader" />
     <None Include="res\shaders\ShadowDraw.shader" />

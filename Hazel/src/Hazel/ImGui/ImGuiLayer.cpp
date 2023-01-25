@@ -318,15 +318,15 @@ namespace Hazel {
 		//ImGui::InputFloat(u8"bias3", &Application::Get().bias3);
 		if (ImGui::Button(u8"设点"))
 		{
-			Application::Get().anim->SetPathPos(irb120Pos * 10.0f);
-			Application::Get().anim->SetPathRotate(irb120Rotate * PI / 180.0f);
+			Application::Get().objects->GetMyAnimation().SetPathPos(irb120Pos * 10.0f);
+			Application::Get().objects->GetMyAnimation().SetPathRotate(irb120Rotate * PI / 180.0f);
 		}
 		if (ImGui::Button(u8"播放"))
 		{
-			Application::Get().anim->Reset();
-			Application::Get().anim->Playing = true;
-			Application::Get().objects->ChangePos(Application::Get().anim->GetPathKeyPos(0) - irb120Pos*10.0f);
-			Application::Get().objects->ChangeRotate(Application::Get().anim->GetPathKeyRotate(0) - irb120Rotate * PI / 180.0f,1);
+			Application::Get().objects->GetMyAnimation().Reset();
+			Application::Get().objects->GetMyAnimation().Playing = true;
+			Application::Get().objects->ChangePos(Application::Get().objects->GetMyAnimation().GetPathKeyPos(0) - irb120Pos*10.0f);
+			Application::Get().objects->ChangeRotate(Application::Get().objects->GetMyAnimation().GetPathKeyRotate(0) - irb120Rotate * PI / 180.0f,1);
 		}
 		ImGui::End();
 
@@ -336,69 +336,93 @@ namespace Hazel {
 		ImGui::Begin(u8"设备栏");
 		if (ImGui::Button(u8"ABB IRB120 六轴机械臂"))
 		{
-			if (std::find(Application::Get().objects->ObjectsMap.begin(), Application::Get().objects->ObjectsMap.end(), "irb120") == Application::Get().objects->ObjectsMap.end())
+			bool finded = false;
+			for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 			{
-				//ObjectsMap.insert(std::pair<std::string, bool>("irb120", true));
+				if ((*it).m_Name == "irb120")
+				{
+					Application::Get().objects->AddAmount("irb120");
+					finded = true;
+				}
+			}
+			if (!finded)
+			{
 				Application::Get().objects->AddObject("irb120", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
 				Application::Get().insbos->AddObject(Application::Get().objects);
 			}
-			else
-			{
-				Application::Get().objects->AddAmount("irb120");
-			}
+			
 		}
 		if (ImGui::Button(u8"传送带"))
 		{
-			if (std::find(Application::Get().objects->ObjectsMap.begin(), Application::Get().objects->ObjectsMap.end(), "belt") == Application::Get().objects->ObjectsMap.end())
+			bool finded = false;
+			for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 			{
-				//ObjectsMap.insert(std::pair<std::string, bool>("irb120", true));
+				if ((*it).m_Name == "belt")
+				{
+					Application::Get().objects->AddAmount("belt");
+					finded = true;
+				}
+			}
+			if (!finded)
+			{
 				Application::Get().objects->AddObject("belt", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
 				Application::Get().insbos->AddObject(Application::Get().objects);
 			}
-			else
-			{
-				Application::Get().objects->AddAmount("belt");
-			}
+
 		}
 		if (ImGui::Button(u8"AGV运输车"))
 		{
-			if (std::find(Application::Get().objects->ObjectsMap.begin(), Application::Get().objects->ObjectsMap.end(), "AVG") == Application::Get().objects->ObjectsMap.end())
+			bool finded = false;
+			for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 			{
-				//ObjectsMap.insert(std::pair<std::string, bool>("irb120", true));
+				if ((*it).m_Name == "AVG")
+				{
+					Application::Get().objects->AddAmount("AVG");
+					finded = true;
+				}
+			}
+			if (!finded)
+			{
 				Application::Get().objects->AddObject("AVG", glm::vec3(0, 0.8f, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
 				Application::Get().insbos->AddObject(Application::Get().objects);
 			}
-			else
-			{
-				Application::Get().objects->AddAmount("AVG");
-			}
+
 		}
 		if (ImGui::Button(u8"塑料盒"))
 		{
-			if (std::find(Application::Get().objects->ObjectsMap.begin(), Application::Get().objects->ObjectsMap.end(), "box") == Application::Get().objects->ObjectsMap.end())
+			bool finded = false;
+			for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 			{
-				//ObjectsMap.insert(std::pair<std::string, bool>("irb120", true));
+				if ((*it).m_Name == "box")
+				{
+					Application::Get().objects->AddAmount("box");
+					finded = true;
+				}
+			}
+			if (!finded)
+			{
 				Application::Get().objects->AddObject("box", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), false);
 				Application::Get().insbos->AddObject(Application::Get().objects);
 			}
-			else
-			{
-				Application::Get().objects->AddAmount("box");
-			}
+
 		}
 		if (ImGui::Button(u8"吹塑机"))
 		{
-			
-			if (std::find(Application::Get().objects->ObjectsMap.begin(), Application::Get().objects->ObjectsMap.end(), "machine") == Application::Get().objects->ObjectsMap.end())
+			bool finded = false;
+			for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 			{
-				//ObjectsMap.insert(std::pair<std::string, bool>("irb120", true));
+				if ((*it).m_Name == "machine")
+				{
+					Application::Get().objects->AddAmount("machine");
+					finded = true;
+				}
+			}
+			if (!finded)
+			{
 				Application::Get().objects->AddObject("machine", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.45f, 0.45f, 0.45f), false);
 				Application::Get().insbos->AddObject(Application::Get().objects);
 			}
-			else
-			{
-				Application::Get().objects->AddAmount("machine");
-			}
+
 		}
 		
 		
