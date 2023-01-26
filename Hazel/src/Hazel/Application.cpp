@@ -122,6 +122,8 @@ namespace Hazel
 		framebufferCM->GenTexture2DShadowMap();
 		//framebufferColorSM.reset(new FrameBuffer(ShadowMapWidth, ShadowMapHeight));
 		//framebufferColorSM->GenTexture2D();
+		framebufferCM1.reset(new FrameBuffer(s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight()));
+		framebufferCM1->GenTexture2DShadowMap();
 
 		//创建天空盒
 		skybox.reset(new Skybox("Factory"));
@@ -370,10 +372,7 @@ namespace Hazel
 				glViewport(0, 0, s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight());//还原视口尺寸
 			}
 
-			if (lightmode == LightMode::Direct)
-			{
-
-			}
+			
 
 			//摄像机深度信息
 			CameraDepthMapShader->Bind();
@@ -384,9 +383,19 @@ namespace Hazel
 			{
 				OpenGLRendererAPI::DrawInstanced(objects->objects[i].m_Model, CameraDepthMapShader, objects->GetAmount(i));//绘制需要投射阴影的物体
 			}
+			
+			framebufferCM->Unbind();
+
+			framebufferCM1->Bind();
+			OpenGLRendererAPI::ClearDepth();//只需清除深度，不需清除颜色
+			for (int i = 0; i < objects->GetObjectAmount(); i++)
+			{
+				OpenGLRendererAPI::DrawInstanced(objects->objects[i].m_Model, CameraDepthMapShader, objects->GetAmount(i));//绘制需要投射阴影的物体
+			}
+			OpenGLRendererAPI::Draw(plane, CameraDepthMapShader);
+			framebufferCM1->Unbind();
 
 			CameraDepthMapShader->Unbind();
-			framebufferCM->Unbind();
 
 			//first pass
 			framebufferMSAA->Bind();//使用带抗锯齿的帧缓冲
@@ -520,6 +529,7 @@ namespace Hazel
 					ShadowDrawShader->SetUniform1f("radius", radius);
 					ShadowDrawShader->SetUniform1f("bias1", bias1);
 					ShadowDrawShader->SetUniform1f("bias3", bias3);
+					//ShadowDrawShader->SetUniform1f("bias4", bias4);
 					ShadowDrawShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
 					ShadowDrawShader->SetUniformMat4("view", LightViewMatrix);
 					ShadowDrawShader->SetUniformMat4("projection", LightProjectionMatrix);
@@ -629,6 +639,14 @@ namespace Hazel
 					//将阴影叠加在原图上
 					framebuffer5->Unbind();
 					//renderer.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+					GaussianShader->Bind();
+					GaussianShader->SetUniform1f("width0", width0);
+					GaussianShader->SetUniform1f("height0", height0);
+					GaussianShader->SetUniform1f("width1", width1);
+					GaussianShader->SetUniform1f("height1", height1);
+					glActiveTexture(GL_TEXTURE11);
+					glBindTexture(GL_TEXTURE_2D, framebufferCM1->GetTexID());
+					GaussianShader->SetUniform1i("cameramap", 11);
 					glEnable(GL_BLEND);
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 					framebuffer5->Draw(GaussianShader, QuadID4);
@@ -675,9 +693,18 @@ namespace Hazel
 				{
 					if (objects->GetAnimation(i,j).Playing)
 					{
-						PathPoint pathpoint = objects->GetAnimation(i, j).GetPathPoint(3.0f, deltaTime);
+						PathPoint pathpoint = objects->GetAnimation(i, j).GetPathPoint(deltaTime);
 						objects->ChangePos(pathpoint.Path_Pos,i,j);//动画3s
 						objects->ChangeRotate(pathpoint.Path_Rotate, 1,i,j);//动画3s
+						objects->ChangeHandPos(pathpoint.Path_HandPos, i, j);//动画3s
+						objects->ChangeHandEular(pathpoint.Path_HandEular, i, j);//动画3s
+						if(objects->objects[i].m_HaveAngle)
+						{
+							if (objects->SolveAngle(i,j))
+							{
+								objects->ChangeAngle(i, j);
+							}
+						}
 					}
 				}
 			}
@@ -725,6 +752,7 @@ namespace Hazel
 		//framebuffer6->ResetWindow(WinWidth, WinHeight);
 		//framebuffer7->ResetWindow(WinWidth, WinHeight);
 		framebufferCM->ResetWindow(WinWidth, WinHeight);
+		framebufferCM1->ResetWindow(WinWidth, WinHeight);
 		return true;
 	}
 

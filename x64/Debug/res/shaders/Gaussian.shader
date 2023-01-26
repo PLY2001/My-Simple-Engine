@@ -20,32 +20,41 @@ in vec2 Texcoords;
 
 out vec4 color; 
 uniform sampler2D screenTexture;
+uniform sampler2D cameramap;
 
-float kernel[25]=float[](2,4,5,4,2,
-						 4,9,12,9,4,
-						 5,12,15,12,5,
-						 4,9,12,9,4,
-						 2,4,5,4,2);
-float width=360;
-float height=240;
-float WOff = 1.0f/width;
-float HOff = 1.0f/height;
+//float kernel[25]=float[](2,4,5,4,2,
+//						 4,9,12,9,4,
+//						 5,12,15,12,5,
+//						 4,9,12,9,4,
+//						 2,4,5,4,2);
+uniform float width0;
+uniform float height0;
+uniform float width1;
+uniform float height1;
+
 
 void main() 
 {
 	vec4 texColor=vec4(0.0f);
+	float near = 0.1f;
+	float far = 10000.0f;
+	float LinearZ = (2.0f * near * far)/(far + near - ((texture(cameramap, Texcoords).r) * 2.0f - 1.0f) * (far - near));
+	float width = (LinearZ - near)/far * (width1-width0) + width0;
+	float height = (LinearZ - near)/far * (height1-height0) + height0;
+	float WOff = 1.0f/width;
+	float HOff = 1.0f/height;
 	for(int i=-2;i<3;i++)
 	{
 		for(int j=2;j>-3;j--)
 		{
-			texColor+=kernel[(i+2)*5+(2-j)]*texture(screenTexture,vec2(Texcoords.x+i*WOff,Texcoords.y+j*HOff));
+			texColor+=texture(screenTexture,vec2(Texcoords.x+i*WOff,Texcoords.y+j*HOff));
 		}
 
 		//texColor+=kernel[i]*texture(screenTexture,vec2(Texcoords.x+offsetsW[i],Texcoords.y));
 	}
 	vec4 CenterColor = texture(screenTexture,Texcoords);
 	//if(CenterColor>0.0f)
-		CenterColor = texColor/115;
+		CenterColor = texColor/25;
 	//else
 	//	CenterColor = CenterColor;
 

@@ -7,6 +7,8 @@ namespace Hazel {
 	{
 		glm::vec3 Path_Pos = glm::vec3(0.0f);
 		glm::vec3 Path_Rotate = glm::vec3(0.0f);
+		glm::vec3 Path_HandPos = glm::vec3(0.0f);
+		glm::vec3 Path_HandEular = glm::vec3(0.0f);
 	};
 
 	class Animation
@@ -22,26 +24,46 @@ namespace Hazel {
 		void SetPathRotate(glm::vec3 Rotate);
 		glm::vec3 GetPathKeyRotate(int index);
 
-		PathPoint GetPathPoint(float TotalTime, float deltaTime);
+		void SetPathHandPos(glm::vec3 HandPos);
+		glm::vec3 GetPathKeyHandPos(int index);
+
+		void SetPathHandEular(glm::vec3 HandEular);
+		glm::vec3 GetPathKeyHandEular(int index);
+
+		void SetPathTime(float Time);
+
+		PathPoint GetPathPoint(float deltaTime);
 		PathPoint pathpoint;
 
+		float TotalTime = 0.0f;
 		int frame = 0;
 		float TimeNow = 0.0f;
 		int Path_index = 0;
 		bool Playing = false;
+		bool HaveAnimation = false;
 	private:
+		std::vector<float> Path_Time;
+
 		std::vector<glm::vec3> m_Path_Pos;
 		glm::vec3 Path_Pos_Now = glm::vec3(0.0f);
 		glm::vec3 Path_Pos_Last = glm::vec3(0.0f);
-		std::vector<float> Path_Pos_Mod;
+
 
 		std::vector<glm::vec3> m_Path_Rotate;
 		glm::vec3 Path_Rotate_Now = glm::vec3(0.0f);
 		glm::vec3 Path_Rotate_Last = glm::vec3(0.0f);
-		std::vector<float> Path_Rotate_Mod;
+
 
 		std::vector<glm::vec3> m_Path_HandPos;
+		glm::vec3 Path_HandPos_Now = glm::vec3(0.0f);
+		glm::vec3 Path_HandPos_Last = glm::vec3(0.0f);
+
+
 		std::vector<glm::vec3> m_Path_HandEular;
+		glm::vec3 Path_HandEular_Now = glm::vec3(0.0f);
+		glm::vec3 Path_HandEular_Last = glm::vec3(0.0f);
+
+
 		bool HaveAngle;
 	};
 

@@ -8,6 +8,8 @@ layout(location=3) in mat4 model;
 out VS_OUT{
 	vec4 v_LightSpacePosition;
 	vec4 v_LightSpaceNormal;
+	vec4 v_WorldNormal;
+	vec4 v_WorldPosition;
 }vs_out;
 
 uniform mat4 view;
@@ -17,6 +19,8 @@ void main()
 { 
 	vs_out.v_LightSpacePosition=projection*view*model*vec4(position,1.0f);
 	vs_out.v_LightSpaceNormal=view*model*vec4(normalize(normal),0.0f);
+	vs_out.v_WorldNormal=model*vec4(normalize(normal),0.0f);
+	vs_out.v_WorldPosition=model*vec4(position,1.0f);
 	gl_Position = projection*view*model*vec4(position,1.0f); 
 
 }
@@ -31,11 +35,14 @@ out vec4 color;
 uniform sampler2D shadowmap;
 //uniform vec4 u_CameraPosition;
 uniform float bias;
+uniform vec4 u_LightPosition;
 
 
 in VS_OUT{
 	vec4 v_LightSpacePosition;
 	vec4 v_LightSpaceNormal;
+	vec4 v_WorldNormal;
+	vec4 v_WorldPosition;
 }fs_in;
 
 
@@ -45,7 +52,8 @@ void main()
 	vec3 projcoords = fs_in.v_LightSpacePosition.xyz/fs_in.v_LightSpacePosition.w;//光源视角标准化裁剪空间坐标
 	projcoords = projcoords*0.5f+0.5f;//由-1到1转为0到1
 
-	float sin_bias = sqrt(1.0f-pow(max(dot(vec3(0.0f,0.0f,-1.0f),fs_in.v_LightSpaceNormal.xyz),0.0f),2.0f));//世界光线和世界法线的夹角
+	vec3 WorldLightDir = normalize(u_LightPosition.xyz - fs_in.v_WorldPosition.xyz);
+	float sin_bias = sqrt(1.0f-pow(max(dot(WorldLightDir,fs_in.v_WorldNormal.xyz),0.0f),2.0f));//世界光线和世界法线的夹角
 	
 	float shadow = 0.0f;//是否在阴影判断，1为在，0为不在
 	float shadowColor = 0.0f;//阴影深浅

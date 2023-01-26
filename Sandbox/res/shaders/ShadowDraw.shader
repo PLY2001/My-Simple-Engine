@@ -51,6 +51,7 @@ uniform float bias;
 uniform float radius;
 uniform float bias1;
 uniform float bias3;
+//uniform float bias4;
 uniform vec4 u_CameraPosition;
 
 
@@ -199,13 +200,15 @@ void main()
 			dis = (ViewPositionZ-bias1*sin_hbao_bias) - LinearZ;
 			if(dis>0&&dis<bias3)
 			{
+				
 				hbao ++;
+				
 			}
 		}
 	}
 	
 
-	float hbaoShadowColor = hbao/24.0f;
+	float hbaoShadowColor = hbao/16.0f;
 	
 	
 	color = vec4(0.0f,0.0f,0.0f,shadowColor*0.2f+hbaoShadowColor*0.8f); 

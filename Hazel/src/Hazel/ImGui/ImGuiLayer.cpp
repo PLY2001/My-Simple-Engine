@@ -316,17 +316,38 @@ namespace Hazel {
 		//ImGui::InputFloat(u8"bias1", &Application::Get().bias1);
 		//ImGui::InputFloat(u8"bias2", &Application::Get().bias2);
 		//ImGui::InputFloat(u8"bias3", &Application::Get().bias3);
+		//ImGui::InputFloat(u8"bias4", &Application::Get().bias4);
+		//ImGui::InputFloat(u8"width0", &Application::Get().width0);
+		//ImGui::InputFloat(u8"height0", &Application::Get().height0);
+		//ImGui::InputFloat(u8"width1", &Application::Get().width1);
+		//ImGui::InputFloat(u8"height1", &Application::Get().height1);
 		if (ImGui::Button(u8"设点"))
 		{
 			Application::Get().objects->GetMyAnimation().SetPathPos(irb120Pos * 10.0f);
 			Application::Get().objects->GetMyAnimation().SetPathRotate(irb120Rotate * PI / 180.0f);
+			Application::Get().objects->GetMyAnimation().SetPathHandPos(Application::Get().objects->GetHandPos());
+			Application::Get().objects->GetMyAnimation().SetPathHandEular(Application::Get().objects->GetHandEular());
+			Application::Get().objects->GetMyAnimation().SetPathTime(PathTime);
 		}
+		ImGui::SameLine();
+		ImGui::InputFloat(u8"时间间隔", &PathTime);
 		if (ImGui::Button(u8"播放"))
 		{
-			Application::Get().objects->GetMyAnimation().Reset();
-			Application::Get().objects->GetMyAnimation().Playing = true;
-			Application::Get().objects->ChangePos(Application::Get().objects->GetMyAnimation().GetPathKeyPos(0) - irb120Pos*10.0f);
-			Application::Get().objects->ChangeRotate(Application::Get().objects->GetMyAnimation().GetPathKeyRotate(0) - irb120Rotate * PI / 180.0f,1);
+			for (int i = 0; i < Application::Get().objects->GetObjectAmount(); i++)
+			{
+				for (int j = 0; j < Application::Get().objects->GetAmount(i); j++)
+				{
+					if(Application::Get().objects->GetAnimation(i, j).HaveAnimation)
+					{
+						Application::Get().objects->GetAnimation(i, j).Reset();
+						Application::Get().objects->GetAnimation(i, j).Playing = true;
+						Application::Get().objects->ChangePos(Application::Get().objects->GetAnimation(i, j).GetPathKeyPos(0) - Application::Get().objects->GetPos(i, j), i, j);
+						Application::Get().objects->ChangeRotate(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(0) - Application::Get().objects->GetRotate(i, j), 1,i,j);
+						Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(0),i,j);
+						Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(0),i,j);
+					}
+				}
+			}
 		}
 		ImGui::End();
 

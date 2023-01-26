@@ -29,11 +29,21 @@ namespace Hazel {
 			object.m_ControlMode = ControlMode::None;
 		}
 
-		object.m_Angle.resize(object.m_Model->meshes.size()-1);//[j][k], j是关节索引，k是重复物体索引
-		for (int i = 0; i < object.m_Model->meshes.size()-1; i++)
+		
+		if (object.m_Model->meshes.size() == 1)
 		{
-			object.m_Angle[i].push_back(0);
+			object.m_Angle.resize(object.m_Model->meshes.size());//[j][k], j是关节索引，k是重复物体索引
+			object.m_Angle[0].push_back(0);
 		}
+		else
+		{
+			object.m_Angle.resize(object.m_Model->meshes.size() - 1);//[j][k], j是关节索引，k是重复物体索引
+			for (int i = 0; i < object.m_Angle.size(); i++)
+			{
+				object.m_Angle[i].push_back(0);
+			}
+		}
+		
 		object.m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
 		object.m_HandEular.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 
@@ -121,7 +131,7 @@ namespace Hazel {
 		objects[m_Objectindex].m_AABBMinPos.push_back(objects[m_Objectindex].m_Pos[objects[m_Objectindex].m_Amount - 1]);
 		objects[m_Objectindex].m_AABBMaxPos.push_back(objects[m_Objectindex].m_Pos[objects[m_Objectindex].m_Amount - 1]);
 		
-		for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size()-1; i++)
+		for (int i = 0; i < objects[m_Objectindex].m_Angle.size(); i++)
 		{
 			objects[m_Objectindex].m_Angle[i].push_back(0);
 		}
@@ -182,7 +192,7 @@ namespace Hazel {
 		objects[m_Objectindex].m_AABBMinPos.erase(objects[m_Objectindex].m_AABBMinPos.begin() + m_index);
 		objects[m_Objectindex].m_AABBMaxPos.erase(objects[m_Objectindex].m_AABBMaxPos.begin() + m_index);
 
-		for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size() - 1; i++)
+		for (int i = 0; i < objects[m_Objectindex].m_Angle.size(); i++)
 		{
 			objects[m_Objectindex].m_Angle[i].erase(objects[m_Objectindex].m_Angle[i].begin() + m_index);
 		}
@@ -227,7 +237,7 @@ namespace Hazel {
 		objects[m_Objectindex].m_AABBMinPos.push_back(objects[m_Objectindex].m_Pos[objects[m_Objectindex].m_Amount - 1]);
 		objects[m_Objectindex].m_AABBMaxPos.push_back(objects[m_Objectindex].m_Pos[objects[m_Objectindex].m_Amount - 1]);
 
-		for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size() - 1; i++)
+		for (int i = 0; i < objects[m_Objectindex].m_Angle.size(); i++)
 		{
 			objects[m_Objectindex].m_Angle[i].push_back(0);
 		}
@@ -407,9 +417,11 @@ namespace Hazel {
 
 	bool Objects::SolveAngle()
 	{
+		
 		glm::vec3 Pos = objects[m_Objectindex].m_HandPos[m_index]/ objects[m_Objectindex].m_Scale;
 		glm::vec3 Eular = objects[m_Objectindex].m_HandEular[m_index];
-		glm::mat4 backwardTranslate = glm::mat4(1);;
+		
+		glm::mat4 backwardTranslate = glm::mat4(1);
 		backwardTranslate = glm::translate(backwardTranslate, glm::vec3(216.0f, 0.0f, 0.0f));//夹具中心到上一轴的距离为72+144
 
 
@@ -435,7 +447,7 @@ namespace Hazel {
 		float temp = (float)acos((y * y + x * x - 169004.0f) / 167403.484f);
 		SolvedAngles[2] = (temp + (float)atan2f(70.0f, 302.0f)) / PI * 180.0f - 90.0f;
 		SolvedAngles[1] = atan2f((-y * 310.006f * sin(temp) + x * (270.0f + 310.006f * cos(temp))), (x * 310.006f * sin(temp) + y * (270.0f + 310.006f * cos(temp)))) * 180.0f / PI;
-		// 	ImGui::Text("Angle2 = %.3f", SolvedAngles[1]);
+		//	ImGui::Text("Angle2 = %.3f", SolvedAngles[1]);
 		// 	ImGui::Text("Angle3 = %.3f", SolvedAngles[2]);
 
 
@@ -457,8 +469,14 @@ namespace Hazel {
 		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
 
 		glm::mat4 T35 = glm::inverse(T13) * T16;
-		SolvedAngles[3] = atan2f(-T35[2].y, T35[2].z) / PI * 180.0f;
-		SolvedAngles[4] = atan2f(-T35[1].x, T35[0].x) / PI * 180.0f;
+		
+		SolvedAngles[3] = atan2f(T35[0].z, T35[0].y) / PI * 180.0f;//[0]表示第一列，z表示第三行
+		//SolvedAngles[3] = 0.0f;
+		SolvedAngles[5] = atan2f(T35[2].x, -T35[1].x) / PI * 180.0f;
+		//SolvedAngles[5] = 0.0f;
+		SolvedAngles[4] = atan2f(-T35[1].x / cos(SolvedAngles[5] * PI / 180.0f), T35[0].x) / PI * 180.0f;
+		//SolvedAngles[4] = 0.0f;
+		
 		// 	ImGui::Text("Angle4 = %.3f", SolvedAngles[3]);
 		// 	ImGui::Text("Angle5 = %.3f", SolvedAngles[4]);
 
@@ -487,17 +505,21 @@ namespace Hazel {
 		{
 			return false;
 		}
-		if (SolvedAngles[3] < 160.0f && SolvedAngles[3] > -160.0f)
-		{
-			objects[m_Objectindex].m_Angle[3][m_index] = SolvedAngles[3];
-		}
-		else
-		{
-			return false;
-		}
+
+		//if (SolvedAngles[3] < 160.0f && SolvedAngles[3] > -160.0f)
+		objects[m_Objectindex].m_Angle[3][m_index] = SolvedAngles[3];
+
 		if (SolvedAngles[4] < 120.0f && SolvedAngles[4] > -120.0f)
 		{
-			objects[m_Objectindex].m_Angle[4][m_index] = SolvedAngles[4];
+		objects[m_Objectindex].m_Angle[4][m_index] = SolvedAngles[4];
+	}
+		else
+		{
+		return false;
+		}
+		if (SolvedAngles[5] < 400.0f && SolvedAngles[5] > -400.0f)
+		{
+			objects[m_Objectindex].m_Angle[5][m_index] = SolvedAngles[5];
 		}
 		else
 		{
@@ -508,7 +530,120 @@ namespace Hazel {
 
 	}
 
-	Hazel::Animation& Objects::GetAnimation(int objectindex,int index)
+	bool Objects::SolveAngle(int objectindex, int index)
+	{
+		glm::vec3 Pos = objects[objectindex].m_HandPos[index] / objects[objectindex].m_Scale;
+		glm::vec3 Eular = objects[objectindex].m_HandEular[index];
+
+		glm::mat4 backwardTranslate = glm::mat4(1);
+		backwardTranslate = glm::translate(backwardTranslate, glm::vec3(216.0f, 0.0f, 0.0f));//夹具中心到上一轴的距离为72+144
+
+
+		glm::mat4 backwardEular = glm::mat4(1);
+		backwardEular = glm::translate(backwardEular, Pos);
+		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.x), glm::vec3(1, 0, 0));
+		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.y), glm::vec3(0, 1, 0));
+		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.z), glm::vec3(0, 0, 1));
+		backwardEular = glm::translate(backwardEular, -Pos);
+
+		glm::vec4 Pw = backwardEular * backwardTranslate * glm::vec4(Pos, 1.0f);
+
+		// 	ImGui::Text("PwX = %.3f", Pw.x);
+		// 	ImGui::Text("PwY = %.3f", Pw.y);
+		// 	ImGui::Text("PwZ = %.3f", Pw.z);
+
+		float SolvedAngles[6] = { 0,0,0,0,0,0 };
+		SolvedAngles[0] = atan2f(Pw.z, -Pw.x) / PI * 180.0f;
+		//ImGui::Text("Angle1 = %.3f", SolvedAngles[0]);
+
+		float x = sqrt(Pw.x * Pw.x + Pw.z * Pw.z);
+		float y = Pw.y - 290.0f;
+		float temp = (float)acos((y * y + x * x - 169004.0f) / 167403.484f);
+		SolvedAngles[2] = (temp + (float)atan2f(70.0f, 302.0f)) / PI * 180.0f - 90.0f;
+		SolvedAngles[1] = atan2f((-y * 310.006f * sin(temp) + x * (270.0f + 310.006f * cos(temp))), (x * 310.006f * sin(temp) + y * (270.0f + 310.006f * cos(temp)))) * 180.0f / PI;
+		//	ImGui::Text("Angle2 = %.3f", SolvedAngles[1]);
+		// 	ImGui::Text("Angle3 = %.3f", SolvedAngles[2]);
+
+
+
+		glm::mat4 T13 = glm::mat4(1);
+		T13 = glm::translate(T13, glm::vec3(-302.0f, 630.0f, 0.0f));
+		T13 = glm::rotate(T13, glm::radians(SolvedAngles[0]), glm::vec3(0.0f, 1.0f, 0.0f));
+		//T13 = glm::translate(T13, glm::vec3(0.0f, 290.0f, 0.0f));
+		T13 = glm::rotate(T13, glm::radians(SolvedAngles[1]), glm::vec3(0.0f, 0.0f, 1.0f));
+		//T13 = glm::translate(T13, glm::vec3(0.0f, -290.0f, 0.0f));
+		//T13 = glm::translate(T13, glm::vec3(0.0f, 560.0f, 0.0f));
+		T13 = glm::rotate(T13, glm::radians(SolvedAngles[2]), glm::vec3(0.0f, 0.0f, 1.0f));
+		//T13 = glm::translate(T13, glm::vec3(0.0f, -560.0f, 0.0f));
+
+		glm::mat4 T16 = glm::mat4(1);
+		T16 = glm::translate(T16, Pos);
+		T16 = glm::rotate(T16, glm::radians(Eular.z), glm::vec3(0, 0, 1));
+		T16 = glm::rotate(T16, glm::radians(Eular.y), glm::vec3(0, 1, 0));
+		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
+
+		glm::mat4 T35 = glm::inverse(T13) * T16;
+
+		SolvedAngles[3] = atan2f(T35[0].z, T35[0].y) / PI * 180.0f;//[0]表示第一列，z表示第三行
+		//SolvedAngles[3] = 0.0f;
+		SolvedAngles[5] = atan2f(T35[2].x, -T35[1].x) / PI * 180.0f;
+		//SolvedAngles[5] = 0.0f;
+		SolvedAngles[4] = atan2f(-T35[1].x / cos(SolvedAngles[5] * PI / 180.0f), T35[0].x) / PI * 180.0f;
+		//SolvedAngles[4] = 0.0f;
+
+		// 	ImGui::Text("Angle4 = %.3f", SolvedAngles[3]);
+		// 	ImGui::Text("Angle5 = %.3f", SolvedAngles[4]);
+
+
+		if (SolvedAngles[0] < 165.0f && SolvedAngles[0] > -165.0f)
+		{
+			objects[objectindex].m_Angle[0][index] = SolvedAngles[0];
+		}
+		else
+		{
+			return false;
+		}
+		if (SolvedAngles[1] < 110.0f && SolvedAngles[1] > -110.0f)
+		{
+			objects[objectindex].m_Angle[1][index] = SolvedAngles[1];
+		}
+		else
+		{
+			return false;
+		}
+		if (SolvedAngles[2] < 70.0f && SolvedAngles[2] > -110.0f)
+		{
+			objects[objectindex].m_Angle[2][index] = SolvedAngles[2];
+		}
+		else
+		{
+			return false;
+		}
+
+		//if (SolvedAngles[3] < 160.0f && SolvedAngles[3] > -160.0f)
+		objects[objectindex].m_Angle[3][index] = SolvedAngles[3];
+
+		if (SolvedAngles[4] < 120.0f && SolvedAngles[4] > -120.0f)
+		{
+			objects[objectindex].m_Angle[4][index] = SolvedAngles[4];
+		}
+		else
+		{
+			return false;
+		}
+		if (SolvedAngles[5] < 400.0f && SolvedAngles[5] > -400.0f)
+		{
+			objects[objectindex].m_Angle[5][index] = SolvedAngles[5];
+		}
+		else
+		{
+			return false;
+		}
+		//ChangeAngle();
+		return true;
+	}
+
+	Hazel::Animation& Objects::GetAnimation(int objectindex, int index)
 	{
 		
 		return objects[objectindex].m_Anima[index];
@@ -578,6 +713,11 @@ namespace Hazel {
 	}
 
 
+	glm::vec3 Objects::GetPos(int objectindex, int index)
+	{
+		return objects[objectindex].m_Pos[index];
+	}
+
 	glm::vec3 Objects::GetRotate()
 	{
 		if (m_Objectindex > -1 && m_index > -1)
@@ -588,6 +728,21 @@ namespace Hazel {
 		{
 			return glm::vec3(0.0f);
 		}
+	}
+
+	glm::vec3 Objects::GetRotate(int objectindex, int index)
+	{
+		return objects[objectindex].m_Rotate[index];
+	}
+
+	glm::vec3 Objects::GetHandPos()
+	{
+		return objects[m_Objectindex].m_HandPos[m_index];
+	}
+
+	glm::vec3 Objects::GetHandEular()
+	{
+		return objects[m_Objectindex].m_HandEular[m_index];
 	}
 
 	void Objects::ChangePos(glm::vec3 ChangedPos)
@@ -669,6 +824,28 @@ namespace Hazel {
 			ChangeAngle(objectindex, index);
 		}
 		SetAABB(objectindex, index);
+	}
+
+	void Objects::ChangeHandPos(glm::vec3 ChangedHandPos, int objectindex, int index)
+	{
+		objects[objectindex].m_HandPos[index] = ChangedHandPos;
+	}
+
+	void Objects::ChangeHandPos(glm::vec3 ChangedHandPos)
+	{
+		objects[m_Objectindex].m_HandPos[m_index] = ChangedHandPos;
+
+	}
+
+	void Objects::ChangeHandEular(glm::vec3 ChangedHandEular, int objectindex, int index)
+	{
+		objects[objectindex].m_HandEular[index] = ChangedHandEular;
+	}
+
+	void Objects::ChangeHandEular(glm::vec3 ChangedHandEular)
+	{
+		objects[m_Objectindex].m_HandEular[m_index] = ChangedHandEular;
+
 	}
 
 	void Objects::SetChoosedIndex(int ObjectIndex, int index)

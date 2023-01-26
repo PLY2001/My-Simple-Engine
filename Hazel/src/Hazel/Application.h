@@ -128,6 +128,7 @@ namespace Hazel
 		std::unique_ptr<FrameBuffer> framebufferCM;
 		//创建帧缓冲4
 		//std::unique_ptr<FrameBuffer> framebufferColorSM;
+		std::unique_ptr<FrameBuffer> framebufferCM1;
 
 		/*IRB120*/
 		
@@ -208,11 +209,16 @@ namespace Hazel
 		float radius = 0.06f;//hbao半球半径
 		float bias1 = 0.01f;//hbao自遮挡偏置
 		float bias2 = 0.03f;//点光源阴影自遮挡偏置
-		float bias3 = 0.5f;//hbao距离限制
+		float bias3 = 0.5f;//hbao遮挡距离限制
+		//float bias4 = 100.0f;//hbao显示距离限制
 		//std::unique_ptr<Texture> hbaotexture;
 
 		bool ShadowGaussian = true;
 		//std::unique_ptr<Animation> anim;
+		float width0 = 90.0f;
+		float height0 = 60.0f;
+		float width1 = 300000.0f;
+		float height1 = 200000.0f;
 	};
 
 	Application* CreateApplication();
