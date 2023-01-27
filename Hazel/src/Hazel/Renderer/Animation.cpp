@@ -63,12 +63,78 @@ namespace Hazel {
 		
 		if ((deltaTime / (thisTotalTime - TimeNow)) < 0.99999f)//Î´²¥·ÅÍê±Ï
 		{
-			Path_Pos_Now = Path_Pos_Last + (m_Path_Pos[Path_index+1] - Path_Pos_Last) * deltaTime / (thisTotalTime - TimeNow);
-			Path_Rotate_Now = Path_Rotate_Last + (m_Path_Rotate[Path_index + 1] - Path_Rotate_Last) * deltaTime / (thisTotalTime - TimeNow);
-			if (HaveAngle)
+			if(pathmodelist[Path_index] == PathMode::Straght)
 			{
-				Path_HandPos_Now = Path_HandPos_Last + (m_Path_HandPos[Path_index + 1] - Path_HandPos_Last) * deltaTime / (thisTotalTime - TimeNow);
-				Path_HandEular_Now = Path_HandEular_Last + (m_Path_HandEular[Path_index + 1] - Path_HandEular_Last) * deltaTime / (thisTotalTime - TimeNow);
+				Path_Pos_Now = Path_Pos_Last + (m_Path_Pos[Path_index + 1] - Path_Pos_Last) * deltaTime / (thisTotalTime - TimeNow);
+				Path_Rotate_Now = Path_Rotate_Last + (m_Path_Rotate[Path_index + 1] - Path_Rotate_Last) * deltaTime / (thisTotalTime - TimeNow);
+				if (HaveAngle)
+				{
+					Path_HandPos_Now = Path_HandPos_Last + (m_Path_HandPos[Path_index + 1] - Path_HandPos_Last) * deltaTime / (thisTotalTime - TimeNow);
+					Path_HandEular_Now = Path_HandEular_Last + (m_Path_HandEular[Path_index + 1] - Path_HandEular_Last) * deltaTime / (thisTotalTime - TimeNow);
+				}
+			}
+			if (pathmodelist[Path_index] == PathMode::Circle)
+			{
+				float theata = acos(glm::dot(glm::normalize(m_Path_Pos[Path_index]-CircleCenterList[Path_index]), glm::normalize(m_Path_Pos[Path_index+1] - CircleCenterList[Path_index])));
+				float d1 = sqrt((m_Path_Pos[Path_index + 1].x - m_Path_Pos[Path_index].x) * (m_Path_Pos[Path_index + 1].x - m_Path_Pos[Path_index].x) + (m_Path_Pos[Path_index + 1].z - m_Path_Pos[Path_index].z) * (m_Path_Pos[Path_index + 1].z - m_Path_Pos[Path_index].z)) / 2.0f / sin(theata / 2.0);
+				float d2 = 2.0 * d1 * sin(TimeNow * theata / 2.0 / thisTotalTime);
+				float d3 = 2.0 * d1 * sin((thisTotalTime - TimeNow) * theata / 2.0 / thisTotalTime);
+
+				float x1 = CircleCenterList[Path_index].x;
+				float y1 = CircleCenterList[Path_index].z;
+				float x2 = m_Path_Pos[Path_index].x;
+				float y2 = m_Path_Pos[Path_index].z;
+				float x3 = m_Path_Pos[Path_index+1].x;
+				float y3 = m_Path_Pos[Path_index+1].z;
+				
+				float a11 = 2 * (x1 - x3);
+				float a12 = 2 * (y1 - y3);
+				float b1 = pow(x1, 2) - pow(x3, 2)+ pow(y1, 2) - pow(y3, 2)+ pow(d3, 2) - pow(d1, 2);
+				float a21 = 2 * (x2 - x3);
+				float a22 = 2 * (y2 - y3);
+				float b2 = pow(x2, 2) - pow(x3, 2)+ pow(y2, 2) - pow(y3, 2)+ pow(d3, 2) - pow(d2, 2);
+				if ((a11 * a22 - a12 * a21) < 0.0001f && (a11 * a22 - a12 * a21) > -0.0001f)
+				{
+					Path_Pos_Now = Path_Pos_Last + (m_Path_Pos[Path_index + 1] - Path_Pos_Last) * deltaTime / (thisTotalTime - TimeNow);
+				}
+				else
+				{
+					Path_Pos_Now = glm::vec3((b1 * a22 - a12 * b2) / (a11 * a22 - a12 * a21), Path_Pos_Last.y, (a11 * b2 - b1 * a21) / (a11 * a22 - a12 * a21));
+				}
+				Path_Rotate_Now = Path_Rotate_Last + (m_Path_Rotate[Path_index + 1] - Path_Rotate_Last) * deltaTime / (thisTotalTime - TimeNow);
+				if (HaveAngle)
+				{
+					float theata1 = acos(glm::dot(glm::normalize(m_Path_HandPos[Path_index] - CircleCenterList[Path_index]), glm::normalize(m_Path_HandPos[Path_index + 1] - CircleCenterList[Path_index])));
+					float d11 = sqrt((m_Path_HandPos[Path_index + 1].x - m_Path_HandPos[Path_index].x) * (m_Path_HandPos[Path_index + 1].x - m_Path_HandPos[Path_index].x) + (m_Path_HandPos[Path_index + 1].z - m_Path_HandPos[Path_index].z) * (m_Path_HandPos[Path_index + 1].z - m_Path_HandPos[Path_index].z)) / 2.0f / sin(theata1 / 2.0);
+					float d21 = 2.0 * d11 * sin(TimeNow * theata1 / 2.0 / thisTotalTime);
+					float d31 = 2.0 * d11 * sin((thisTotalTime - TimeNow) * theata1 / 2.0 / thisTotalTime);
+
+					float x11 = CircleCenterList[Path_index].x;
+					float y11 = CircleCenterList[Path_index].z;
+					float x21 = m_Path_HandPos[Path_index].x;
+					float y21 = m_Path_HandPos[Path_index].z;
+					float x31 = m_Path_HandPos[Path_index + 1].x;
+					float y31 = m_Path_HandPos[Path_index + 1].z;
+
+					float a111 = 2 * (x11 - x31);
+					float a121 = 2 * (y11 - y31);
+					float b11 = pow(x11, 2) - pow(x31, 2) + pow(y11, 2) - pow(y31, 2) + pow(d31, 2) - pow(d11, 2);
+					float a211 = 2 * (x21 - x31);
+					float a221 = 2 * (y21 - y31);
+					float b21 = pow(x21, 2) - pow(x31, 2) + pow(y21, 2) - pow(y31, 2) + pow(d31, 2) - pow(d21, 2);
+
+					if ((a111 * a221 - a121 * a211) < 0.0001f && (a111 * a221 - a121 * a211) > -0.0001f)
+					{
+						Path_HandPos_Now = Path_HandPos_Last + (m_Path_HandPos[Path_index + 1] - Path_HandPos_Last) * deltaTime / (thisTotalTime - TimeNow);
+					}
+					else
+					{
+						Path_HandPos_Now = glm::vec3((b11 * a221 - a121 * b21) / (a111 * a221 - a121 * a211), Path_HandPos_Last.y, (a111 * b21 - b11 * a211) / (a111 * a221 - a121 * a211));
+					}
+
+					
+					Path_HandEular_Now = Path_HandEular_Last + (m_Path_HandEular[Path_index + 1] - Path_HandEular_Last) * deltaTime / (thisTotalTime - TimeNow);
+				}
 			}
 			TimeNow += deltaTime;
 		}
@@ -126,6 +192,16 @@ namespace Hazel {
 			Path_Time.push_back(Time);
 		}
 		HaveAnimation = true;
+	}
+
+	void Animation::SetPathMode(glm::vec3 CircleCenter)
+	{
+		if (m_Path_Pos.size() > 1)
+		{
+			pathmodelist.push_back(pathmode);
+			CircleCenterList.push_back(CircleCenter*10.0f);
+		}
+
 	}
 
 }

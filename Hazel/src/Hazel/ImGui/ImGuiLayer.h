@@ -22,13 +22,14 @@ namespace Hazel {
 		void End();
 	private:
 		float m_Time = 0.0f; 
-		glm::vec3 irb120Pos = glm::vec3(0.0f);
-		glm::vec3 irb120Rotate = glm::vec3(0.0f);
-		glm::vec3 beltPos = glm::vec3(0.0f);
-		glm::vec3 beltRotate = glm::vec3(0.0f);
+		glm::vec3 Pos = glm::vec3(0.0f);
+		glm::vec3 Rotate = glm::vec3(0.0f);
+		glm::vec3 HandPos = glm::vec3(0.0f);
+		glm::vec3 HandEular = glm::vec3(0.0f);
 		bool Save = false;
 		bool Loaded = false;
 		float PathTime = 0.5;
+		glm::vec3 CircleCenter = glm::vec3(0.0f);
 	};
 
 }

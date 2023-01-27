@@ -11,6 +11,8 @@ namespace Hazel {
 		glm::vec3 Path_HandEular = glm::vec3(0.0f);
 	};
 
+	enum class PathMode { Straght = 0, Circle = 1 };
+
 	class Animation
 	{
 	public:
@@ -32,6 +34,8 @@ namespace Hazel {
 
 		void SetPathTime(float Time);
 
+		void SetPathMode(glm::vec3 CircleCenter);
+
 		PathPoint GetPathPoint(float deltaTime);
 		PathPoint pathpoint;
 
@@ -41,6 +45,7 @@ namespace Hazel {
 		int Path_index = 0;
 		bool Playing = false;
 		bool HaveAnimation = false;
+		PathMode pathmode = PathMode::Straght;
 	private:
 		std::vector<float> Path_Time;
 
@@ -63,6 +68,8 @@ namespace Hazel {
 		glm::vec3 Path_HandEular_Now = glm::vec3(0.0f);
 		glm::vec3 Path_HandEular_Last = glm::vec3(0.0f);
 
+		std::vector<PathMode> pathmodelist;
+		std::vector<glm::vec3> CircleCenterList;
 
 		bool HaveAngle;
 	};

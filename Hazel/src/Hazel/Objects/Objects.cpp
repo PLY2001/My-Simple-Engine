@@ -165,43 +165,54 @@ namespace Hazel {
 	void Objects::ReduceAmount()
 	{
 		objects[m_Objectindex].m_Amount--;
-		if (m_index < 0)
+		if (objects[m_Objectindex].m_Amount != 0)
 		{
-			m_index = objects[m_Objectindex].m_Amount;
-		}
-		if (int decrease = objects[m_Objectindex].m_DefaultModelMatrices[0].size() - objects[m_Objectindex].m_Amount > 0)
-		{
-			for (int j = 0; j < decrease; j++)
+			if (m_index < 0)
 			{
-				objects[m_Objectindex].m_Pos.erase(objects[m_Objectindex].m_Pos.begin() + m_index);
-				objects[m_Objectindex].m_Rotate.erase(objects[m_Objectindex].m_Rotate.begin() + m_index);
+				m_index = objects[m_Objectindex].m_Amount;
 			}
-			for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
+			if (int decrease = objects[m_Objectindex].m_DefaultModelMatrices[0].size() - objects[m_Objectindex].m_Amount > 0)
 			{
 				for (int j = 0; j < decrease; j++)
 				{
-					if (objects[m_Objectindex].m_HaveAngle)
-					{
-						objects[m_Objectindex].m_ModelMatrices[i].erase(objects[m_Objectindex].m_ModelMatrices[i].begin() + m_index);
-					}
-					objects[m_Objectindex].m_DefaultModelMatrices[i].erase(objects[m_Objectindex].m_DefaultModelMatrices[i].begin() + m_index);
+					objects[m_Objectindex].m_Pos.erase(objects[m_Objectindex].m_Pos.begin() + m_index);
+					objects[m_Objectindex].m_Rotate.erase(objects[m_Objectindex].m_Rotate.begin() + m_index);
 				}
+				for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
+				{
+					for (int j = 0; j < decrease; j++)
+					{
+						if (objects[m_Objectindex].m_HaveAngle)
+						{
+							objects[m_Objectindex].m_ModelMatrices[i].erase(objects[m_Objectindex].m_ModelMatrices[i].begin() + m_index);
+						}
+						objects[m_Objectindex].m_DefaultModelMatrices[i].erase(objects[m_Objectindex].m_DefaultModelMatrices[i].begin() + m_index);
+					}
+				}
+
 			}
+			objects[m_Objectindex].m_AABBMinPos.erase(objects[m_Objectindex].m_AABBMinPos.begin() + m_index);
+			objects[m_Objectindex].m_AABBMaxPos.erase(objects[m_Objectindex].m_AABBMaxPos.begin() + m_index);
 
+			for (int i = 0; i < objects[m_Objectindex].m_Angle.size(); i++)
+			{
+				objects[m_Objectindex].m_Angle[i].erase(objects[m_Objectindex].m_Angle[i].begin() + m_index);
+			}
+			objects[m_Objectindex].m_HandPos.erase(objects[m_Objectindex].m_HandPos.begin() + m_index);
+			objects[m_Objectindex].m_HandEular.erase(objects[m_Objectindex].m_HandEular.begin() + m_index);
+
+			objects[m_Objectindex].m_Anima.erase(objects[m_Objectindex].m_Anima.begin() + m_index);
+
+			m_index = -1;
 		}
-		objects[m_Objectindex].m_AABBMinPos.erase(objects[m_Objectindex].m_AABBMinPos.begin() + m_index);
-		objects[m_Objectindex].m_AABBMaxPos.erase(objects[m_Objectindex].m_AABBMaxPos.begin() + m_index);
-
-		for (int i = 0; i < objects[m_Objectindex].m_Angle.size(); i++)
+		else
 		{
-			objects[m_Objectindex].m_Angle[i].erase(objects[m_Objectindex].m_Angle[i].begin() + m_index);
+			objects.erase(objects.begin() + m_Objectindex);
+			ObjectAmount--;
+			m_Objectindex = -1;
+			m_index = -1;
 		}
-		objects[m_Objectindex].m_HandPos.erase(objects[m_Objectindex].m_HandPos.begin() + m_index);
-		objects[m_Objectindex].m_HandEular.erase(objects[m_Objectindex].m_HandEular.begin() + m_index);
-
-		objects[m_Objectindex].m_Anima.erase(objects[m_Objectindex].m_Anima.begin() + m_index);
-
-		m_index = -1;
+		
 	}
 
 	void Objects::Load_AddAmount()
@@ -405,15 +416,15 @@ namespace Hazel {
 		return &objects[m_Objectindex].m_Angle[Axis - 1][m_index];
 	}
 
-	float* Objects::SetHandPos(int index)
-	{
-		return &objects[m_Objectindex].m_HandPos[m_index][index];
-	}
-
-	float* Objects::SetHandEular(int index)
-	{
-		return &objects[m_Objectindex].m_HandEular[m_index][index];
-	}
+// 	float* Objects::SetHandPos(int index)
+// 	{
+// 		return &objects[m_Objectindex].m_HandPos[m_index][index];
+// 	}
+// 
+// 	float* Objects::SetHandEular(int index)
+// 	{
+// 		return &objects[m_Objectindex].m_HandEular[m_index][index];
+// 	}
 
 	bool Objects::SolveAngle()
 	{

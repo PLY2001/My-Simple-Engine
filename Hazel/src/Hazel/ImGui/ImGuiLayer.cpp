@@ -244,31 +244,55 @@ namespace Hazel {
 			if ((int)Application::Get().objects->GetControlMode() == 2)
 			{
 				glm::vec3 Scale = Application::Get().objects->GetScale();
-				if (ImGui::SliderFloat("PosX", Application::Get().objects->SetHandPos(0), -652.0f * Scale.x, 652.0f * Scale.x))
+				HandPos = Application::Get().objects->GetHandPos()/10.0f;
+				HandEular = Application::Get().objects->GetHandEular()/10.0f;
+				if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -652.0f * Scale.x/10.0f, 652.0f * Scale.x / 10.0f))
 				{
+					Application::Get().objects->ChangeHandPos(HandPos*10.0f);
 					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
-				if (ImGui::SliderFloat("PosY", Application::Get().objects->SetHandPos(1), -184.0f * Scale.y, 1054.0f * Scale.y))
+				
+				if (ImGui::SliderFloat("HandPosY", (float*)&HandPos.y, -184.0f * Scale.y / 10.0f, 1054.0f * Scale.y / 10.0f))
 				{
+					Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
 					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
-				if (ImGui::SliderFloat("PosZ", Application::Get().objects->SetHandPos(2), -652.0f * Scale.z, 652.0f * Scale.z))
+				
+				if (ImGui::SliderFloat("HandPosZ", (float*)&HandPos.z, -652.0f * Scale.z / 10.0f, 652.0f * Scale.z / 10.0f))
 				{
+					Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
 					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
-				if (ImGui::SliderFloat("EularX", Application::Get().objects->SetHandEular(0), -180.0f, 180.0f))
+				
+				if (ImGui::InputFloat3("HandPos", (float*)&HandPos))
 				{
-					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-				}
-				if (ImGui::SliderFloat("EularY", Application::Get().objects->SetHandEular(1), -180.0f, 180.0f))
-				{
-					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-				}
-				if (ImGui::SliderFloat("EularZ", Application::Get().objects->SetHandEular(2), -180.0f, 180.0f))
-				{
+					Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
 					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 				}
 
+				if (ImGui::SliderFloat("HandEularX", (float*)&HandEular.x, -180.0f, 180.0f))
+				{
+					Application::Get().objects->ChangeHandEular(HandEular);
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+				}
+				
+				if (ImGui::SliderFloat("HandEularY", (float*)&HandEular.y, -180.0f, 180.0f))
+				{
+					Application::Get().objects->ChangeHandEular(HandEular);
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+				}
+				
+				if (ImGui::SliderFloat("HandEularZ", (float*)&HandEular.z, -180.0f, 180.0f))
+				{
+					Application::Get().objects->ChangeHandEular(HandEular);
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+				}
+				
+				if (ImGui::InputFloat3("HandEular", (float*)&HandEular))
+				{
+					Application::Get().objects->ChangeHandEular(HandEular);
+					Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+				}
 
 			}
 		}
@@ -284,15 +308,15 @@ namespace Hazel {
 		ImGui::Text(u8"当前选择模型索引 = %d", Application::Get().objects->GetChoosedIndex());
 		if (Application::Get().objects->GetChoosedIndex() > -1)
 		{
-			irb120Pos = Application::Get().objects->GetPos()/10.0f;
-			irb120Rotate = Application::Get().objects->GetRotate() * glm::vec3(180.0f/PI);
-			if (ImGui::InputFloat3(u8"平移(m)", (float*)&irb120Pos))
+			Pos = Application::Get().objects->GetPos()/10.0f;
+			Rotate = Application::Get().objects->GetRotate() * glm::vec3(180.0f/PI);
+			if (ImGui::InputFloat3(u8"平移(m)", (float*)&Pos))
 			{
-				Application::Get().objects->ChangePos(irb120Pos*10.0f - Application::Get().objects->GetPos());
+				Application::Get().objects->ChangePos(Pos*10.0f - Application::Get().objects->GetPos());
 			}
-			if (ImGui::InputFloat3(u8"旋转(degree)", (float*)&irb120Rotate))
+			if (ImGui::InputFloat3(u8"旋转(degree)", (float*)&Rotate))
 			{
-				Application::Get().objects->ChangeRotate(glm::vec3(0.0f,irb120Rotate.y*PI/180.0f- Application::Get().objects->GetRotate().y,0.0f),1);
+				Application::Get().objects->ChangeRotate(glm::vec3(0.0f,Rotate.y*PI/180.0f- Application::Get().objects->GetRotate().y,0.0f),1);
 			}
 			
 		}
@@ -321,16 +345,28 @@ namespace Hazel {
 		//ImGui::InputFloat(u8"height0", &Application::Get().height0);
 		//ImGui::InputFloat(u8"width1", &Application::Get().width1);
 		//ImGui::InputFloat(u8"height1", &Application::Get().height1);
-		if (ImGui::Button(u8"设点"))
+		
+		if (Application::Get().objects->GetChoosedIndex() > -1)
 		{
-			Application::Get().objects->GetMyAnimation().SetPathPos(irb120Pos * 10.0f);
-			Application::Get().objects->GetMyAnimation().SetPathRotate(irb120Rotate * PI / 180.0f);
-			Application::Get().objects->GetMyAnimation().SetPathHandPos(Application::Get().objects->GetHandPos());
-			Application::Get().objects->GetMyAnimation().SetPathHandEular(Application::Get().objects->GetHandEular());
-			Application::Get().objects->GetMyAnimation().SetPathTime(PathTime);
+			ImGui::RadioButton(u8"直线轨迹", (int*)&Application::Get().objects->GetMyAnimation().pathmode, 0);
+			ImGui::RadioButton(u8"圆弧轨迹", (int*)&Application::Get().objects->GetMyAnimation().pathmode, 1);
+			if (Application::Get().objects->GetMyAnimation().pathmode == PathMode::Circle)
+			{
+				ImGui::InputFloat3(u8"圆弧圆心", (float*)&CircleCenter);
+
+			}
+			if (ImGui::Button(u8"设点"))
+			{
+				Application::Get().objects->GetMyAnimation().SetPathPos(Pos * 10.0f);
+				Application::Get().objects->GetMyAnimation().SetPathRotate(Rotate * PI / 180.0f);
+				Application::Get().objects->GetMyAnimation().SetPathHandPos(Application::Get().objects->GetHandPos());
+				Application::Get().objects->GetMyAnimation().SetPathHandEular(Application::Get().objects->GetHandEular());
+				Application::Get().objects->GetMyAnimation().SetPathTime(PathTime);
+				Application::Get().objects->GetMyAnimation().SetPathMode(CircleCenter);
+			}
+			ImGui::SameLine();
+			ImGui::InputFloat(u8"时间间隔", &PathTime);
 		}
-		ImGui::SameLine();
-		ImGui::InputFloat(u8"时间间隔", &PathTime);
 		if (ImGui::Button(u8"播放"))
 		{
 			for (int i = 0; i < Application::Get().objects->GetObjectAmount(); i++)

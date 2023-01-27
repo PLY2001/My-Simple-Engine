@@ -58,8 +58,8 @@ namespace Hazel {
 		void ChangeAngle();
 		void ChangeAngle(int objectindex, int index);
 		float* SetAngle(int Axis);
-		float* SetHandPos(int index);
-		float* SetHandEular(int index);
+		//float* SetHandPos(int index);
+		//float* SetHandEular(int index);
 		bool SolveAngle();
 		bool SolveAngle(int objectindex, int index);
 		Animation& GetAnimation(int objectindex, int index);
