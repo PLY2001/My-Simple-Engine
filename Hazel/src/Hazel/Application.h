@@ -21,6 +21,7 @@
 #include "Objects/Objects.h"
 #include "Hazel/Renderer/InstanceBufferObjects.h"
 #include "Hazel/Renderer/Animation.h"
+#include "Hazel/Renderer/Origin.h"
 
 namespace Hazel
 {
@@ -79,6 +80,7 @@ namespace Hazel
 		//std::shared_ptr<Shader> ArrowShader;
 		std::shared_ptr<Shader> CameraDepthMapShader;
 		//std::shared_ptr<Shader> ShadowColorMapShader;
+		std::shared_ptr<Shader> OriginShader;
 
 		//灯光
 		float count = 0;
@@ -151,7 +153,7 @@ namespace Hazel
 		
 		
 
-		
+		std::unique_ptr<Origin> origin;
 
 		std::unique_ptr<AABB> aabb;
 
@@ -191,6 +193,7 @@ namespace Hazel
 		std::vector<int> shaderIDs;
 		glm::vec2 MousePos = glm::vec2(0);
 		glm::vec2 ClickPos = glm::vec2(0);
+		//glm::vec2 LastMousePos = glm::vec2(0);
 
 		//创建变换矩阵
 
@@ -219,6 +222,12 @@ namespace Hazel
 		float height0 = 60.0f;
 		float width1 = 300000.0f;
 		float height1 = 200000.0f;
+
+		bool UIClicked = false;
+
+		
+		
+
 	};
 
 	Application* CreateApplication();

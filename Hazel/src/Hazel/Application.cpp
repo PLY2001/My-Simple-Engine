@@ -48,6 +48,7 @@ namespace Hazel
 		//ArrowShader.reset(new Shader("res/shaders/Arrow.shader"));
 		CameraDepthMapShader.reset(new Shader("res/shaders/CameraDepthMap.shader"));
 		//ShadowColorMapShader.reset(new Shader("res/shaders/ShadowColorMap.shader"));
+		OriginShader.reset(new Shader("res/shaders/Origin.shader"));
 
 
 		//加载模型
@@ -143,7 +144,8 @@ namespace Hazel
 		//shaderIDs.push_back(ArrowShader->RendererID);
 		shaderIDs.push_back(CameraDepthMapShader->RendererID);
 		//shaderIDs.push_back(ShadowColorMapShader->RendererID);
-		
+		shaderIDs.push_back(OriginShader->RendererID);
+
 		ubo->Bind(shaderIDs, "Matrices");
 
 
@@ -161,6 +163,10 @@ namespace Hazel
 
 		//hbaotexture.reset(new Texture("res/textures/hbao.png"));
 		//anim.reset(new Animation(true));
+
+		
+		origin.reset(new Origin(OriginShader));
+
 	}
 
 
@@ -197,7 +203,11 @@ namespace Hazel
 			dispatcher.Dispatch<MouseMovedEvent>(BIND_EVENT_FN(OnMousePos));//获取鼠标坐标
 			dispatcher.Dispatch<MouseButtonReleasedEvent>(BIND_EVENT_FN(OnMouseReleaseEvent));//鼠标释放时，用于拖动
 		}
-		dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(OnMouseButtonEvent));//鼠标点击
+		if(!UIClicked)
+		{
+			dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(OnMouseButtonEvent));//鼠标点击
+		}
+		
 		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));//窗口重设大小
 		dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(OnKeyPressedEvent));
 
@@ -223,7 +233,11 @@ namespace Hazel
 
 			GLClearError();//清除错误信息
 
-
+			if (mousemode == MouseMode::Disable)
+			{
+				glfwSetCursorPos((GLFWwindow*)s_Instance->GetWindow().GetNativeWindow(), camera->lastX,camera->lastY);
+			}
+			
 			//相机键盘输入控制
 			camera->KeyControl(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), deltaTime);
 			//ShadowMapWidth = (int)(8192.0f / camera->GetPosition().y);
@@ -312,7 +326,7 @@ namespace Hazel
 				ShadowColorMapShader->Bind();
 				ShadowColorMapShader->SetUniformMat4("view", LightViewMatrix);
 				ShadowColorMapShader->SetUniformMat4("projection", LightProjectionMatrix);
-				GLCheckError();//获取错误信息	
+				
 				glActiveTexture(GL_TEXTURE11);
 				glBindTexture(GL_TEXTURE_2D, framebufferSM->GetTexID());
 				ShadowColorMapShader->SetUniform1i("shadowmap", 11);
@@ -421,10 +435,13 @@ namespace Hazel
 			{
 				OpenGLRendererAPI::CullFace("DISABLE");
 				aabb->Draw(objects->GetAABBMinPos(), objects->GetAABBMaxPos());
+
+
+				
+
 			}
 
-
-
+			
 
 			OpenGLRendererAPI::CullFace("BACK");
 
@@ -662,6 +679,13 @@ namespace Hazel
 					glDisable(GL_BLEND);
 				}
 
+				glDisable(GL_DEPTH_TEST);
+				origin->Draw();
+				glEnable(GL_DEPTH_TEST);
+
+				
+				
+
 				//绘制移动箭头
 // 					if(irb120->GetChoosedIndex()>-1||Choosed)
 // 					{
@@ -725,7 +749,7 @@ namespace Hazel
 			
 
 
-
+			GLCheckError();//获取错误信息	
 
 		}
 
@@ -759,6 +783,7 @@ namespace Hazel
 	bool Application::OnCameraRotate(MouseMovedEvent& e)
 	{
 		camera->MouseControl(e.GetX(), e.GetY());
+		
 		return true;
 	}
 
@@ -791,11 +816,8 @@ namespace Hazel
 		//当指针开启时
 		if (mousemode == MouseMode::Enable)
 		{
-			//irb120->SetChoosedIndex(-1);
-			//Choosed = false;
-			//ToMove = false;
+			
 			ClickPos = glm::vec2(MousePos.x / m_Window->GetWidth() * 2.0f - 1.0f, MousePos.y / m_Window->GetHeight() * 2.0f - 1.0f);
-			//ClickPos = MousePos;
 
 			for (float ClipZ = 1.0f; ClipZ > 0.0f; ClipZ -= 0.0001f)//OpenGL的相机中，z轴指向自己，z越大越近
 			{
@@ -818,32 +840,10 @@ namespace Hazel
 							}						
 						}
 					}
-					//检测arrow碰撞
-	// 				for (int i = 0; i < 3; i++)
-	// 				{
-	// 					if (WorldClickPos.x > arrow->GetAABBMinPos(i).x&& WorldClickPos.x < arrow->GetAABBMaxPos(i).x)
-	// 					{
-	// 						if (WorldClickPos.y > arrow->GetAABBMinPos(i).y&& WorldClickPos.y < arrow->GetAABBMaxPos(i).y)
-	// 						{
-	// 							if (WorldClickPos.z > arrow->GetAABBMinPos(i).z&& WorldClickPos.z < arrow->GetAABBMaxPos(i).z)
-	// 							{
-	// 								ToMove = true;
-	// 								Choosed = true;
-	// 								first = true;
-	// 								axis = i;
-	// 								break;
-	// 							}
-	// 
-	// 						}
-	// 
-	// 					}
-	// 				}
+
 
 				}
-				// 			if (!Choosed)
-				// 			{
-				// 				irb120->SetChoosedIndex(-1);
-				// 			}
+
 
 			}
 
@@ -853,6 +853,7 @@ namespace Hazel
 
 	bool Application::OnMousePos(MouseMovedEvent& e)
 	{
+		
 		MousePos = glm::vec2(e.GetX(), m_Window->GetHeight() - e.GetY());
 		if (ToMove)
 		{

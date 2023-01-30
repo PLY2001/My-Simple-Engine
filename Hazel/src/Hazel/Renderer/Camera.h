@@ -12,8 +12,7 @@ namespace Hazel {
 
 		
 
-		float lastX;
-		float lastY;
+		
 		float yaw;
 		float pitch;
 
@@ -26,5 +25,7 @@ namespace Hazel {
 		glm::mat4 SetProjection(float aspect);
 		inline glm::vec3 GetPosition() const { return cameraPos; }
 		unsigned int firstMouse;
+		float lastX;
+		float lastY;
 	};
 }

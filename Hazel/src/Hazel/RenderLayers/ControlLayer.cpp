@@ -77,7 +77,10 @@ namespace Hazel {
 	void ControlLayer::OnEvent(Hazel::Event& event)
 	{
 		EventDispatcher dispatcher(event);
-		dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(OnMouseButtonEvent));//鼠标点击
+		if (!Application::Get().UIClicked)
+		{
+			dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(OnMouseButtonEvent));//鼠标点击
+		}
 		dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(OnKeyPressedEvent));
 	}
 

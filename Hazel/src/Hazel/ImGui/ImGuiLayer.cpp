@@ -385,6 +385,8 @@ namespace Hazel {
 				}
 			}
 		}
+
+		ImGui::Checkbox("UIClicked", &Application::Get().UIClicked);
 		ImGui::End();
 
 
@@ -485,7 +487,23 @@ namespace Hazel {
 		
 		ImGui::End();
 
+		ImGuiIO& io = ImGui::GetIO();
+		if (!io.WantCaptureMouse)
+		{
+			Application::Get().UIClicked = false;//鼠标不在UI上
+		}
+		else
+		{
+			Application::Get().UIClicked = true;//鼠标在UI上
+		}
+
+// 		if (Application::Get().mousemode == Application::MouseMode::Disable)
+// 		{
+// 			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+// 		}
 		
 	}
+
+
 
 }

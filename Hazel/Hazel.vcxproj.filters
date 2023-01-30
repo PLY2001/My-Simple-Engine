@@ -1411,6 +1411,7 @@
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
     <ClInclude Include="src\Hazel\Renderer\Animation.h" />
+    <ClInclude Include="src\Hazel\Renderer\Origin.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Hazel\Application.cpp">
@@ -1489,5 +1490,6 @@
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
     <ClCompile Include="src\Hazel\Renderer\Animation.cpp" />
+    <ClCompile Include="src\Hazel\Renderer\Origin.cpp" />
   </ItemGroup>
 </Project>

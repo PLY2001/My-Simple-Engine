@@ -152,6 +152,7 @@
     <None Include="res\shaders\Bricks.shader" />
     <None Include="res\shaders\CameraDepthMap.shader" />
     <None Include="res\shaders\Gaussian.shader" />
+    <None Include="res\shaders\Origin.shader" />
     <None Include="res\shaders\Outline.shader" />
     <None Include="res\shaders\Plane.shader" />
     <None Include="res\shaders\Postprocessing.shader" />

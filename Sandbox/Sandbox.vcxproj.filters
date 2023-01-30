@@ -38,5 +38,6 @@
     <None Include="res\shaders\Skybox.shader" />
     <None Include="res\shaders\Thresholding.shader" />
     <None Include="res\shaders\ShadowColorMap.shader" />
+    <None Include="res\shaders\Origin.shader" />
   </ItemGroup>
 </Project>
