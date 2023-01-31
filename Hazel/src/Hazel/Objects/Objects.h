@@ -51,6 +51,7 @@ namespace Hazel {
 		void AddAmount();
 		void AddAmount(std::string name);
 		void ReduceAmount();
+		void ReduceObjectAmount();
 		void Load_AddAmount();
 		int GetAmount(int ObjectIndex);
 		int GetMyAmount();
@@ -90,6 +91,7 @@ namespace Hazel {
 
 		void SetChoosedIndex(int ObjectIndex, int index);
 		inline int GetChoosedIndex() { return m_index; }
+		inline int GetChoosedObjectIndex() { return m_Objectindex; }
 
 		bool CheckCollision(int ObjectIndex, int index, glm::vec3 CheckPos);
 

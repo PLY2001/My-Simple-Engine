@@ -99,10 +99,10 @@ namespace Hazel {
 		
 		//增加模型
 		objects[m_Objectindex].m_Amount++;
-		m_index = objects[m_Objectindex].m_Amount - 1;
+		m_index = objects[m_Objectindex].m_Amount - 2;
 		if (m_index < 0)
 		{
-			m_index = objects[m_Objectindex].m_Amount - 1;
+			m_index = 0;
 		}
 		if (int increase = objects[m_Objectindex].m_Amount - objects[m_Objectindex].m_DefaultModelMatrices[0].size() > 0)
 		{
@@ -165,54 +165,58 @@ namespace Hazel {
 	void Objects::ReduceAmount()
 	{
 		objects[m_Objectindex].m_Amount--;
-		if (objects[m_Objectindex].m_Amount != 0)
+		
+		if (m_index < 0)
 		{
-			if (m_index < 0)
+			m_index = objects[m_Objectindex].m_Amount-1;
+		}
+		if (int decrease = objects[m_Objectindex].m_DefaultModelMatrices[0].size() - objects[m_Objectindex].m_Amount > 0)
+		{
+			for (int j = 0; j < decrease; j++)
 			{
-				m_index = objects[m_Objectindex].m_Amount;
+				objects[m_Objectindex].m_Pos.erase(objects[m_Objectindex].m_Pos.begin() + m_index);
+				objects[m_Objectindex].m_Rotate.erase(objects[m_Objectindex].m_Rotate.begin() + m_index);
 			}
-			if (int decrease = objects[m_Objectindex].m_DefaultModelMatrices[0].size() - objects[m_Objectindex].m_Amount > 0)
+			for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
 			{
 				for (int j = 0; j < decrease; j++)
 				{
-					objects[m_Objectindex].m_Pos.erase(objects[m_Objectindex].m_Pos.begin() + m_index);
-					objects[m_Objectindex].m_Rotate.erase(objects[m_Objectindex].m_Rotate.begin() + m_index);
-				}
-				for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
-				{
-					for (int j = 0; j < decrease; j++)
+					if (objects[m_Objectindex].m_HaveAngle)
 					{
-						if (objects[m_Objectindex].m_HaveAngle)
-						{
-							objects[m_Objectindex].m_ModelMatrices[i].erase(objects[m_Objectindex].m_ModelMatrices[i].begin() + m_index);
-						}
-						objects[m_Objectindex].m_DefaultModelMatrices[i].erase(objects[m_Objectindex].m_DefaultModelMatrices[i].begin() + m_index);
+						objects[m_Objectindex].m_ModelMatrices[i].erase(objects[m_Objectindex].m_ModelMatrices[i].begin() + m_index);
 					}
+					objects[m_Objectindex].m_DefaultModelMatrices[i].erase(objects[m_Objectindex].m_DefaultModelMatrices[i].begin() + m_index);
 				}
-
 			}
-			objects[m_Objectindex].m_AABBMinPos.erase(objects[m_Objectindex].m_AABBMinPos.begin() + m_index);
-			objects[m_Objectindex].m_AABBMaxPos.erase(objects[m_Objectindex].m_AABBMaxPos.begin() + m_index);
 
-			for (int i = 0; i < objects[m_Objectindex].m_Angle.size(); i++)
-			{
-				objects[m_Objectindex].m_Angle[i].erase(objects[m_Objectindex].m_Angle[i].begin() + m_index);
-			}
-			objects[m_Objectindex].m_HandPos.erase(objects[m_Objectindex].m_HandPos.begin() + m_index);
-			objects[m_Objectindex].m_HandEular.erase(objects[m_Objectindex].m_HandEular.begin() + m_index);
-
-			objects[m_Objectindex].m_Anima.erase(objects[m_Objectindex].m_Anima.begin() + m_index);
-
-			m_index = -1;
 		}
-		else
+		objects[m_Objectindex].m_AABBMinPos.erase(objects[m_Objectindex].m_AABBMinPos.begin() + m_index);
+		objects[m_Objectindex].m_AABBMaxPos.erase(objects[m_Objectindex].m_AABBMaxPos.begin() + m_index);
+
+		for (int i = 0; i < objects[m_Objectindex].m_Angle.size(); i++)
 		{
-			objects.erase(objects.begin() + m_Objectindex);
-			ObjectAmount--;
-			m_Objectindex = -1;
-			m_index = -1;
+			objects[m_Objectindex].m_Angle[i].erase(objects[m_Objectindex].m_Angle[i].begin() + m_index);
 		}
+		objects[m_Objectindex].m_HandPos.erase(objects[m_Objectindex].m_HandPos.begin() + m_index);
+		objects[m_Objectindex].m_HandEular.erase(objects[m_Objectindex].m_HandEular.begin() + m_index);
+
+		objects[m_Objectindex].m_Anima.erase(objects[m_Objectindex].m_Anima.begin() + m_index);
+
+		m_index = -1;
 		
+		
+		
+			
+		
+		
+	}
+
+	void Objects::ReduceObjectAmount()
+	{
+		objects.erase(objects.begin() + m_Objectindex);
+		ObjectAmount--;
+		m_Objectindex = -1;
+		m_index = -1;
 	}
 
 	void Objects::Load_AddAmount()
@@ -1072,6 +1076,66 @@ namespace Hazel {
 				writer1.Double(object.m_HandEular[i].z);
 				writer1.EndArray();
 				
+				if(object.m_Anima[i].HaveAnimation)
+				{
+					writer1.Key("animation");
+					writer1.StartArray();
+					for (int j = 0; j < object.m_Anima[i].GetPathKeySize(); j++)
+					{
+						writer1.StartObject();
+
+						writer1.Key("a_pos");
+						writer1.StartArray();
+						writer1.Double(object.m_Anima[i].GetPathKeyPos(j).x);
+						writer1.Double(object.m_Anima[i].GetPathKeyPos(j).y);
+						writer1.Double(object.m_Anima[i].GetPathKeyPos(j).z);
+						writer1.EndArray();
+
+						writer1.Key("a_rotate");
+						writer1.StartArray();
+						writer1.Double(object.m_Anima[i].GetPathKeyRotate(j).x);
+						writer1.Double(object.m_Anima[i].GetPathKeyRotate(j).y);
+						writer1.Double(object.m_Anima[i].GetPathKeyRotate(j).z);
+						writer1.EndArray();
+
+						writer1.Key("a_handpos");
+						writer1.StartArray();
+						writer1.Double(object.m_Anima[i].GetPathKeyHandPos(j).x);
+						writer1.Double(object.m_Anima[i].GetPathKeyHandPos(j).y);
+						writer1.Double(object.m_Anima[i].GetPathKeyHandPos(j).z);
+						writer1.EndArray();
+
+						writer1.Key("a_handeular");
+						writer1.StartArray();
+						writer1.Double(object.m_Anima[i].GetPathKeyHandEular(j).x);
+						writer1.Double(object.m_Anima[i].GetPathKeyHandEular(j).y);
+						writer1.Double(object.m_Anima[i].GetPathKeyHandEular(j).z);
+						writer1.EndArray();
+
+						if (j > 0)
+						{
+							writer1.Key("a_pathtime");
+
+							writer1.Double(object.m_Anima[i].GetPathKeyTime(j - 1));
+
+							writer1.Key("a_pathmode");
+
+							writer1.Int(object.m_Anima[i].GetPathMode(j - 1));
+
+
+							writer1.Key("a_circlecenter");
+							writer1.StartArray();
+							writer1.Double(object.m_Anima[i].GetPathCircleCenter(j-1).x);
+							writer1.Double(object.m_Anima[i].GetPathCircleCenter(j-1).y);
+							writer1.Double(object.m_Anima[i].GetPathCircleCenter(j-1).z);
+							writer1.EndArray();
+						}
+
+						writer1.EndObject();
+					}
+					writer1.EndArray();
+
+				}
 				writer1.EndObject();
 			}
 			writer1.EndArray();
@@ -1370,7 +1434,68 @@ namespace Hazel {
 
 									}
 
-									
+									if (object2.HasMember("animation") && object2["animation"].IsArray())
+									{
+										const rapidjson::Value& array8 = object2["animation"];
+										size_t len3 = array8.Size();
+										for (size_t k = 0; k < len3; k++)//每种物体
+										{
+											const rapidjson::Value& object3 = array8[k];
+
+											//为防止类型不匹配，一般会添加类型校验
+											if (object3.IsObject())
+											{
+												if (object3.HasMember("a_pos") && object3["a_pos"].IsArray())
+												{
+													const rapidjson::Value& array9 = object3["a_pos"];
+													objects[i].m_Anima[j].SetPathPos(glm::vec3(array9[0].GetDouble(), array9[1].GetDouble(), array9[2].GetDouble()));
+													
+												}
+
+												if (object3.HasMember("a_rotate") && object3["a_rotate"].IsArray())
+												{
+													const rapidjson::Value& array10 = object3["a_rotate"];
+													objects[i].m_Anima[j].SetPathRotate(glm::vec3(array10[0].GetDouble(), array10[1].GetDouble(), array10[2].GetDouble()));
+
+												}
+
+												if (object3.HasMember("a_handpos") && object3["a_handpos"].IsArray())
+												{
+													const rapidjson::Value& array11 = object3["a_handpos"];
+													objects[i].m_Anima[j].SetPathHandPos(glm::vec3(array11[0].GetDouble(), array11[1].GetDouble(), array11[2].GetDouble()));
+
+												}
+
+												if (object3.HasMember("a_handeular") && object3["a_handeular"].IsArray())
+												{
+													const rapidjson::Value& array12 = object3["a_handeular"];
+													objects[i].m_Anima[j].SetPathHandEular(glm::vec3(array12[0].GetDouble(), array12[1].GetDouble(), array12[2].GetDouble()));
+
+												}
+
+												if (object3.HasMember("a_pathtime") && object3["a_pathtime"].IsDouble())
+												{
+													objects[i].m_Anima[j].SetPathTime(object3["a_pathtime"].GetDouble());
+												}
+
+												if (object3.HasMember("a_pathmode") && object3["a_pathmode"].IsInt())
+												{
+													PathMode temp = static_cast<PathMode>(object3["a_pathmode"].GetInt());
+													objects[i].m_Anima[j].pathmode = static_cast<PathMode>(object3["a_pathmode"].GetInt());
+												}
+
+												if (object3.HasMember("a_circlecenter") && object3["a_circlecenter"].IsArray())
+												{
+													const rapidjson::Value& array13 = object3["a_circlecenter"];
+													objects[i].m_Anima[j].SetPathMode(glm::vec3(array13[0].GetDouble(), array13[1].GetDouble(), array13[2].GetDouble()));
+
+												}
+											}
+												
+
+											
+										}
+									}
 										
 									
 								}

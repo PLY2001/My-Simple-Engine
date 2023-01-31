@@ -194,14 +194,67 @@ namespace Hazel {
 		HaveAnimation = true;
 	}
 
+	float Animation::GetPathTotalTime(int index)
+	{
+		if (m_Path_Pos.size() > 1)
+		{
+			float totaltime = 0;
+			for (int i = 0; i < index; i++)
+			{
+				totaltime += Path_Time[i];
+			}
+			return totaltime;
+		}
+		else
+			return 0;
+	}
+
+	float Animation::GetPathKeyTime(int index)
+	{
+		return Path_Time[index];
+	}
+
 	void Animation::SetPathMode(glm::vec3 CircleCenter)
 	{
 		if (m_Path_Pos.size() > 1)
 		{
 			pathmodelist.push_back(pathmode);
-			CircleCenterList.push_back(CircleCenter*10.0f);
+			CircleCenterList.push_back(CircleCenter);
 		}
 
+	}
+
+	void Animation::RemovePath()
+	{
+		if(m_Path_Pos.size()>0)
+		{
+			if (m_Path_Pos.size() > 1)
+			{
+				Path_Time.erase(Path_Time.end() - 1);
+				pathmodelist.erase(pathmodelist.end() - 1);
+				CircleCenterList.erase(CircleCenterList.end() - 1);
+			}
+			m_Path_Pos.erase(m_Path_Pos.end() - 1);
+			m_Path_Rotate.erase(m_Path_Rotate.end() - 1);
+			m_Path_HandPos.erase(m_Path_HandPos.end() - 1);
+			m_Path_HandEular.erase(m_Path_HandEular.end() - 1);
+		}
+		
+	}
+
+	int Animation::GetPathKeySize()
+	{
+		return m_Path_Pos.size();
+	}
+
+	int Animation::GetPathMode(int index)
+	{
+		return (int)pathmodelist[index];
+	}
+
+	glm::vec3 Animation::GetPathCircleCenter(int index)
+	{
+		return CircleCenterList[index];
 	}
 
 }

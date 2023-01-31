@@ -203,7 +203,19 @@ namespace Hazel {
 			ImGui::SameLine();
 			ImGui::Text(u8"所选模型总计 %d 个", Application::Get().objects->GetMyAmount());
 			if (ImGui::Button(u8"删除所选模型"))
-				Application::Get().objects->ReduceAmount();
+			{
+				if (Application::Get().objects->GetMyAmount() == 1)
+				{
+					Application::Get().insbos->ReduceObject(Application::Get().objects->GetChoosedObjectIndex());
+					Application::Get().objects->ReduceObjectAmount();
+				}
+				else
+				{
+					Application::Get().objects->ReduceAmount();
+				}
+				
+			}
+				
 
 			if ((int)Application::Get().objects->GetControlMode() > 0)
 			{
@@ -245,7 +257,7 @@ namespace Hazel {
 			{
 				glm::vec3 Scale = Application::Get().objects->GetScale();
 				HandPos = Application::Get().objects->GetHandPos()/10.0f;
-				HandEular = Application::Get().objects->GetHandEular()/10.0f;
+				HandEular = Application::Get().objects->GetHandEular();
 				if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -652.0f * Scale.x/10.0f, 652.0f * Scale.x / 10.0f))
 				{
 					Application::Get().objects->ChangeHandPos(HandPos*10.0f);
@@ -362,10 +374,14 @@ namespace Hazel {
 				Application::Get().objects->GetMyAnimation().SetPathHandPos(Application::Get().objects->GetHandPos());
 				Application::Get().objects->GetMyAnimation().SetPathHandEular(Application::Get().objects->GetHandEular());
 				Application::Get().objects->GetMyAnimation().SetPathTime(PathTime);
-				Application::Get().objects->GetMyAnimation().SetPathMode(CircleCenter);
+				Application::Get().objects->GetMyAnimation().SetPathMode(CircleCenter*10.0f);
 			}
 			ImGui::SameLine();
 			ImGui::InputFloat(u8"时间间隔", &PathTime);
+			if (ImGui::Button(u8"删点"))
+			{
+				Application::Get().objects->GetMyAnimation().RemovePath();
+			}
 		}
 		if (ImGui::Button(u8"播放"))
 		{
@@ -384,6 +400,98 @@ namespace Hazel {
 					}
 				}
 			}
+		}
+
+		static ImGuiTableFlags flags = ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+		static int freeze_cols = 1;
+		static int freeze_rows = 1;
+		// When using ScrollX or ScrollY we need to specify a size for our table container!
+		// Otherwise by default the table will fit all available space, like a BeginChild() call.
+		ImVec2 outer_size = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 8);
+		int TotalObjAmount = Application::Get().objects->GetObjectAmount();
+		int TotalAmount = 0;
+		for (int i = 0; i < TotalObjAmount; i++)
+		{
+			TotalAmount += Application::Get().objects->objects[i].m_Amount;
+		}
+		if (ImGui::BeginTable("KeyTimes", 1 + TotalAmount, flags, outer_size))
+		{
+			ImGui::TableSetupScrollFreeze(freeze_cols, freeze_rows);
+			ImGui::TableSetupColumn(u8"时间节点", ImGuiTableColumnFlags_NoHide); // Make the first column not hideable to match our use of TableSetupScrollFreeze()
+			
+			for (int i = 0; i < TotalObjAmount; i++)
+			{
+				for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
+				{
+					std::string name(Application::Get().objects->objects[i].m_Name);
+					
+					// 准备根据格式造字符串流
+					std::stringstream fmt;                       
+					// 造字符串流
+					fmt << name << ":" << j;
+					std::string namej = fmt.str();
+					ImGui::TableSetupColumn(namej.c_str());
+
+					Application::Get().objects->objects[i].m_Anima[j].Key_index = 0;
+				}
+			}
+			ImGui::TableHeadersRow();
+			
+			for (int row = 0; row < 20; row++)
+			{
+				
+				int column = 0;
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(column);
+				ImGui::Text(u8"%.1f秒", row * 0.5f);
+				for (int i = 0; i < TotalObjAmount; i++)
+				{
+					for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
+					{
+						column++;
+						ImGui::TableSetColumnIndex(column);
+						if (Application::Get().objects->objects[i].m_Anima[j].HaveAnimation)
+						{
+							int index = Application::Get().objects->objects[i].m_Anima[j].Key_index;
+							if(index < Application::Get().objects->objects[i].m_Anima[j].GetPathKeySize())
+							{
+								float temp1 = Application::Get().objects->objects[i].m_Anima[j].GetPathTotalTime(index);
+								float temp2 = row * 0.5f;
+								if (Application::Get().objects->objects[i].m_Anima[j].GetPathTotalTime(index) == row * 0.5f)
+								{
+
+									std::string ButtomName = u8"有##" + std::to_string(index) + u8":" + std::to_string(column);//给每个buttom取名为"有##1:1"、"有##1:2"...（为了避免名字相同而冲突，且实际不会显示##1:1、##1:2等）
+									if (ImGui::Button(ButtomName.c_str()))
+									{
+										Application::Get().objects->ChangePos(Application::Get().objects->GetAnimation(i, j).GetPathKeyPos(index) - Application::Get().objects->GetPos(i, j), i, j);
+										Application::Get().objects->ChangeRotate(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(index) - Application::Get().objects->GetRotate(i, j), 1, i, j);
+										Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(index), i, j);
+										Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(index), i, j);
+										if (Application::Get().objects->objects[i].m_HaveAngle)
+										{
+											if (Application::Get().objects->SolveAngle(i, j))
+											{
+												Application::Get().objects->ChangeAngle(i, j);
+											}
+										}
+									}
+									Application::Get().objects->objects[i].m_Anima[j].Key_index++;
+
+
+								}
+								else
+									ImGui::Text(u8"无");
+							}
+							else
+								ImGui::Text(u8"无");
+						}
+						else
+							ImGui::Text(u8"无");
+					}
+				}
+				
+			}
+			ImGui::EndTable();
 		}
 
 		ImGui::Checkbox("UIClicked", &Application::Get().UIClicked);

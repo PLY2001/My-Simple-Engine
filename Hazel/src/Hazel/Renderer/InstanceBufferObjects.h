@@ -14,6 +14,7 @@ namespace Hazel {
 		InstanceBufferObjects() = default;
 		void AddObjects(std::shared_ptr<Objects>& objects);
 		void AddObject(std::shared_ptr<Objects>& objects);
+		void ReduceObject(int objcetindex);
 		void SetDatamat4(std::shared_ptr<Objects>& objects);
 
 	};

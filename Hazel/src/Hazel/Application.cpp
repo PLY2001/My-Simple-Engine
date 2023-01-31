@@ -233,10 +233,10 @@ namespace Hazel
 
 			GLClearError();//清除错误信息
 
-			if (mousemode == MouseMode::Disable)
-			{
-				glfwSetCursorPos((GLFWwindow*)s_Instance->GetWindow().GetNativeWindow(), camera->lastX,camera->lastY);
-			}
+// 			if (mousemode == MouseMode::Disable)
+// 			{
+// 				glfwSetCursorPos((GLFWwindow*)s_Instance->GetWindow().GetNativeWindow(), s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight());
+// 			}
 			
 			//相机键盘输入控制
 			camera->KeyControl(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), deltaTime);
@@ -679,10 +679,7 @@ namespace Hazel
 					glDisable(GL_BLEND);
 				}
 
-				glDisable(GL_DEPTH_TEST);
-				origin->Draw();
-				glEnable(GL_DEPTH_TEST);
-
+				
 				
 				
 
@@ -711,6 +708,15 @@ namespace Hazel
 
 
 			}
+
+			if (objects->GetChoosedIndex() > -1)//绘制原点
+			{
+				glDisable(GL_DEPTH_TEST);
+				origin->Draw();
+				glEnable(GL_DEPTH_TEST);
+			}
+
+
 			for (int i = 0; i < objects->GetObjectAmount(); i++)
 			{
 				for (int j = 0; j < objects->GetAmount(i); j++)
@@ -740,10 +746,12 @@ namespace Hazel
 				layer->OnUpdate();
 
 			m_ImGuiLayer->Begin();
-			for (Layer* layer : m_LayerStack)//正向遍历层来显示Imgui层
-				layer->OnImGuiRender();
+			if(mousemode == MouseMode::Enable)
+			{	
+				for (Layer* layer : m_LayerStack)//正向遍历层来显示Imgui层
+					layer->OnImGuiRender();
+			}
 			m_ImGuiLayer->End();
-
 
 			m_Window->OnUpdate();//SwapBuffers和PollEvent
 			
@@ -814,7 +822,7 @@ namespace Hazel
 		}
 
 		//当指针开启时
-		if (mousemode == MouseMode::Enable)
+		if (mousemode == MouseMode::Enable && e.GetMouseButton() == HZ_MOUSE_BUTTON_LEFT)
 		{
 			
 			ClickPos = glm::vec2(MousePos.x / m_Window->GetWidth() * 2.0f - 1.0f, MousePos.y / m_Window->GetHeight() * 2.0f - 1.0f);

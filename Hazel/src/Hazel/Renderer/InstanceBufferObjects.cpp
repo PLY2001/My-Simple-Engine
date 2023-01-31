@@ -31,9 +31,15 @@ namespace Hazel {
 		}
 	}
 
+	void InstanceBufferObjects::ReduceObject(int objcetindex)
+	{
+		m_insbos.erase(m_insbos.begin() + objcetindex);
+	}
+
 	void InstanceBufferObjects::SetDatamat4(std::shared_ptr<Objects>& objects)
 	{
 		ObjectsAmount = objects->GetObjectAmount();
+		
 		for (int j = 0; j < ObjectsAmount; j++)
 		{
 			for (int i = 0; i < m_insbos[j].size(); i++)

@@ -33,8 +33,16 @@ namespace Hazel {
 		glm::vec3 GetPathKeyHandEular(int index);
 
 		void SetPathTime(float Time);
+		float GetPathTotalTime(int index);
+		float GetPathKeyTime(int index);
 
 		void SetPathMode(glm::vec3 CircleCenter);
+
+		void RemovePath();
+		int GetPathKeySize();
+
+		int GetPathMode(int index);
+		glm::vec3 GetPathCircleCenter(int index);
 
 		PathPoint GetPathPoint(float deltaTime);
 		PathPoint pathpoint;
@@ -43,6 +51,7 @@ namespace Hazel {
 		int frame = 0;
 		float TimeNow = 0.0f;
 		int Path_index = 0;
+		int Key_index = 0;
 		bool Playing = false;
 		bool HaveAnimation = false;
 		PathMode pathmode = PathMode::Straght;
@@ -71,7 +80,7 @@ namespace Hazel {
 		std::vector<PathMode> pathmodelist;
 		std::vector<glm::vec3> CircleCenterList;
 
-		bool HaveAngle;
+		bool HaveAngle = false;
 	};
 
 	
