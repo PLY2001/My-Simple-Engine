@@ -209,6 +209,27 @@ namespace Hazel {
 	}
 
 
+	void FrameBuffer::ResetWindowCameraMap(unsigned int Width, unsigned int Height)
+	{
+		WinWidth = Width;
+		WinHeight = Height;
+		glBindTexture(GL_TEXTURE_2D, tbID);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, WinWidth, WinHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);//设置贴图为NULL
+		glBindTexture(GL_TEXTURE_2D, 0);//解绑贴图
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tbID, 0);//将该贴图设置为framebuffer的颜色附件
+
+		//glDrawBuffer(GL_NONE);//为了使framebuffer完整，显式声明没有颜色缓冲
+		//glReadBuffer(GL_NONE);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);//解绑framebuffer
+
+
+
+
+
+	}
+
 	unsigned int FrameBuffer::GenQuad()
 	{
 		std::vector<SimpleVertex> quadVertices = {

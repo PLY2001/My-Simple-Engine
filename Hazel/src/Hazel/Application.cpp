@@ -67,11 +67,13 @@ namespace Hazel
 		AVGModel.reset(new Model("res/models/AVGcar/AVGcar.obj"));
 		BoxModel.reset(new Model("res/models/box/box.obj"));
 		MachineModel.reset(new Model("res/models/machine/machine.obj"));
+		StorageModel.reset(new Model("res/models/storage/storage.obj"));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("irb120",IRB120Model));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt", BeltModel));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("AVG", AVGModel));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("box", BoxModel));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("machine", MachineModel));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("storage", StorageModel));
 		objects.reset(new Objects(modelmap));
 
 		/*平面*/
@@ -153,11 +155,18 @@ namespace Hazel
 		//创建灯光
 
 		PointLight.reset(new Light(glm::vec3(0.0f, 40.0f, 0.0f)));
-		DirectLight.reset(new Light(glm::vec3(27.372f, 29.168f, 0.0f)));
+		DirectLight.reset(new Light(glm::vec3(273.72f, 291.68f, 0.0f)));
 
 		camera.reset(new Camera);
 
-		glfwSetInputMode(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		if (mousemode == MouseMode::Enable)
+		{
+			glfwSetInputMode(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
+		else
+		{
+			glfwSetInputMode(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
 
 		aabb.reset(new AABB(AABBShader));
 
@@ -262,7 +271,7 @@ namespace Hazel
 			if (glfwGetKey(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), GLFW_KEY_R) == GLFW_PRESS)
 			{
 				count += 0.05f;
-				DirectLight->Pos = glm::vec3(40.0f * cos(count), 40.0f * sin(count), 0.0f);
+				DirectLight->Pos = glm::vec3(400.0f * cos(count), 400.0f * sin(count), 0.0f);
 			}
 
 			//记录每帧的时间
@@ -293,7 +302,7 @@ namespace Hazel
 			ubo->SetDatamat4(sizeof(glm::mat4), sizeof(glm::mat4), &ProjectionMatrix);
 
 			//设置直射光VP变换矩阵
-			glm::mat4 LightProjectionMatrix = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 1.0f, 200.0f);
+			glm::mat4 LightProjectionMatrix = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 1.0f, 2000.0f);
 			glm::mat4 LightViewMatrix = glm::lookAt(DirectLight->Pos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 			//设置点光源远平面
@@ -547,6 +556,8 @@ namespace Hazel
 					ShadowDrawShader->SetUniform1f("bias1", bias1);
 					ShadowDrawShader->SetUniform1f("bias3", bias3);
 					//ShadowDrawShader->SetUniform1f("bias4", bias4);
+					ShadowDrawShader->SetUniform1f("ShadowRoundSize", ShadowRoundSize);
+					ShadowDrawShader->SetUniform1f("ShadowSoftSize", ShadowSoftSize);
 					ShadowDrawShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
 					ShadowDrawShader->SetUniformMat4("view", LightViewMatrix);
 					ShadowDrawShader->SetUniformMat4("projection", LightProjectionMatrix);
@@ -657,10 +668,12 @@ namespace Hazel
 					framebuffer5->Unbind();
 					//renderer.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 					GaussianShader->Bind();
-					GaussianShader->SetUniform1f("width0", width0);
-					GaussianShader->SetUniform1f("height0", height0);
-					GaussianShader->SetUniform1f("width1", width1);
-					GaussianShader->SetUniform1f("height1", height1);
+					//float widthbias = m_Window->GetWidth() / 2400.0f;
+					//float heightbias = m_Window->GetHeight() / 1600.0f;
+					GaussianShader->SetUniform1f("width0", width0);//* widthbias);
+					GaussianShader->SetUniform1f("height0", height0);//* heightbias);
+					GaussianShader->SetUniform1f("width1", width1);// * widthbias);
+					GaussianShader->SetUniform1f("height1", height1);// * heightbias);
 					glActiveTexture(GL_TEXTURE11);
 					glBindTexture(GL_TEXTURE_2D, framebufferCM1->GetTexID());
 					GaussianShader->SetUniform1i("cameramap", 11);
@@ -783,8 +796,8 @@ namespace Hazel
 		framebuffer5->ResetWindow(WinWidth, WinHeight);
 		//framebuffer6->ResetWindow(WinWidth, WinHeight);
 		//framebuffer7->ResetWindow(WinWidth, WinHeight);
-		framebufferCM->ResetWindow(WinWidth, WinHeight);
-		framebufferCM1->ResetWindow(WinWidth, WinHeight);
+		framebufferCM->ResetWindowCameraMap(WinWidth, WinHeight);
+		framebufferCM1->ResetWindowCameraMap(WinWidth, WinHeight);
 		return true;
 	}
 

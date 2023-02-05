@@ -87,15 +87,15 @@ namespace Hazel {
 	bool ControlLayer::OnKeyPressedEvent(KeyPressedEvent& e)
 	{
 		
-		if (e.GetKeyCode() == HZ_KEY_1)
+		if (e.GetKeyCode() == HZ_KEY_F1)
 		{
 			arrowmode = ArrowMode::None;
 		}
-		if (e.GetKeyCode() == HZ_KEY_2)
+		if (e.GetKeyCode() == HZ_KEY_F2)
 		{
 			arrowmode = ArrowMode::Trans;
 		}
-		if (e.GetKeyCode() == HZ_KEY_3)
+		if (e.GetKeyCode() == HZ_KEY_F3)
 		{
 			arrowmode = ArrowMode::Rotat;
 		}

@@ -31,6 +31,7 @@ namespace Hazel {
 		bool Loaded = false;
 		float PathTime = 0.5;
 		glm::vec3 CircleCenter = glm::vec3(0.0f);
+		float TotalTime = 10.0;
 	};
 
 }

@@ -167,7 +167,7 @@ namespace Hazel
 		enum class MouseMode { Disable = 0, Enable = 1 };
 		GraphicMode graphicmode = GraphicMode::Normal;
 		LightMode lightmode = LightMode::Direct;
-		MouseMode mousemode = MouseMode::Disable;
+		MouseMode mousemode = MouseMode::Enable;
 
 		
 		bool AngleChanged = false;
@@ -206,9 +206,10 @@ namespace Hazel
 		std::shared_ptr<Model> AVGModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::shared_ptr<Model> BoxModel;
 		std::shared_ptr<Model> MachineModel;
+		std::shared_ptr<Model> StorageModel;
 		std::map<std::string, std::shared_ptr<Model>> modelmap;
 
-		float bias = 0.0003f;//直射光阴影自遮挡偏置
+		float bias = 0.00005f;//直射光阴影自遮挡偏置
 		float radius = 0.06f;//hbao半球半径
 		float bias1 = 0.01f;//hbao自遮挡偏置
 		float bias2 = 0.03f;//点光源阴影自遮挡偏置
@@ -222,6 +223,9 @@ namespace Hazel
 		float height0 = 60.0f;
 		float width1 = 300000.0f;
 		float height1 = 200000.0f;
+
+		float ShadowRoundSize = 50.0f;
+		float ShadowSoftSize = 100.0f;
 
 		bool UIClicked = false;
 

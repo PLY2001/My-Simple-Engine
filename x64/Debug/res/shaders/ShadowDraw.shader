@@ -53,6 +53,8 @@ uniform float bias1;
 uniform float bias3;
 //uniform float bias4;
 uniform vec4 u_CameraPosition;
+uniform float ShadowRoundSize;
+uniform float ShadowSoftSize;
 
 
 in VS_OUT{
@@ -84,7 +86,7 @@ void main()
 	float shadowColor = 0.0f;//阴影深浅
 	
 	/*求该点在光源视角的平均化深度*/
-	vec2 texelSize = 5.0f / textureSize(shadowmap, 0);//采样遮挡物平均深度的矩阵大小，矩阵越大，阴影越圆润
+	vec2 texelSize = ShadowRoundSize / textureSize(shadowmap, 0);//采样遮挡物平均深度的矩阵大小，矩阵越大，阴影越圆润
 	float d_Block = 0.0f;//遮挡物平均深度（光源视角标准化裁剪空间坐标）
 	int d_BlockCount = 0;//遮挡物计数
 	//迭代次数，次数越高效果越精细
@@ -110,7 +112,7 @@ void main()
 	{
 		/*求该点相对于接收阴影的距离系数，作为采样平均化阴影深浅的矩阵大小*/
 		shadowColor = 0.0f;
-		float w = (d_Receiver-d_Block)/d_Block*10.0f;
+		float w = (d_Receiver-d_Block)/d_Block*ShadowSoftSize;
 		vec2 WSize = w / textureSize(shadowmap, 0); //采样平均化阴影深浅的矩阵大小，矩阵越大，阴影越淡
 		/*求该点在光源视角的平均化的阴影深浅*/
 		//迭代次数，次数越高效果越精细

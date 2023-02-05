@@ -179,7 +179,7 @@ namespace Hazel {
 		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
 		
 		//自定义imgui窗口
-		ImGui::Begin(u8"编辑");                          // Create a window called "Hello, world!" and append into it.
+		ImGui::Begin(u8"编辑栏");                          // Create a window called "Hello, world!" and append into it.
 
 		ImGui::Text(u8"切换渲染风格");           
 		ImGui::RadioButton(u8"真实", (int*)&Application::Get().graphicmode , 0);
@@ -348,6 +348,7 @@ namespace Hazel {
 // 		ImGui::Text("counter = %d", counter);
 // 
  		ImGui::Text(u8"每帧平均 %.3f ms (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		//ImGui::InputFloat(u8"bias", &Application::Get().bias);
 		//ImGui::InputFloat(u8"radius", &Application::Get().radius);
 		//ImGui::InputFloat(u8"bias1", &Application::Get().bias1);
 		//ImGui::InputFloat(u8"bias2", &Application::Get().bias2);
@@ -357,16 +358,28 @@ namespace Hazel {
 		//ImGui::InputFloat(u8"height0", &Application::Get().height0);
 		//ImGui::InputFloat(u8"width1", &Application::Get().width1);
 		//ImGui::InputFloat(u8"height1", &Application::Get().height1);
+		//ImGui::Checkbox("UIClicked", &Application::Get().UIClicked);
+		//ImGui::InputFloat(u8"ShadowRoundSize", &Application::Get().ShadowRoundSize);
+		//ImGui::InputFloat(u8"ShadowSoftSize", &Application::Get().ShadowSoftSize);
+		ImGui::End();
+
+		ImGui::Begin(u8"动画栏");
 		
 		if (Application::Get().objects->GetChoosedIndex() > -1)
 		{
 			ImGui::RadioButton(u8"直线轨迹", (int*)&Application::Get().objects->GetMyAnimation().pathmode, 0);
+			ImGui::SameLine();
 			ImGui::RadioButton(u8"圆弧轨迹", (int*)&Application::Get().objects->GetMyAnimation().pathmode, 1);
 			if (Application::Get().objects->GetMyAnimation().pathmode == PathMode::Circle)
 			{
+				ImGui::SameLine();
 				ImGui::InputFloat3(u8"圆弧圆心", (float*)&CircleCenter);
 
 			}
+			ImGui::SetNextItemWidth(100);
+			ImGui::InputFloat(u8"时间间隔", &PathTime, 0.0f, 10000.0f, "%.1f");
+			//ImGui::PushItemWidth(10);
+			ImGui::SameLine();
 			if (ImGui::Button(u8"设点"))
 			{
 				Application::Get().objects->GetMyAnimation().SetPathPos(Pos * 10.0f);
@@ -377,12 +390,13 @@ namespace Hazel {
 				Application::Get().objects->GetMyAnimation().SetPathMode(CircleCenter*10.0f);
 			}
 			ImGui::SameLine();
-			ImGui::InputFloat(u8"时间间隔", &PathTime);
+			
 			if (ImGui::Button(u8"删点"))
 			{
 				Application::Get().objects->GetMyAnimation().RemovePath();
 			}
 		}
+		ImGui::SameLine();
 		if (ImGui::Button(u8"播放"))
 		{
 			for (int i = 0; i < Application::Get().objects->GetObjectAmount(); i++)
@@ -401,6 +415,11 @@ namespace Hazel {
 				}
 			}
 		}
+
+		ImGui::SetNextItemWidth(100);
+		ImGui::InputFloat(u8"总动画时长", &TotalTime, 0.0f, 10000.0f, "%.1f");
+
+		
 
 		static ImGuiTableFlags flags = ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 		static int freeze_cols = 1;
@@ -437,7 +456,7 @@ namespace Hazel {
 			}
 			ImGui::TableHeadersRow();
 			
-			for (int row = 0; row < 20; row++)
+			for (int row = 0; row < (int)(TotalTime / 0.5 + 1); row++)
 			{
 				
 				int column = 0;
@@ -494,7 +513,6 @@ namespace Hazel {
 			ImGui::EndTable();
 		}
 
-		ImGui::Checkbox("UIClicked", &Application::Get().UIClicked);
 		ImGui::End();
 
 
@@ -555,7 +573,7 @@ namespace Hazel {
 			}
 
 		}
-		if (ImGui::Button(u8"塑料盒"))
+		if (ImGui::Button(u8"转运盒"))
 		{
 			bool finded = false;
 			for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
@@ -587,6 +605,24 @@ namespace Hazel {
 			if (!finded)
 			{
 				Application::Get().objects->AddObject("machine", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.45f, 0.45f, 0.45f), false);
+				Application::Get().insbos->AddObject(Application::Get().objects);
+			}
+
+		}
+		if (ImGui::Button(u8"立体仓库"))
+		{
+			bool finded = false;
+			for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+			{
+				if ((*it).m_Name == "storage")
+				{
+					Application::Get().objects->AddAmount("storage");
+					finded = true;
+				}
+			}
+			if (!finded)
+			{
+				Application::Get().objects->AddObject("storage", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f), false);
 				Application::Get().insbos->AddObject(Application::Get().objects);
 			}
 

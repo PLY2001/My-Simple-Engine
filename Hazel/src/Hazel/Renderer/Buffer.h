@@ -158,6 +158,7 @@ namespace Hazel {
 		inline unsigned int GetTexID() { return tbID; }
 		void ResetWindow(unsigned int Width, unsigned int Height);
 		void ResetWindowMultiSample(unsigned int Width, unsigned int Height);
+		void ResetWindowCameraMap(unsigned int Width, unsigned int Height);
 	};
 
 	///////////////////////////////////////////////////IndexBuffer//////////////////////////////////////////////////////
