@@ -49,6 +49,7 @@ namespace Hazel
 		CameraDepthMapShader.reset(new Shader("res/shaders/CameraDepthMap.shader"));
 		//ShadowColorMapShader.reset(new Shader("res/shaders/ShadowColorMap.shader"));
 		OriginShader.reset(new Shader("res/shaders/Origin.shader"));
+		PlaneShader.reset(new Shader("res/shaders/Plane.shader"));
 
 
 		//加载模型
@@ -77,16 +78,19 @@ namespace Hazel
 		objects.reset(new Objects(modelmap));
 
 		/*平面*/
-		plane.reset(new Model("res/models/plane.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
+		plane.reset(new Model("res/models/factory1/factory1.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
+		insboplane.reset(new InstanceBuffer(sizeof(glm::mat4), NULL));//创建实例化数组
+		for (int i = 0; i < plane->meshes.size(); i++)//该模型有多个网格时，每个网格都有自己的顶点数组对象ID，要想把实例化数组缓冲区绑定在每个顶点数组对象上，就必须遍历
+		{
+			insboplane->AddInstanceBuffermat4(plane->meshes[i].vaID, 3);
+			insboplane->SetDatamat4(sizeof(glm::mat4), &plane->mModelMatrix);
+		}
 
- 		insboplane.reset(new InstanceBuffer(sizeof(glm::mat4), &plane->mModelMatrix));//创建实例化数组
- 		insboplane->AddInstanceBuffermat4(plane->meshes[0].vaID, 3);
- 		insboplane->SetDatamat4(sizeof(glm::mat4), &plane->mModelMatrix);
+ 		
 
 		/*移动箭头*/
 		//ArrowModel.reset(new Model("res/models/arrow.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
 		//arrow.reset(new Arrow(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f), ArrowModel));
-
 
 		//创建帧缓冲1
 		framebuffer1.reset(new FrameBuffer(s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight()));
@@ -125,8 +129,8 @@ namespace Hazel
 		framebufferCM->GenTexture2DShadowMap();
 		//framebufferColorSM.reset(new FrameBuffer(ShadowMapWidth, ShadowMapHeight));
 		//framebufferColorSM->GenTexture2D();
-		framebufferCM1.reset(new FrameBuffer(s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight()));
-		framebufferCM1->GenTexture2DShadowMap();
+		//framebufferCM1.reset(new FrameBuffer(s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight()));
+		//framebufferCM1->GenTexture2DShadowMap();
 
 		//创建天空盒
 		skybox.reset(new Skybox("Factory"));
@@ -147,6 +151,7 @@ namespace Hazel
 		shaderIDs.push_back(CameraDepthMapShader->RendererID);
 		//shaderIDs.push_back(ShadowColorMapShader->RendererID);
 		shaderIDs.push_back(OriginShader->RendererID);
+		shaderIDs.push_back(PlaneShader->RendererID);
 
 		ubo->Bind(shaderIDs, "Matrices");
 
@@ -156,6 +161,14 @@ namespace Hazel
 
 		PointLight.reset(new Light(glm::vec3(0.0f, 40.0f, 0.0f)));
 		DirectLight.reset(new Light(glm::vec3(273.72f, 291.68f, 0.0f)));
+		for (int i = 0; i < 7; i++)
+		{
+			for (int j = 0; j < 5; j++)
+			{
+				FactoryLightPos[(i * 5 + j) * 2] = -113.59f + i * 37.61f;
+				FactoryLightPos[(i * 5 + j) * 2 + 1] = -55.38f + j * 27.63f;
+			}
+		}
 
 		camera.reset(new Camera);
 
@@ -406,17 +419,10 @@ namespace Hazel
 			{
 				OpenGLRendererAPI::DrawInstanced(objects->objects[i].m_Model, CameraDepthMapShader, objects->GetAmount(i));//绘制需要投射阴影的物体
 			}
-			
+			OpenGLRendererAPI::Draw(plane, CameraDepthMapShader);
 			framebufferCM->Unbind();
 
-			framebufferCM1->Bind();
-			OpenGLRendererAPI::ClearDepth();//只需清除深度，不需清除颜色
-			for (int i = 0; i < objects->GetObjectAmount(); i++)
-			{
-				OpenGLRendererAPI::DrawInstanced(objects->objects[i].m_Model, CameraDepthMapShader, objects->GetAmount(i));//绘制需要投射阴影的物体
-			}
-			OpenGLRendererAPI::Draw(plane, CameraDepthMapShader);
-			framebufferCM1->Unbind();
+			
 
 			CameraDepthMapShader->Unbind();
 
@@ -474,13 +480,27 @@ namespace Hazel
 				OpenGLRendererAPI::DrawInstanced(objects->objects[i].m_Model, shader, objects->GetAmount(i));
 			}
 
-			if (graphicmode == GraphicMode::Normal)
-			{
-				OpenGLRendererAPI::Draw(plane, shader);
-			}
-
 			shader->Unbind();
 
+			PlaneShader->Bind();
+
+			//向shader发送灯光位置和相机位置
+			
+			//PlaneShader->SetUniform4f("u_LightPosition", -0.76f, 27.64f, -0.12f, 1.0f);
+			
+			PlaneShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
+			
+			PlaneShader->SetUniform1fArray("u_LightPosition", FactoryLightPos, 70);
+
+
+			//绘制真实物体
+			if (graphicmode != GraphicMode::Outline)
+			{
+				OpenGLRendererAPI::Draw(plane, PlaneShader);
+			}
+
+			PlaneShader->Unbind();
+			
 
 
 
@@ -558,6 +578,10 @@ namespace Hazel
 					//ShadowDrawShader->SetUniform1f("bias4", bias4);
 					ShadowDrawShader->SetUniform1f("ShadowRoundSize", ShadowRoundSize);
 					ShadowDrawShader->SetUniform1f("ShadowSoftSize", ShadowSoftSize);
+					ShadowDrawShader->SetUniform1f("BiasMax", BiasMax);
+					ShadowDrawShader->SetUniform1f("BiasMin", BiasMin);
+					ShadowDrawShader->SetUniform1f("shadowColorDepth", shadowColorDepth);
+					ShadowDrawShader->SetUniform1f("hbaoShadowColorDepth", hbaoShadowColorDepth);
 					ShadowDrawShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
 					ShadowDrawShader->SetUniformMat4("view", LightViewMatrix);
 					ShadowDrawShader->SetUniformMat4("projection", LightProjectionMatrix);
@@ -675,7 +699,7 @@ namespace Hazel
 					GaussianShader->SetUniform1f("width1", width1);// * widthbias);
 					GaussianShader->SetUniform1f("height1", height1);// * heightbias);
 					glActiveTexture(GL_TEXTURE11);
-					glBindTexture(GL_TEXTURE_2D, framebufferCM1->GetTexID());
+					glBindTexture(GL_TEXTURE_2D, framebufferCM->GetTexID());
 					GaussianShader->SetUniform1i("cameramap", 11);
 					glEnable(GL_BLEND);
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -797,7 +821,7 @@ namespace Hazel
 		//framebuffer6->ResetWindow(WinWidth, WinHeight);
 		//framebuffer7->ResetWindow(WinWidth, WinHeight);
 		framebufferCM->ResetWindowCameraMap(WinWidth, WinHeight);
-		framebufferCM1->ResetWindowCameraMap(WinWidth, WinHeight);
+		//framebufferCM1->ResetWindowCameraMap(WinWidth, WinHeight);
 		return true;
 	}
 

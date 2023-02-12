@@ -81,6 +81,7 @@ namespace Hazel
 		std::shared_ptr<Shader> CameraDepthMapShader;
 		//std::shared_ptr<Shader> ShadowColorMapShader;
 		std::shared_ptr<Shader> OriginShader;
+		std::shared_ptr<Shader> PlaneShader;
 
 		//灯光
 		float count = 0;
@@ -130,7 +131,7 @@ namespace Hazel
 		std::unique_ptr<FrameBuffer> framebufferCM;
 		//创建帧缓冲4
 		//std::unique_ptr<FrameBuffer> framebufferColorSM;
-		std::unique_ptr<FrameBuffer> framebufferCM1;
+		//std::unique_ptr<FrameBuffer> framebufferCM1;
 
 		/*IRB120*/
 		
@@ -216,20 +217,24 @@ namespace Hazel
 		float bias3 = 0.5f;//hbao遮挡距离限制
 		//float bias4 = 100.0f;//hbao显示距离限制
 		//std::unique_ptr<Texture> hbaotexture;
+		float BiasMax = 2000.0f;//hbao自遮挡偏置最大值
+		float BiasMin = 1.0f;//hbao自遮挡偏置最小值
 
 		bool ShadowGaussian = true;
 		//std::unique_ptr<Animation> anim;
-		float width0 = 90.0f;
-		float height0 = 60.0f;
-		float width1 = 300000.0f;
-		float height1 = 200000.0f;
+		float width0 = 15.0f;//均值模糊核最小宽
+		float height0 = 10.0f;//均值模糊核最小高
+		float width1 = 360000.0f;//均值模糊核最大宽
+		float height1 = 240000.0f;//均值模糊核最大高
 
-		float ShadowRoundSize = 50.0f;
-		float ShadowSoftSize = 100.0f;
+		float ShadowRoundSize = 25.0f;//阴影圆润度（越小越圆润）
+		float ShadowSoftSize = 100.0f;//阴影模糊度
+		float shadowColorDepth = 0.5f;//阴影颜色深度
+		float hbaoShadowColorDepth = 2.0f;//hbao颜色深度
 
 		bool UIClicked = false;
 
-		
+		float FactoryLightPos[70] = { 0.0f };
 		
 
 	};

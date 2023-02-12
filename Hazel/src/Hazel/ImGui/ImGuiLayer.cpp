@@ -350,17 +350,21 @@ namespace Hazel {
  		ImGui::Text(u8"每帧平均 %.3f ms (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		//ImGui::InputFloat(u8"bias", &Application::Get().bias);
 		//ImGui::InputFloat(u8"radius", &Application::Get().radius);
-		//ImGui::InputFloat(u8"bias1", &Application::Get().bias1);
+		ImGui::InputFloat(u8"bias1", &Application::Get().bias1);
 		//ImGui::InputFloat(u8"bias2", &Application::Get().bias2);
 		//ImGui::InputFloat(u8"bias3", &Application::Get().bias3);
 		//ImGui::InputFloat(u8"bias4", &Application::Get().bias4);
-		//ImGui::InputFloat(u8"width0", &Application::Get().width0);
-		//ImGui::InputFloat(u8"height0", &Application::Get().height0);
-		//ImGui::InputFloat(u8"width1", &Application::Get().width1);
-		//ImGui::InputFloat(u8"height1", &Application::Get().height1);
+		ImGui::InputFloat(u8"width0", &Application::Get().width0);
+		ImGui::InputFloat(u8"height0", &Application::Get().height0);
+		ImGui::InputFloat(u8"width1", &Application::Get().width1);
+		ImGui::InputFloat(u8"height1", &Application::Get().height1);
 		//ImGui::Checkbox("UIClicked", &Application::Get().UIClicked);
-		//ImGui::InputFloat(u8"ShadowRoundSize", &Application::Get().ShadowRoundSize);
-		//ImGui::InputFloat(u8"ShadowSoftSize", &Application::Get().ShadowSoftSize);
+		ImGui::InputFloat(u8"ShadowRoundSize", &Application::Get().ShadowRoundSize);
+		ImGui::InputFloat(u8"ShadowSoftSize", &Application::Get().ShadowSoftSize);
+		ImGui::InputFloat(u8"biasmax", &Application::Get().BiasMax);
+		ImGui::InputFloat(u8"biasmin", &Application::Get().BiasMin);
+		ImGui::InputFloat(u8"shadowColorDepth", &Application::Get().shadowColorDepth);
+		ImGui::InputFloat(u8"hbaoShadowColorDepth", &Application::Get().hbaoShadowColorDepth);
 		ImGui::End();
 
 		ImGui::Begin(u8"动画栏");
