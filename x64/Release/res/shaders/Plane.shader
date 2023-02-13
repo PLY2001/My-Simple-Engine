@@ -53,7 +53,7 @@ uniform Material material;
 
 uniform float u_LightPosition[70];
 uniform vec4 u_CameraPosition;
-
+uniform float p;
 
 in VS_OUT{
 	vec2 v_texcoord;//从顶点着色器传入的变量
@@ -80,17 +80,17 @@ void main()
 	{
 		dis = (fs_in.v_WorldPosition.x-u_LightPosition[i*2])*(fs_in.v_WorldPosition.x-u_LightPosition[i*2])+(fs_in.v_WorldPosition.z-u_LightPosition[i*2+1])*(fs_in.v_WorldPosition.z-u_LightPosition[i*2+1]);
 		
-		if(dis<1600)
+		if(dis<2000)
 		{
-			LightDir = normalize(vec3(u_LightPosition[i*2],27.64f,u_LightPosition[i*2+1]) - fs_in.v_WorldPosition.xyz);//世界光源方向
+			LightDir = normalize(vec3(u_LightPosition[i*2],28.15f,u_LightPosition[i*2+1]) - fs_in.v_WorldPosition.xyz);//世界光源方向
 			//漫反射
 			diffuse = max(0.4f,dot(Normal,LightDir));
-			diffuseColor += (0.4f*(1600.0f-dis)/1600.0f)*texture(material.texture_diffuse1,fs_in.v_texcoord).xyz*diffuse;
+			diffuseColor += (0.4f*(2000.0f-dis)/2000.0f)*texture(material.texture_diffuse1,fs_in.v_texcoord).xyz*diffuse;
 			//高光反射
 	
 			ha = normalize(CameraDir+LightDir);
-			specular = pow(max(0.4f,dot(Normal,ha)),100.0f);
-			specularColor +=  (0.4f*(1600.0f-dis)/1600.0f)*texture(material.texture_specular1,fs_in.v_texcoord).xyz*specular;
+			specular = pow(max(0.4f,dot(Normal,ha)),p);
+			specularColor +=  (0.4f*(2000.0f-dis)/2000.0f)*texture(material.texture_specular1,fs_in.v_texcoord).xyz*specular;
 			//环境光
 		}
 	}

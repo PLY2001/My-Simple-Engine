@@ -82,6 +82,7 @@ namespace Hazel
 		//std::shared_ptr<Shader> ShadowColorMapShader;
 		std::shared_ptr<Shader> OriginShader;
 		std::shared_ptr<Shader> PlaneShader;
+		std::shared_ptr<Shader> LightShader;
 
 		//灯光
 		float count = 0;
@@ -96,7 +97,7 @@ namespace Hazel
 		//std::vector<std::unique_ptr<InstanceBuffer>> insbobelt;//belt
 		//std::vector<std::unique_ptr<InstanceBuffer>> insboAVG;//AVG
 		std::unique_ptr<InstanceBuffer> insboplane;//plane
-
+		//std::unique_ptr<InstanceBuffer> insbolight;//light
 		//创建Uniform缓冲对象
 		std::unique_ptr<UniformBuffer> ubo;
 		
@@ -132,11 +133,13 @@ namespace Hazel
 		//创建帧缓冲4
 		//std::unique_ptr<FrameBuffer> framebufferColorSM;
 		//std::unique_ptr<FrameBuffer> framebufferCM1;
-
+		std::unique_ptr<FrameBuffer> framebuffer6;
+		unsigned int QuadID6;//绘制光晕的平面
 		/*IRB120*/
 		
 		/*平面*/
 		std::shared_ptr<Model> plane;
+		std::shared_ptr<Model> light;
 
 		//std::shared_ptr<Model> ArrowModel;
 		
@@ -211,7 +214,7 @@ namespace Hazel
 		std::map<std::string, std::shared_ptr<Model>> modelmap;
 
 		float bias = 0.00005f;//直射光阴影自遮挡偏置
-		float radius = 0.06f;//hbao半球半径
+		float radius = 0.2f;//hbao半球半径
 		float bias1 = 0.01f;//hbao自遮挡偏置
 		float bias2 = 0.03f;//点光源阴影自遮挡偏置
 		float bias3 = 0.5f;//hbao遮挡距离限制
@@ -230,13 +233,22 @@ namespace Hazel
 		float ShadowRoundSize = 25.0f;//阴影圆润度（越小越圆润）
 		float ShadowSoftSize = 100.0f;//阴影模糊度
 		float shadowColorDepth = 0.5f;//阴影颜色深度
-		float hbaoShadowColorDepth = 2.0f;//hbao颜色深度
+		float hbaoShadowColorDepth = 1.0f;//hbao颜色深度
 
 		bool UIClicked = false;
 
 		float FactoryLightPos[70] = { 0.0f };
+		float LightPosX[7] = { -112.48f,-74.32f,-35.87f,-0.76f,36.85f,74.73f,113.26f };
+		float LightPosZ[5] = { -55.96f,-27.74f,-0.11f,28.1f,55.78f };
+		float LightPosY = 28.15f;
 		
-
+		float basicP = 20.0f;//basic的高光指数
+		float planeP = 50.0f;//plane的高光指数
+		float F0 = 0.4f;//plane的高光指数
+		float fp = 2.0f;//plane的高光指数
+		
+		glm::mat4 lightModelMatrices[35];
+		std::map<float, glm::mat4> LightSorted;
 	};
 
 	Application* CreateApplication();

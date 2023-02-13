@@ -50,7 +50,7 @@ namespace Hazel
 		//ShadowColorMapShader.reset(new Shader("res/shaders/ShadowColorMap.shader"));
 		OriginShader.reset(new Shader("res/shaders/Origin.shader"));
 		PlaneShader.reset(new Shader("res/shaders/Plane.shader"));
-
+		LightShader.reset(new Shader("res/shaders/Light.shader"));
 
 		//加载模型
 // 		std::ifstream source("res/models/path.txt");
@@ -84,9 +84,23 @@ namespace Hazel
 		{
 			insboplane->AddInstanceBuffermat4(plane->meshes[i].vaID, 3);
 			insboplane->SetDatamat4(sizeof(glm::mat4), &plane->mModelMatrix);
+			
 		}
-
- 		
+		glm::mat4 lightMM = glm::mat4(1.0f);
+		/*光晕*/
+		for (int i = 0; i < 7; i++)
+		{
+			for (int j = 0; j < 5; j++)
+			{
+				FactoryLightPos[(i * 5 + j) * 2] = LightPosX[i];
+				FactoryLightPos[(i * 5 + j) * 2 + 1] = LightPosZ[j];
+				lightMM = glm::mat4(1.0f);
+				lightModelMatrices[i * 5 + j] = glm::translate(lightMM, glm::vec3(LightPosX[i], LightPosY, LightPosZ[j]));
+			}
+		}
+		light.reset(new Model("res/models/light/light.obj"));
+		//insbolight.reset(new InstanceBuffer(sizeof(glm::mat4)*35, lightModelMatrices));//创建实例化数组
+		//insbolight->AddInstanceBuffermat4(light->meshes[0].vaID, 3);
 
 		/*移动箭头*/
 		//ArrowModel.reset(new Model("res/models/arrow.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
@@ -101,7 +115,7 @@ namespace Hazel
 		framebuffer2->GenTexture2D();
 		//创建帧缓冲MSAA
 		framebufferMSAA.reset(new FrameBuffer(s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight()));
-		framebufferMSAA->GenTexture2DMultiSample(4);
+		framebufferMSAA->GenTexture2DMultiSample(1);
 		//创建帧缓冲3
 		framebuffer3.reset(new FrameBuffer(s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight()));
 		framebuffer3->GenTexture2D();
@@ -131,6 +145,9 @@ namespace Hazel
 		//framebufferColorSM->GenTexture2D();
 		//framebufferCM1.reset(new FrameBuffer(s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight()));
 		//framebufferCM1->GenTexture2DShadowMap();
+		framebuffer6.reset(new FrameBuffer(s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight()));
+		framebuffer6->GenTexture2D();
+		QuadID6 = framebuffer6->GenQuad();//用于绘制贴图的四边形
 
 		//创建天空盒
 		skybox.reset(new Skybox("Factory"));
@@ -152,6 +169,7 @@ namespace Hazel
 		//shaderIDs.push_back(ShadowColorMapShader->RendererID);
 		shaderIDs.push_back(OriginShader->RendererID);
 		shaderIDs.push_back(PlaneShader->RendererID);
+		shaderIDs.push_back(LightShader->RendererID);
 
 		ubo->Bind(shaderIDs, "Matrices");
 
@@ -161,14 +179,7 @@ namespace Hazel
 
 		PointLight.reset(new Light(glm::vec3(0.0f, 40.0f, 0.0f)));
 		DirectLight.reset(new Light(glm::vec3(273.72f, 291.68f, 0.0f)));
-		for (int i = 0; i < 7; i++)
-		{
-			for (int j = 0; j < 5; j++)
-			{
-				FactoryLightPos[(i * 5 + j) * 2] = -113.59f + i * 37.61f;
-				FactoryLightPos[(i * 5 + j) * 2 + 1] = -55.38f + j * 27.63f;
-			}
-		}
+		
 
 		camera.reset(new Camera);
 
@@ -472,8 +483,10 @@ namespace Hazel
 			glActiveTexture(GL_TEXTURE5);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubemapTexture);
 			shader->SetUniform1i("skybox", 5);
+			shader->SetUniform1f("p", basicP);
+			shader->SetUniform1f("F0", F0);
+			shader->SetUniform1f("fp", fp);
 			
-
 			//绘制真实物体
 			for (int i = 0; i < objects->GetObjectAmount(); i++)
 			{
@@ -491,6 +504,7 @@ namespace Hazel
 			PlaneShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
 			
 			PlaneShader->SetUniform1fArray("u_LightPosition", FactoryLightPos, 70);
+			PlaneShader->SetUniform1f("p", planeP);
 
 
 			//绘制真实物体
@@ -538,13 +552,14 @@ namespace Hazel
 
 				//天空盒
 				//third pass
+				/*
 				SkyShader->Bind();
 
 				glm::mat4 SkyboxViewMatrix = glm::mat4(glm::mat3(camera->SetView()));//有位移前看出来是个很小的方块，去除位移后，方块就始终套在相机上，所以满眼都是天空盒了
 				SkyShader->SetUniformMat4("view", SkyboxViewMatrix);
 				SkyShader->SetUniformMat4("projection", ProjectionMatrix);
 				skybox->Draw(SkyShader, SkyboxID);
-
+				*/
 				framebuffer3->GetColorAfterMSAA(framebufferMSAA->GetID());//从抗锯齿帧缓冲获取颜色到其他缓冲
 				framebuffer3->Unbind();
 				framebuffer3->Draw(ScreenBasicShader, QuadID);
@@ -718,6 +733,7 @@ namespace Hazel
 
 				
 				
+
 				
 
 				//绘制移动箭头
@@ -746,6 +762,37 @@ namespace Hazel
 
 			}
 
+			framebuffer6->Bind();
+
+			OpenGLRendererAPI::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+			OpenGLRendererAPI::ClearColor();
+			OpenGLRendererAPI::ClearDepth();
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			LightShader->Bind();
+			LightShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
+			LightSorted.clear();
+			for (int i = 0; i < 35; i++)
+			{
+				float dis = glm::length(camera->GetPosition() - glm::vec3(FactoryLightPos[2 * i], 27.64f, FactoryLightPos[2 * i + 1]));
+				LightSorted[dis] = lightModelMatrices[i];
+				
+			}
+			for (std::map<float, glm::mat4>::reverse_iterator it = LightSorted.rbegin(); it != LightSorted.rend(); ++it)
+			{
+				LightShader->SetUniformMat4("model", it->second);
+				OpenGLRendererAPI::Draw(light, LightShader);
+			}
+			
+			LightShader->Unbind();
+
+			framebuffer6->Unbind();
+			
+			framebuffer6->Draw(ScreenBasicShader, QuadID6);
+			glDisable(GL_BLEND);
+
+
 			if (objects->GetChoosedIndex() > -1)//绘制原点
 			{
 				glDisable(GL_DEPTH_TEST);
@@ -753,6 +800,7 @@ namespace Hazel
 				glEnable(GL_DEPTH_TEST);
 			}
 
+			
 
 			for (int i = 0; i < objects->GetObjectAmount(); i++)
 			{
@@ -822,6 +870,8 @@ namespace Hazel
 		//framebuffer7->ResetWindow(WinWidth, WinHeight);
 		framebufferCM->ResetWindowCameraMap(WinWidth, WinHeight);
 		//framebufferCM1->ResetWindowCameraMap(WinWidth, WinHeight);
+		framebuffer6->ResetWindow(WinWidth, WinHeight);
+
 		return true;
 	}
 
