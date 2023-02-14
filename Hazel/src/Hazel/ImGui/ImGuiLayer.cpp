@@ -202,6 +202,8 @@ namespace Hazel {
 				Application::Get().objects->AddAmount();
 			ImGui::SameLine();
 			ImGui::Text(u8"所选模型总计 %d 个", Application::Get().objects->GetMyAmount());
+			if (ImGui::Button(u8"模块化复制"))
+				Application::Get().ModularCopy = true;
 			if (ImGui::Button(u8"删除所选模型"))
 			{
 				if (Application::Get().objects->GetMyAmount() == 1)
@@ -369,6 +371,7 @@ namespace Hazel {
 // 		ImGui::InputFloat(u8"planeP", &Application::Get().planeP);
 		//ImGui::InputFloat(u8"F0", &Application::Get().F0);
 		//ImGui::InputFloat(u8"fp", &Application::Get().fp);
+		
 		
 
 		ImGui::End();
@@ -547,7 +550,25 @@ namespace Hazel {
 			}
 			
 		}
-		if (ImGui::Button(u8"传送带"))
+		if (ImGui::Button(u8"低传送带"))
+		{
+			bool finded = false;
+			for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+			{
+				if ((*it).m_Name == "belt1")
+				{
+					Application::Get().objects->AddAmount("belt1");
+					finded = true;
+				}
+			}
+			if (!finded)
+			{
+				Application::Get().objects->AddObject("belt1", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+				Application::Get().insbos->AddObject(Application::Get().objects);
+			}
+
+		}
+		if (ImGui::Button(u8"中传送带"))
 		{
 			bool finded = false;
 			for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
@@ -561,6 +582,24 @@ namespace Hazel {
 			if (!finded)
 			{
 				Application::Get().objects->AddObject("belt", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+				Application::Get().insbos->AddObject(Application::Get().objects);
+			}
+
+		}
+		if (ImGui::Button(u8"高传送带"))
+		{
+			bool finded = false;
+			for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+			{
+				if ((*it).m_Name == "belt2")
+				{
+					Application::Get().objects->AddAmount("belt2");
+					finded = true;
+				}
+			}
+			if (!finded)
+			{
+				Application::Get().objects->AddObject("belt2", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
 				Application::Get().insbos->AddObject(Application::Get().objects);
 			}
 

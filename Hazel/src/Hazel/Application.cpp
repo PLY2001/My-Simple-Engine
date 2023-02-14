@@ -64,12 +64,16 @@ namespace Hazel
 		insbos.reset(new InstanceBufferObjects());
 		/*IRB120*/
 		IRB120Model.reset(new Model("res/models/ABB_IRB120/ABB_IRB120.obj"));//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
+		Belt1Model.reset(new Model("res/models/belt1/belt1.obj"));
+		Belt2Model.reset(new Model("res/models/belt2/belt2.obj"));
 		BeltModel.reset(new Model("res/models/belt/belt.obj"));
 		AVGModel.reset(new Model("res/models/AVGcar/AVGcar.obj"));
 		BoxModel.reset(new Model("res/models/box/box.obj"));
 		MachineModel.reset(new Model("res/models/machine/machine.obj"));
 		StorageModel.reset(new Model("res/models/storage/storage.obj"));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("irb120",IRB120Model));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt1", Belt1Model));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt2", Belt2Model));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt", BeltModel));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("AVG", AVGModel));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("box", BoxModel));
@@ -772,6 +776,9 @@ namespace Hazel
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			LightShader->Bind();
 			LightShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
+			glActiveTexture(GL_TEXTURE12);
+			glBindTexture(GL_TEXTURE_2D, framebufferCM->GetTexID());
+			LightShader->SetUniform1i("cameramap", 12);
 			LightSorted.clear();
 			for (int i = 0; i < 35; i++)
 			{
@@ -914,32 +921,72 @@ namespace Hazel
 			
 			ClickPos = glm::vec2(MousePos.x / m_Window->GetWidth() * 2.0f - 1.0f, MousePos.y / m_Window->GetHeight() * 2.0f - 1.0f);
 
-			for (float ClipZ = 1.0f; ClipZ > 0.0f; ClipZ -= 0.0001f)//OpenGL的相机中，z轴指向自己，z越大越近
+			if(!ModularCopy)
 			{
-				glm::vec4 WorldClickPos = glm::inverse(ViewMatrix) * glm::inverse(ProjectionMatrix) * glm::vec4(ClickPos, ClipZ, 1.0f);
-				WorldClickPos /= WorldClickPos.w;
-
-
-				//检测irb120碰撞
-				if (!ToMove)
+				for (float ClipZ = 1.0f; ClipZ > 0.0f; ClipZ -= 0.0001f)//OpenGL的相机中，z轴指向自己，z越大越近
 				{
-					for (int j = 0; j < objects->GetObjectAmount(); j++)
+					glm::vec4 WorldClickPos = glm::inverse(ViewMatrix) * glm::inverse(ProjectionMatrix) * glm::vec4(ClickPos, ClipZ, 1.0f);
+					WorldClickPos /= WorldClickPos.w;
+
+
+					//检测irb120碰撞
+					if (!ToMove)
 					{
-						for (int i = 0; i < objects->GetAmount(j); i++)
+						for (int j = 0; j < objects->GetObjectAmount(); j++)
 						{
-							if (objects->CheckCollision(j,i, WorldClickPos))
+							for (int i = 0; i < objects->GetAmount(j); i++)
 							{
-								objects->SetChoosedIndex(j,i);
-								//Choosed = true;
-								break;
-							}						
+								if (objects->CheckCollision(j, i, WorldClickPos))
+								{
+									objects->SetChoosedIndex(j, i);
+									//Choosed = true;
+									break;
+								}
+							}
 						}
+
+
 					}
 
 
 				}
+			}
+			else
+			{
+				for (float ClipZ = 1.0f; ClipZ > 0.0f; ClipZ -= 0.0001f)//OpenGL的相机中，z轴指向自己，z越大越近
+				{
+					glm::vec4 WorldClickPos = glm::inverse(ViewMatrix) * glm::inverse(ProjectionMatrix) * glm::vec4(ClickPos, ClipZ, 1.0f);
+					WorldClickPos /= WorldClickPos.w;
+
+					if (abs(WorldClickPos.y) < 0.1f)
+					{
+						glm::vec3 ObjectMinPos = objects->GetAABBMinPos();
+						glm::vec3 ObjectMaxPos = objects->GetAABBMaxPos();
+						if (WorldClickPos.x > ObjectMaxPos.x&& WorldClickPos.z < ObjectMaxPos.z && WorldClickPos.z > ObjectMinPos.z)
+						{
+							objects->AddAmount(glm::vec3(ObjectMaxPos.x, 0.0f, (ObjectMaxPos.z + ObjectMinPos.z) / 2.0f),glm::vec3(0.0f,0.0f,0.0f));
+							ModularCopy = false;
+						}
+						if (WorldClickPos.x > ObjectMinPos.x&& WorldClickPos.x < ObjectMaxPos.x && WorldClickPos.z > ObjectMaxPos.z)
+						{
+							objects->AddAmount(glm::vec3((ObjectMaxPos.x + ObjectMinPos.x) / 2.0f, 0.0f, ObjectMaxPos.z), glm::vec3(0.0f, 3.0f * PI / 2.0f, 0.0f));
+							ModularCopy = false;
+						}
+						if (WorldClickPos.x < ObjectMinPos.x&& WorldClickPos.z < ObjectMaxPos.x && WorldClickPos.z > ObjectMinPos.z)
+						{
+							objects->AddAmount(glm::vec3(ObjectMinPos.x, 0.0f, (ObjectMaxPos.z + ObjectMinPos.z) / 2.0f), glm::vec3(0.0f, PI, 0.0f));
+							ModularCopy = false;
+						}
+						if (WorldClickPos.x > ObjectMinPos.x&& WorldClickPos.x < ObjectMaxPos.x && WorldClickPos.z < ObjectMinPos.z)
+						{
+							objects->AddAmount(glm::vec3((ObjectMaxPos.x + ObjectMinPos.x) / 2.0f, 0.0f, ObjectMinPos.z), glm::vec3(0.0f, PI / 2.0f, 0.0f));
+							ModularCopy = false;
+						}
+					}
+					
 
 
+				}
 			}
 
 			return true;
@@ -1035,6 +1082,8 @@ namespace Hazel
 			LastWorldClickPos = WorldClickPos;
 			//LastArrowPos = ArrowPos;
 		}
+
+
 		return true;
 	}
 
@@ -1048,7 +1097,14 @@ namespace Hazel
 	{
 		if (e.GetKeyCode() == HZ_KEY_ESCAPE)
 		{
-			objects->SetChoosedIndex(-1,-1);
+			if (!ModularCopy)
+			{
+				objects->SetChoosedIndex(-1, -1);
+			}
+			else
+			{
+				ModularCopy = false;
+			}
 		}
 		return true;
 	}

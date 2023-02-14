@@ -206,6 +206,8 @@ namespace Hazel
 
 		std::shared_ptr<InstanceBufferObjects> insbos;
 		std::shared_ptr<Model> IRB120Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
+		std::shared_ptr<Model> Belt1Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
+		std::shared_ptr<Model> Belt2Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::shared_ptr<Model> BeltModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::shared_ptr<Model> AVGModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::shared_ptr<Model> BoxModel;
@@ -240,7 +242,7 @@ namespace Hazel
 		float FactoryLightPos[70] = { 0.0f };
 		float LightPosX[7] = { -112.48f,-74.32f,-35.87f,-0.76f,36.85f,74.73f,113.26f };
 		float LightPosZ[5] = { -55.96f,-27.74f,-0.11f,28.1f,55.78f };
-		float LightPosY = 28.15f;
+		float LightPosY = 28.0f;
 		
 		float basicP = 20.0f;//basic的高光指数
 		float planeP = 50.0f;//plane的高光指数
@@ -249,6 +251,9 @@ namespace Hazel
 		
 		glm::mat4 lightModelMatrices[35];
 		std::map<float, glm::mat4> LightSorted;
+
+		bool ModularCopy = false;
+		
 	};
 
 	Application* CreateApplication();

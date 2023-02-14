@@ -50,6 +50,7 @@ namespace Hazel {
 		glm::mat4* GetModelMatrix(int ObjectIndex, int index);
 		void AddAmount();
 		void AddAmount(std::string name);
+		void AddAmount(glm::vec3 Pos, glm::vec3 Rotate);
 		void ReduceAmount();
 		void ReduceObjectAmount();
 		void Load_AddAmount();

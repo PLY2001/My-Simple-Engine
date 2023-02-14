@@ -76,6 +76,9 @@ namespace Hazel {
 		objects.push_back(object);
 
 		SetAABB(ObjectAmount-1, 0);
+
+		m_index = 0;
+		m_Objectindex = ObjectAmount - 1;
 		
 	}
 
@@ -160,6 +163,57 @@ namespace Hazel {
 		}
 		
 		AddAmount();
+	}
+
+	void Objects::AddAmount(glm::vec3 Pos, glm::vec3 Rotate)
+	{
+		//增加模型
+		objects[m_Objectindex].m_Amount++;
+		m_index = objects[m_Objectindex].m_Amount - 2;
+		if (m_index < 0)
+		{
+			m_index = 0;
+		}
+		if (int increase = objects[m_Objectindex].m_Amount - objects[m_Objectindex].m_DefaultModelMatrices[0].size() > 0)
+		{
+			for (int j = 0; j < increase; j++)
+			{
+				objects[m_Objectindex].m_Pos.push_back(Pos);
+				objects[m_Objectindex].m_Rotate.push_back(Rotate);
+			}
+			for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
+			{
+				for (int j = 0; j < increase; j++)
+				{
+					if (objects[m_Objectindex].m_HaveAngle)
+					{
+						objects[m_Objectindex].m_ModelMatrices[i].push_back(ModelMatrix(glm::vec3(objects[m_Objectindex].m_Pos.back())).matrix);
+						objects[m_Objectindex].m_ModelMatrices[i].back() = glm::rotate(objects[m_Objectindex].m_ModelMatrices[i].back(), objects[m_Objectindex].m_Rotate.back().y, glm::vec3(0.0f, 1.0f, 0.0f));
+						objects[m_Objectindex].m_ModelMatrices[i].back() = glm::scale(objects[m_Objectindex].m_ModelMatrices[i].back(), objects[m_Objectindex].m_Scale);
+					}
+					objects[m_Objectindex].m_DefaultModelMatrices[i].push_back(ModelMatrix(glm::vec3(objects[m_Objectindex].m_Pos.back())).matrix);
+					objects[m_Objectindex].m_DefaultModelMatrices[i].back() = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i].back(), objects[m_Objectindex].m_Rotate.back().y, glm::vec3(0.0f, 1.0f, 0.0f));
+					objects[m_Objectindex].m_DefaultModelMatrices[i].back() = glm::scale(objects[m_Objectindex].m_DefaultModelMatrices[i].back(), objects[m_Objectindex].m_Scale);
+				}
+			}
+
+		}
+		objects[m_Objectindex].m_AABBMinPos.push_back(objects[m_Objectindex].m_Pos[objects[m_Objectindex].m_Amount - 1]);
+		objects[m_Objectindex].m_AABBMaxPos.push_back(objects[m_Objectindex].m_Pos[objects[m_Objectindex].m_Amount - 1]);
+
+		for (int i = 0; i < objects[m_Objectindex].m_Angle.size(); i++)
+		{
+			objects[m_Objectindex].m_Angle[i].push_back(0);
+		}
+		objects[m_Objectindex].m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
+		objects[m_Objectindex].m_HandEular.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+
+		SetAABB(m_Objectindex, objects[m_Objectindex].m_Amount - 1);
+
+		Animation Anima(objects[m_Objectindex].m_HaveAngle);
+		objects[m_Objectindex].m_Anima.push_back(Anima);
+
+		m_index = objects[m_Objectindex].m_Amount - 1;
 	}
 
 	void Objects::ReduceAmount()
