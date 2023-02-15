@@ -330,7 +330,7 @@ namespace Hazel {
 			}
 			if (ImGui::InputFloat3(u8"Ðý×ª(degree)", (float*)&Rotate))
 			{
-				Application::Get().objects->ChangeRotate(glm::vec3(0.0f,Rotate.y*PI/180.0f- Application::Get().objects->GetRotate().y,0.0f),1);
+				Application::Get().objects->ChangeRotate(glm::vec3(Rotate.x* PI / 180.0f - Application::Get().objects->GetRotate().x,Rotate.y*PI/180.0f- Application::Get().objects->GetRotate().y, Rotate.z* PI / 180.0f - Application::Get().objects->GetRotate().z));
 			}
 			
 		}
@@ -421,7 +421,7 @@ namespace Hazel {
 						Application::Get().objects->GetAnimation(i, j).Reset();
 						Application::Get().objects->GetAnimation(i, j).Playing = true;
 						Application::Get().objects->ChangePos(Application::Get().objects->GetAnimation(i, j).GetPathKeyPos(0) - Application::Get().objects->GetPos(i, j), i, j);
-						Application::Get().objects->ChangeRotate(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(0) - Application::Get().objects->GetRotate(i, j), 1,i,j);
+						Application::Get().objects->ChangeRotate(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(0) - Application::Get().objects->GetRotate(i, j),i,j);
 						Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(0),i,j);
 						Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(0),i,j);
 					}
@@ -496,7 +496,7 @@ namespace Hazel {
 									if (ImGui::Button(ButtomName.c_str()))
 									{
 										Application::Get().objects->ChangePos(Application::Get().objects->GetAnimation(i, j).GetPathKeyPos(index) - Application::Get().objects->GetPos(i, j), i, j);
-										Application::Get().objects->ChangeRotate(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(index) - Application::Get().objects->GetRotate(i, j), 1, i, j);
+										Application::Get().objects->ChangeRotate(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(index) - Application::Get().objects->GetRotate(i, j), i, j);
 										Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(index), i, j);
 										Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(index), i, j);
 										if (Application::Get().objects->objects[i].m_HaveAngle)

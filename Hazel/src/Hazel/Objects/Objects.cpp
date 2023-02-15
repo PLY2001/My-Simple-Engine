@@ -496,9 +496,13 @@ namespace Hazel {
 
 		glm::mat4 backwardEular = glm::mat4(1);
 		backwardEular = glm::translate(backwardEular, Pos);
-		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.x), glm::vec3(1, 0, 0));
-		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.y), glm::vec3(0, 1, 0));
-		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.z), glm::vec3(0, 0, 1));
+		glm::qua<float> Quaternion = glm::qua<float>(glm::radians(Eular));
+		glm::mat4 RotateMatrix = glm::mat4(1.0f);
+		RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
+		backwardEular = backwardEular * RotateMatrix;
+// 		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.x), glm::vec3(1, 0, 0));
+// 		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.y), glm::vec3(0, 1, 0));
+// 		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.z), glm::vec3(0, 0, 1));
 		backwardEular = glm::translate(backwardEular, -Pos);
 
 		glm::vec4 Pw = backwardEular * backwardTranslate * glm::vec4(Pos, 1.0f);
@@ -523,19 +527,23 @@ namespace Hazel {
 
 		glm::mat4 T13 = glm::mat4(1);
 		T13 = glm::translate(T13, glm::vec3(-302.0f, 630.0f, 0.0f));
+//  		glm::qua<float> Quaternion1 = glm::qua<float>(glm::radians(glm::vec3(0.0f, SolvedAngles[0], SolvedAngles[1]+ SolvedAngles[2])));
+//  		glm::mat4 RotateMatrix1 = glm::mat4(1.0f);
+//  		RotateMatrix1 = glm::mat4_cast(Quaternion1) * RotateMatrix1;
+//  		T13 =  T13*RotateMatrix1;
 		T13 = glm::rotate(T13, glm::radians(SolvedAngles[0]), glm::vec3(0.0f, 1.0f, 0.0f));
-		//T13 = glm::translate(T13, glm::vec3(0.0f, 290.0f, 0.0f));
 		T13 = glm::rotate(T13, glm::radians(SolvedAngles[1]), glm::vec3(0.0f, 0.0f, 1.0f));
-		//T13 = glm::translate(T13, glm::vec3(0.0f, -290.0f, 0.0f));
-		//T13 = glm::translate(T13, glm::vec3(0.0f, 560.0f, 0.0f));
 		T13 = glm::rotate(T13, glm::radians(SolvedAngles[2]), glm::vec3(0.0f, 0.0f, 1.0f));
-		//T13 = glm::translate(T13, glm::vec3(0.0f, -560.0f, 0.0f));
 
 		glm::mat4 T16 = glm::mat4(1);
 		T16 = glm::translate(T16, Pos);
-		T16 = glm::rotate(T16, glm::radians(Eular.z), glm::vec3(0, 0, 1));
-		T16 = glm::rotate(T16, glm::radians(Eular.y), glm::vec3(0, 1, 0));
-		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
+//  		glm::qua<float> Quaternion2 = glm::qua<float>(glm::radians(Eular));
+//  		glm::mat4 RotateMatrix2 = glm::mat4(1.0f);
+//  		RotateMatrix2 = glm::mat4_cast(Quaternion2) * RotateMatrix2;
+//  		T16 = T16*RotateMatrix2;
+ 		T16 = glm::rotate(T16, glm::radians(Eular.z), glm::vec3(0, 0, 1));
+ 		T16 = glm::rotate(T16, glm::radians(Eular.y), glm::vec3(0, 1, 0));
+ 		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
 
 		glm::mat4 T35 = glm::inverse(T13) * T16;
 		
@@ -610,9 +618,13 @@ namespace Hazel {
 
 		glm::mat4 backwardEular = glm::mat4(1);
 		backwardEular = glm::translate(backwardEular, Pos);
-		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.x), glm::vec3(1, 0, 0));
-		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.y), glm::vec3(0, 1, 0));
-		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.z), glm::vec3(0, 0, 1));
+		glm::qua<float> Quaternion = glm::qua<float>(glm::radians(Eular));
+		glm::mat4 RotateMatrix = glm::mat4(1.0f);
+		RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
+		backwardEular = backwardEular * RotateMatrix;
+//  		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.x), glm::vec3(1, 0, 0));
+//  		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.y), glm::vec3(0, 1, 0));
+//  		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.z), glm::vec3(0, 0, 1));
 		backwardEular = glm::translate(backwardEular, -Pos);
 
 		glm::vec4 Pw = backwardEular * backwardTranslate * glm::vec4(Pos, 1.0f);
@@ -637,19 +649,27 @@ namespace Hazel {
 
 		glm::mat4 T13 = glm::mat4(1);
 		T13 = glm::translate(T13, glm::vec3(-302.0f, 630.0f, 0.0f));
-		T13 = glm::rotate(T13, glm::radians(SolvedAngles[0]), glm::vec3(0.0f, 1.0f, 0.0f));
-		//T13 = glm::translate(T13, glm::vec3(0.0f, 290.0f, 0.0f));
-		T13 = glm::rotate(T13, glm::radians(SolvedAngles[1]), glm::vec3(0.0f, 0.0f, 1.0f));
-		//T13 = glm::translate(T13, glm::vec3(0.0f, -290.0f, 0.0f));
-		//T13 = glm::translate(T13, glm::vec3(0.0f, 560.0f, 0.0f));
-		T13 = glm::rotate(T13, glm::radians(SolvedAngles[2]), glm::vec3(0.0f, 0.0f, 1.0f));
-		//T13 = glm::translate(T13, glm::vec3(0.0f, -560.0f, 0.0f));
+// 		glm::qua<float> Quaternion1 = glm::qua<float>(glm::radians(glm::vec3(0.0f, SolvedAngles[0], SolvedAngles[1] + SolvedAngles[2])));
+// 		glm::mat4 RotateMatrix1 = glm::mat4(1.0f);
+// 		RotateMatrix1 = glm::mat4_cast(Quaternion1) * RotateMatrix1;
+// 		T13 = T13 * RotateMatrix1;
+ 		T13 = glm::rotate(T13, glm::radians(SolvedAngles[0]), glm::vec3(0.0f, 1.0f, 0.0f));
+ 		//T13 = glm::translate(T13, glm::vec3(0.0f, 290.0f, 0.0f));
+ 		T13 = glm::rotate(T13, glm::radians(SolvedAngles[1]), glm::vec3(0.0f, 0.0f, 1.0f));
+ 		//T13 = glm::translate(T13, glm::vec3(0.0f, -290.0f, 0.0f));
+ 		//T13 = glm::translate(T13, glm::vec3(0.0f, 560.0f, 0.0f));
+ 		T13 = glm::rotate(T13, glm::radians(SolvedAngles[2]), glm::vec3(0.0f, 0.0f, 1.0f));
+ 		//T13 = glm::translate(T13, glm::vec3(0.0f, -560.0f, 0.0f));
 
 		glm::mat4 T16 = glm::mat4(1);
 		T16 = glm::translate(T16, Pos);
-		T16 = glm::rotate(T16, glm::radians(Eular.z), glm::vec3(0, 0, 1));
-		T16 = glm::rotate(T16, glm::radians(Eular.y), glm::vec3(0, 1, 0));
-		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
+// 		glm::qua<float> Quaternion2 = glm::qua<float>(glm::radians(Eular));
+// 		glm::mat4 RotateMatrix2 = glm::mat4(1.0f);
+// 		RotateMatrix2 = glm::mat4_cast(Quaternion2) * RotateMatrix2;
+// 		T16 = T16 * RotateMatrix2;
+ 		T16 = glm::rotate(T16, glm::radians(Eular.z), glm::vec3(0, 0, 1));
+ 		T16 = glm::rotate(T16, glm::radians(Eular.y), glm::vec3(0, 1, 0));
+ 		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
 
 		glm::mat4 T35 = glm::inverse(T13) * T16;
 
@@ -820,13 +840,17 @@ namespace Hazel {
 		for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
 		{
 			//ModelMatrices[i][index] = glm::translate(ModelMatrices[i][index],ChangedPos/Scale);
-			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], -objects[m_Objectindex].m_Rotate[m_index].x, glm::vec3(1.0f, 0.0f, 0.0f));
-			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], -objects[m_Objectindex].m_Rotate[m_index].y, glm::vec3(0.0f, 1.0f, 0.0f));
-			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], -objects[m_Objectindex].m_Rotate[m_index].z, glm::vec3(0.0f, 0.0f, 1.0f));
+			glm::qua<float> Quaternion = glm::qua<float>(-objects[m_Objectindex].m_Rotate[m_index]);
+			glm::mat4 RotateMatrix = glm::mat4(1.0f);
+			RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
+			glm::qua<float> Quaternion1 = glm::qua<float>(objects[m_Objectindex].m_Rotate[m_index]);
+			glm::mat4 RotateMatrix1 = glm::mat4(1.0f);
+			RotateMatrix1 = glm::mat4_cast(Quaternion1) * RotateMatrix1;
+
+			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] =  objects[m_Objectindex].m_DefaultModelMatrices[i][m_index]* RotateMatrix;
 			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::translate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], ChangedPos / objects[m_Objectindex].m_Scale);
-			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], objects[m_Objectindex].m_Rotate[m_index].z, glm::vec3(0.0f, 0.0f, 1.0f));
-			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], objects[m_Objectindex].m_Rotate[m_index].y, glm::vec3(0.0f, 1.0f, 0.0f));
-			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], objects[m_Objectindex].m_Rotate[m_index].x, glm::vec3(1.0f, 0.0f, 0.0f));
+			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = objects[m_Objectindex].m_DefaultModelMatrices[i][m_index]*RotateMatrix1;
+			
 		}
 		if(objects[m_Objectindex].m_HaveAngle)
 		{
@@ -841,13 +865,16 @@ namespace Hazel {
 		for (int i = 0; i < objects[objectindex].m_Model->meshes.size(); i++)
 		{
 			//ModelMatrices[i][index] = glm::translate(ModelMatrices[i][index],ChangedPos/Scale);
-			objects[objectindex].m_DefaultModelMatrices[i][index] = glm::rotate(objects[objectindex].m_DefaultModelMatrices[i][index], -objects[objectindex].m_Rotate[index].x, glm::vec3(1.0f, 0.0f, 0.0f));
-			objects[objectindex].m_DefaultModelMatrices[i][index] = glm::rotate(objects[objectindex].m_DefaultModelMatrices[i][index], -objects[objectindex].m_Rotate[index].y, glm::vec3(0.0f, 1.0f, 0.0f));
-			objects[objectindex].m_DefaultModelMatrices[i][index] = glm::rotate(objects[objectindex].m_DefaultModelMatrices[i][index], -objects[objectindex].m_Rotate[index].z, glm::vec3(0.0f, 0.0f, 1.0f));
+			glm::qua<float> Quaternion = glm::qua<float>(-objects[objectindex].m_Rotate[index]);
+			glm::mat4 RotateMatrix = glm::mat4(1.0f);
+			RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
+			glm::qua<float> Quaternion1 = glm::qua<float>(objects[objectindex].m_Rotate[index]);
+			glm::mat4 RotateMatrix1 = glm::mat4(1.0f);
+			RotateMatrix1 = glm::mat4_cast(Quaternion1) * RotateMatrix1;
+
+			objects[objectindex].m_DefaultModelMatrices[i][index] =  objects[objectindex].m_DefaultModelMatrices[i][index]*RotateMatrix;
 			objects[objectindex].m_DefaultModelMatrices[i][index] = glm::translate(objects[objectindex].m_DefaultModelMatrices[i][index], ChangedPos / objects[objectindex].m_Scale);
-			objects[objectindex].m_DefaultModelMatrices[i][index] = glm::rotate(objects[objectindex].m_DefaultModelMatrices[i][index], objects[objectindex].m_Rotate[index].z, glm::vec3(0.0f, 0.0f, 1.0f));
-			objects[objectindex].m_DefaultModelMatrices[i][index] = glm::rotate(objects[objectindex].m_DefaultModelMatrices[i][index], objects[objectindex].m_Rotate[index].y, glm::vec3(0.0f, 1.0f, 0.0f));
-			objects[objectindex].m_DefaultModelMatrices[i][index] = glm::rotate(objects[objectindex].m_DefaultModelMatrices[i][index], objects[objectindex].m_Rotate[index].x, glm::vec3(1.0f, 0.0f, 0.0f));
+			objects[objectindex].m_DefaultModelMatrices[i][index] = objects[objectindex].m_DefaultModelMatrices[i][index]* RotateMatrix1;
 		}
 		if (objects[objectindex].m_HaveAngle)
 		{
@@ -856,18 +883,21 @@ namespace Hazel {
 		SetAABB(objectindex, index);
 	}
 
-	void Objects::ChangeRotate(glm::vec3 ChangedRotate, int RotateAxis)
+	void Objects::ChangeRotate(glm::vec3 ChangedRotate)
 	{
 
 		objects[m_Objectindex].m_Rotate[m_index] += ChangedRotate;
+		m_ChangedRotate = ChangedRotate;
 		for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
 		{
-			//ModelMatrices[i][index] = glm::translate(ModelMatrices[i][index],ChangedPos/Scale);
-			glm::vec3 RotateAxisVec3 = glm::vec3(0.0f);
-			RotateAxisVec3[RotateAxis] = 1.0f;
-			//DefaultModelMatrices[i][m_index] = glm::translate(DefaultModelMatrices[i][m_index], -m_Pos[m_index] / Scale);
-			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], ChangedRotate[RotateAxis], RotateAxisVec3);
-			//DefaultModelMatrices[i][m_index] = glm::translate(DefaultModelMatrices[i][m_index], m_Pos[m_index] / Scale);
+			
+			glm::qua<float> Quaternion = glm::qua<float>(ChangedRotate);
+			glm::mat4 RotateMatrix = glm::mat4(1.0f);
+			RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
+			//objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], ChangedRotate[RotateAxis], RotateAxisVec3);
+			//objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::translate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], -objects[m_Objectindex].m_Pos[m_index] / objects[m_Objectindex].m_Scale);
+			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] =  objects[m_Objectindex].m_DefaultModelMatrices[i][m_index]*RotateMatrix;
+			//objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::translate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], objects[m_Objectindex].m_Pos[m_index] / objects[m_Objectindex].m_Scale);
 		}
 		if (objects[m_Objectindex].m_HaveAngle)
 		{
@@ -876,17 +906,18 @@ namespace Hazel {
 		SetAABB(m_Objectindex,m_index);
 	}
 
-	void Objects::ChangeRotate(glm::vec3 ChangedRotate, int RotateAxis, int objectindex, int index)
+	void Objects::ChangeRotate(glm::vec3 ChangedRotate, int objectindex, int index)
 	{
 		objects[objectindex].m_Rotate[index] += ChangedRotate;
+		m_ChangedRotate = ChangedRotate;
 		for (int i = 0; i < objects[objectindex].m_Model->meshes.size(); i++)
 		{
-			//ModelMatrices[i][index] = glm::translate(ModelMatrices[i][index],ChangedPos/Scale);
-			glm::vec3 RotateAxisVec3 = glm::vec3(0.0f);
-			RotateAxisVec3[RotateAxis] = 1.0f;
-			//DefaultModelMatrices[i][index] = glm::translate(DefaultModelMatrices[i][index], -m_Pos[index] / Scale);
-			objects[objectindex].m_DefaultModelMatrices[i][index] = glm::rotate(objects[objectindex].m_DefaultModelMatrices[i][index], ChangedRotate[RotateAxis], RotateAxisVec3);
-			//DefaultModelMatrices[i][index] = glm::translate(DefaultModelMatrices[i][index], m_Pos[index] / Scale);
+			glm::qua<float> Quaternion = glm::qua<float>(ChangedRotate);
+			glm::mat4 RotateMatrix = glm::mat4(1.0f);
+			RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
+			//objects[objectindex].m_DefaultModelMatrices[i][index] = glm::translate(objects[objectindex].m_DefaultModelMatrices[i][index], -objects[objectindex].m_Pos[index] / objects[objectindex].m_Scale);
+			objects[objectindex].m_DefaultModelMatrices[i][index] = objects[objectindex].m_DefaultModelMatrices[i][index]* RotateMatrix;
+			//objects[objectindex].m_DefaultModelMatrices[i][index] = glm::translate(objects[objectindex].m_DefaultModelMatrices[i][index], objects[objectindex].m_Pos[index] / objects[objectindex].m_Scale);
 		}
 		if (objects[objectindex].m_HaveAngle)
 		{
@@ -1461,7 +1492,7 @@ namespace Hazel {
 										Load_AddAmount();
 									}
 									ChangePos(load_pos);
-									ChangeRotate(glm::vec3(0.0f, load_rotate.y, 0.0f), 1);
+									ChangeRotate(load_rotate);
 									if (object2.HasMember("angle") && object2["angle"].IsArray())
 									{
 										const rapidjson::Value& array6 = object2["angle"];

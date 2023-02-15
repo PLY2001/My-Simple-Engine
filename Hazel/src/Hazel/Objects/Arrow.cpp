@@ -33,15 +33,24 @@ namespace Hazel{
 
 	glm::mat4 Arrow::GetModelMatrix()
 	{
- 		ModelMatrix = glm::mat4(1);
- 		ModelMatrix = glm::translate(ModelMatrix, Pos);
- 		ModelMatrix = glm::scale(ModelMatrix, Scale);
- 		ModelMatrix = glm::rotate(ModelMatrix, Rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
- 		ModelMatrix = glm::rotate(ModelMatrix, Rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
- 		ModelMatrix = glm::rotate(ModelMatrix, Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
- 		return ModelMatrix;
-// 		ModelMatrix = Application::Get().irb120->GetDefaltModelMatrices();
-// 		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(100.0f, 100.0f, 100.0f));
+ 		ModelMatrix = glm::mat4(1.0f);
+ 		
+		
+		ModelMatrix = glm::translate(ModelMatrix, Pos);
+		ModelMatrix = glm::scale(ModelMatrix, Scale);
+		
+		
+		glm::qua<float> Quaternion = glm::qua<float>(Rotation);
+		glm::mat4 RotateMatrix = glm::mat4(1.0f);
+		RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
+		ModelMatrix = ModelMatrix*RotateMatrix;
+		
+	
+		
+		
+
+		
+ 	
 
 		return ModelMatrix;
 	}

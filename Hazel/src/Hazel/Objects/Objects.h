@@ -77,14 +77,15 @@ namespace Hazel {
 		glm::vec3 GetPos(int objectindex, int index);
 		glm::vec3 GetRotate();
 		glm::vec3 GetRotate(int objectindex, int index);
+		glm::vec3 m_ChangedRotate = glm::vec3(0.0f);
 		glm::vec3 GetHandPos();
 		glm::vec3 GetHandEular();
 
 
 		void ChangePos(glm::vec3 ChangedPos);
 		void ChangePos(glm::vec3 ChangedPos, int objectindex, int index);
-		void ChangeRotate(glm::vec3 ChangedRotate, int RotateAxis);
-		void ChangeRotate(glm::vec3 ChangedRotate, int RotateAxis, int objectindex, int index);
+		void ChangeRotate(glm::vec3 ChangedRotate);
+		void ChangeRotate(glm::vec3 ChangedRotate, int objectindex, int index);
 		void ChangeHandPos(glm::vec3 ChangedHandPos);
 		void ChangeHandPos(glm::vec3 ChangedHandPos, int objectindex, int index);
 		void ChangeHandEular(glm::vec3 ChangedHandEular);
