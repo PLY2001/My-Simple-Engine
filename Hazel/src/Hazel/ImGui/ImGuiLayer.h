@@ -25,6 +25,7 @@ namespace Hazel {
 		float m_Time = 0.0f; 
 		glm::vec3 Pos = glm::vec3(0.0f);
 		glm::vec3 Rotate = glm::vec3(0.0f);
+
 		glm::vec3 HandPos = glm::vec3(0.0f);
 		glm::vec3 HandEular = glm::vec3(0.0f);
 		bool Save = false;

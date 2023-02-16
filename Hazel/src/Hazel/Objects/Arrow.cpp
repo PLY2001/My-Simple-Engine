@@ -25,9 +25,9 @@ namespace Hazel{
 		SetAABB();
 	}
 
-	void Arrow::ChangeRotate(glm::vec3 ChangedRotate)
+	void Arrow::ChangeRotate(glm::qua<float> m_RotateQuaternion)
 	{
-		Rotation = ChangedRotate;
+		RotateQuaternion = m_RotateQuaternion;
 		SetAABB();
 	}
 
@@ -40,9 +40,9 @@ namespace Hazel{
 		ModelMatrix = glm::scale(ModelMatrix, Scale);
 		
 		
-		glm::qua<float> Quaternion = glm::qua<float>(Rotation);
+		//glm::qua<float> Quaternion = glm::qua<float>(Rotation);
 		glm::mat4 RotateMatrix = glm::mat4(1.0f);
-		RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
+		RotateMatrix = glm::mat4_cast(RotateQuaternion) * RotateMatrix;
 		ModelMatrix = ModelMatrix*RotateMatrix;
 		
 	

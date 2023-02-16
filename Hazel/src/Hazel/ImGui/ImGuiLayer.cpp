@@ -259,7 +259,7 @@ namespace Hazel {
 			{
 				glm::vec3 Scale = Application::Get().objects->GetScale();
 				HandPos = Application::Get().objects->GetHandPos()/10.0f;
-				HandEular = Application::Get().objects->GetHandEular();
+				HandEular = Application::Get().objects->GetHandEular()*180.0f/PI;
 				if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -652.0f * Scale.x/10.0f, 652.0f * Scale.x / 10.0f))
 				{
 					Application::Get().objects->ChangeHandPos(HandPos*10.0f);
@@ -318,8 +318,10 @@ namespace Hazel {
 // 			ImGui::Text("IRB 120 AABB: XMin = %.3f , XMax = %.3f , YMin = %.3f , YMax = %.3f , ZMin = %.3f , ZMax = %.3f", Application::Get().irb120->GetAABBMinPos(index).x, Application::Get().irb120->GetAABBMaxPos(index).x, Application::Get().irb120->GetAABBMinPos(index).y, Application::Get().irb120->GetAABBMaxPos(index).y, Application::Get().irb120->GetAABBMinPos(index).z, Application::Get().irb120->GetAABBMaxPos(index).z);
 // 		}
 		
-		ImGui::Text(u8"鼠标点击坐标 = ( %f , %f )", Application::Get().GetClickPos().x, Application::Get().GetClickPos().y);
+		ImGui::Text(u8"鼠标点击坐标 = ( %.3f , %.3f )", Application::Get().GetClickPos().x, Application::Get().GetClickPos().y);
 		ImGui::Text(u8"当前选择模型索引 = %d", Application::Get().objects->GetChoosedIndex());
+		ImGui::Text(u8"AABBmin( %.3f , %.3f , %.3f )", Application::Get().objects->GetAABBMinPos().x/10.0f, Application::Get().objects->GetAABBMinPos().y / 10.0f, Application::Get().objects->GetAABBMinPos().z / 10.0f);
+		ImGui::Text(u8"AABBmax( %.3f , %.3f , %.3f )", Application::Get().objects->GetAABBMaxPos().x / 10.0f, Application::Get().objects->GetAABBMaxPos().y / 10.0f, Application::Get().objects->GetAABBMaxPos().z / 10.0f);
 		if (Application::Get().objects->GetChoosedIndex() > -1)
 		{
 			Pos = Application::Get().objects->GetPos()/10.0f;
@@ -331,6 +333,7 @@ namespace Hazel {
 			if (ImGui::InputFloat3(u8"旋转(degree)", (float*)&Rotate))
 			{
 				Application::Get().objects->ChangeRotate(glm::vec3(Rotate.x* PI / 180.0f - Application::Get().objects->GetRotate().x,Rotate.y*PI/180.0f- Application::Get().objects->GetRotate().y, Rotate.z* PI / 180.0f - Application::Get().objects->GetRotate().z));
+
 			}
 			
 		}
@@ -463,12 +466,13 @@ namespace Hazel {
 					fmt << name << ":" << j;
 					std::string namej = fmt.str();
 					ImGui::TableSetupColumn(namej.c_str());
-
+					
 					Application::Get().objects->objects[i].m_Anima[j].Key_index = 0;
 				}
 			}
 			ImGui::TableHeadersRow();
 			
+
 			for (int row = 0; row < (int)(TotalTime / 0.5 + 1); row++)
 			{
 				
@@ -676,6 +680,27 @@ namespace Hazel {
 			}
 
 		}
+
+		ImGui::Text(u8" ");
+		ImGui::Text(u8"已生成物品");
+		for (int i = 0; i < TotalObjAmount; i++)
+		{
+			for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
+			{
+				std::string name(Application::Get().objects->objects[i].m_Name);
+
+				// 准备根据格式造字符串流
+				std::stringstream fmt;
+				// 造字符串流
+				fmt << name << ":" << j;
+				std::string namej = fmt.str();
+				if (ImGui::Button(namej.c_str()))
+				{
+					Application::Get().objects->SetChoosedIndex(i, j);
+				}
+			}
+		}
+
 		
 		
 		ImGui::End();

@@ -14,6 +14,7 @@ namespace Hazel {
 		ObjectAmount++;
 		object.m_Pos.push_back(Pos);
 		object.m_Rotate.push_back(Rotation);
+		object.m_RotateQuaternion.push_back(glm::qua<float>(Rotation));
 		object.m_Scale = Scale;
 		object.m_Model = m_modelmap[name];
 		object.m_HaveAngle = hasAngle;
@@ -46,6 +47,7 @@ namespace Hazel {
 		
 		object.m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
 		object.m_HandEular.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+		object.m_HandQuaternion.push_back(glm::qua<float>(glm::vec3(0.0f, 0.0f, 0.0f)));
 
 		//¥¥Ω®±‰ªªæÿ’Û
 		if (hasAngle)
@@ -113,6 +115,7 @@ namespace Hazel {
 			{
 				objects[m_Objectindex].m_Pos.push_back(objects[m_Objectindex].m_Pos[m_index]);
 				objects[m_Objectindex].m_Rotate.push_back(objects[m_Objectindex].m_Rotate[m_index]);
+				objects[m_Objectindex].m_RotateQuaternion.push_back(glm::qua<float>(objects[m_Objectindex].m_Rotate[m_index]));
 			}
 			for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
 			{
@@ -140,6 +143,7 @@ namespace Hazel {
 		}
 		objects[m_Objectindex].m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
 		objects[m_Objectindex].m_HandEular.push_back(glm::vec3(0.0f,0.0f, 0.0f));
+		objects[m_Objectindex].m_HandQuaternion.push_back(glm::qua<float>(glm::vec3(0.0f)));
 		
 		SetAABB(m_Objectindex, objects[m_Objectindex].m_Amount - 1);
 
@@ -180,6 +184,7 @@ namespace Hazel {
 			{
 				objects[m_Objectindex].m_Pos.push_back(Pos);
 				objects[m_Objectindex].m_Rotate.push_back(Rotate);
+				objects[m_Objectindex].m_RotateQuaternion.push_back(glm::qua<float>(Rotate));
 			}
 			for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
 			{
@@ -207,6 +212,7 @@ namespace Hazel {
 		}
 		objects[m_Objectindex].m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
 		objects[m_Objectindex].m_HandEular.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+		objects[m_Objectindex].m_HandQuaternion.push_back(glm::qua<float>(glm::vec3(0.0f)));
 
 		SetAABB(m_Objectindex, objects[m_Objectindex].m_Amount - 1);
 
@@ -230,6 +236,7 @@ namespace Hazel {
 			{
 				objects[m_Objectindex].m_Pos.erase(objects[m_Objectindex].m_Pos.begin() + m_index);
 				objects[m_Objectindex].m_Rotate.erase(objects[m_Objectindex].m_Rotate.begin() + m_index);
+				objects[m_Objectindex].m_RotateQuaternion.erase(objects[m_Objectindex].m_RotateQuaternion.begin() + m_index);
 			}
 			for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
 			{
@@ -253,6 +260,7 @@ namespace Hazel {
 		}
 		objects[m_Objectindex].m_HandPos.erase(objects[m_Objectindex].m_HandPos.begin() + m_index);
 		objects[m_Objectindex].m_HandEular.erase(objects[m_Objectindex].m_HandEular.begin() + m_index);
+		objects[m_Objectindex].m_HandQuaternion.erase(objects[m_Objectindex].m_HandQuaternion.begin() + m_index);
 
 		objects[m_Objectindex].m_Anima.erase(objects[m_Objectindex].m_Anima.begin() + m_index);
 
@@ -285,6 +293,7 @@ namespace Hazel {
 			{
 				objects[m_Objectindex].m_Pos.push_back(glm::vec3(0.0f));
 				objects[m_Objectindex].m_Rotate.push_back(glm::vec3(0.0f));
+				objects[m_Objectindex].m_RotateQuaternion.push_back(glm::qua<float>(glm::vec3(0.0f)));
 			}
 			for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
 			{
@@ -312,6 +321,7 @@ namespace Hazel {
 		}
 		objects[m_Objectindex].m_HandPos.push_back(glm::vec3( -5.18f, 6.3f, 0.0f));
 		objects[m_Objectindex].m_HandEular.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+		objects[m_Objectindex].m_HandQuaternion.push_back(glm::qua<float>(glm::vec3(0.0f)));
 
 		Animation Anima(objects[m_Objectindex].m_HaveAngle);
 		objects[m_Objectindex].m_Anima.push_back(Anima);
@@ -497,6 +507,7 @@ namespace Hazel {
 		glm::mat4 backwardEular = glm::mat4(1);
 		backwardEular = glm::translate(backwardEular, Pos);
 		glm::qua<float> Quaternion = glm::qua<float>(glm::radians(Eular));
+		objects[m_Objectindex].m_HandQuaternion[m_index] = Quaternion;
 		glm::mat4 RotateMatrix = glm::mat4(1.0f);
 		RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
 		backwardEular = backwardEular * RotateMatrix;
@@ -537,13 +548,13 @@ namespace Hazel {
 
 		glm::mat4 T16 = glm::mat4(1);
 		T16 = glm::translate(T16, Pos);
-//  		glm::qua<float> Quaternion2 = glm::qua<float>(glm::radians(Eular));
-//  		glm::mat4 RotateMatrix2 = glm::mat4(1.0f);
-//  		RotateMatrix2 = glm::mat4_cast(Quaternion2) * RotateMatrix2;
-//  		T16 = T16*RotateMatrix2;
- 		T16 = glm::rotate(T16, glm::radians(Eular.z), glm::vec3(0, 0, 1));
- 		T16 = glm::rotate(T16, glm::radians(Eular.y), glm::vec3(0, 1, 0));
- 		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
+		glm::qua<float> Quaternion2 = glm::qua<float>(glm::radians(Eular));
+		glm::mat4 RotateMatrix2 = glm::mat4(1.0f);
+		RotateMatrix2 = glm::mat4_cast(Quaternion2) * RotateMatrix2;
+		T16 = T16 * RotateMatrix2;
+//  		T16 = glm::rotate(T16, glm::radians(Eular.z), glm::vec3(0, 0, 1));
+//  		T16 = glm::rotate(T16, glm::radians(Eular.y), glm::vec3(0, 1, 0));
+//  		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
 
 		glm::mat4 T35 = glm::inverse(T13) * T16;
 		
@@ -619,6 +630,7 @@ namespace Hazel {
 		glm::mat4 backwardEular = glm::mat4(1);
 		backwardEular = glm::translate(backwardEular, Pos);
 		glm::qua<float> Quaternion = glm::qua<float>(glm::radians(Eular));
+		objects[objectindex].m_HandQuaternion[index] = Quaternion;
 		glm::mat4 RotateMatrix = glm::mat4(1.0f);
 		RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
 		backwardEular = backwardEular * RotateMatrix;
@@ -663,13 +675,13 @@ namespace Hazel {
 
 		glm::mat4 T16 = glm::mat4(1);
 		T16 = glm::translate(T16, Pos);
-// 		glm::qua<float> Quaternion2 = glm::qua<float>(glm::radians(Eular));
-// 		glm::mat4 RotateMatrix2 = glm::mat4(1.0f);
-// 		RotateMatrix2 = glm::mat4_cast(Quaternion2) * RotateMatrix2;
-// 		T16 = T16 * RotateMatrix2;
- 		T16 = glm::rotate(T16, glm::radians(Eular.z), glm::vec3(0, 0, 1));
- 		T16 = glm::rotate(T16, glm::radians(Eular.y), glm::vec3(0, 1, 0));
- 		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
+		glm::qua<float> Quaternion2 = glm::qua<float>(glm::radians(Eular));
+		glm::mat4 RotateMatrix2 = glm::mat4(1.0f);
+		RotateMatrix2 = glm::mat4_cast(Quaternion2) * RotateMatrix2;
+		T16 = T16 * RotateMatrix2;
+//  		T16 = glm::rotate(T16, glm::radians(Eular.z), glm::vec3(0, 0, 1));
+//  		T16 = glm::rotate(T16, glm::radians(Eular.y), glm::vec3(0, 1, 0));
+//  		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
 
 		glm::mat4 T35 = glm::inverse(T13) * T16;
 
@@ -811,7 +823,8 @@ namespace Hazel {
 	{
 		if (m_Objectindex > -1 && m_index > -1)
 		{
-			return objects[m_Objectindex].m_Rotate[m_index];
+			//return objects[m_Objectindex].m_Rotate[m_index];
+			return glm::eulerAngles(objects[m_Objectindex].m_RotateQuaternion[m_index]);
 		}
 		else
 		{
@@ -824,6 +837,19 @@ namespace Hazel {
 		return objects[objectindex].m_Rotate[index];
 	}
 
+	glm::qua<float> Objects::GetRotateQuaternion()
+	{
+		if (m_Objectindex > -1 && m_index > -1)
+		{
+			//return objects[m_Objectindex].m_RotateQuaternion[m_index];
+			return glm::eulerAngles(objects[m_Objectindex].m_RotateQuaternion[m_index]);
+		}
+		else
+		{
+			return glm::qua<float>(glm::vec3(0.0f));
+		}
+	}
+
 	glm::vec3 Objects::GetHandPos()
 	{
 		return objects[m_Objectindex].m_HandPos[m_index];
@@ -832,7 +858,13 @@ namespace Hazel {
 	glm::vec3 Objects::GetHandEular()
 	{
 		return objects[m_Objectindex].m_HandEular[m_index];
+		//return glm::eulerAngles(objects[m_Objectindex].m_HandQuaternion[m_index]);
 	}
+
+// 	glm::qua<float> Objects::GetHandQuaternion()
+// 	{
+// 		return glm::eulerAngles(objects[m_Objectindex].m_HandQuaternion[m_index]);
+// 	}
 
 	void Objects::ChangePos(glm::vec3 ChangedPos)
 	{
@@ -887,7 +919,8 @@ namespace Hazel {
 	{
 
 		objects[m_Objectindex].m_Rotate[m_index] += ChangedRotate;
-		m_ChangedRotate = ChangedRotate;
+		//m_ChangedRotate = ChangedRotate;
+		objects[m_Objectindex].m_RotateQuaternion[m_index] = objects[m_Objectindex].m_RotateQuaternion[m_index] * glm::qua<float>(ChangedRotate);
 		for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
 		{
 			
@@ -909,7 +942,7 @@ namespace Hazel {
 	void Objects::ChangeRotate(glm::vec3 ChangedRotate, int objectindex, int index)
 	{
 		objects[objectindex].m_Rotate[index] += ChangedRotate;
-		m_ChangedRotate = ChangedRotate;
+		objects[objectindex].m_RotateQuaternion[index] = objects[objectindex].m_RotateQuaternion[index] * glm::qua<float>(ChangedRotate);
 		for (int i = 0; i < objects[objectindex].m_Model->meshes.size(); i++)
 		{
 			glm::qua<float> Quaternion = glm::qua<float>(ChangedRotate);

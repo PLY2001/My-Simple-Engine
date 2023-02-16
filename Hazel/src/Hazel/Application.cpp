@@ -972,7 +972,7 @@ namespace Hazel
 							objects->AddAmount(glm::vec3((ObjectMaxPos.x + ObjectMinPos.x) / 2.0f, 0.0f, ObjectMaxPos.z), glm::vec3(0.0f, 3.0f * PI / 2.0f, 0.0f));
 							ModularCopy = false;
 						}
-						if (WorldClickPos.x < ObjectMinPos.x&& WorldClickPos.z < ObjectMaxPos.x && WorldClickPos.z > ObjectMinPos.z)
+						if (WorldClickPos.x < ObjectMinPos.x&& WorldClickPos.z < ObjectMaxPos.z && WorldClickPos.z > ObjectMinPos.z)
 						{
 							objects->AddAmount(glm::vec3(ObjectMinPos.x, 0.0f, (ObjectMaxPos.z + ObjectMinPos.z) / 2.0f), glm::vec3(0.0f, PI, 0.0f));
 							ModularCopy = false;

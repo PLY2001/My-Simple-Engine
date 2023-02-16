@@ -26,9 +26,11 @@ namespace Hazel {
 
 		std::vector<glm::vec3> m_Pos;
 		std::vector<glm::vec3> m_Rotate;
+		std::vector<glm::qua<float>> m_RotateQuaternion;// = glm::qua<float>(glm::vec3(0.0f));
 		std::vector<std::vector<float>> m_Angle;
 		std::vector<glm::vec3> m_HandPos;
 		std::vector<glm::vec3> m_HandEular;
+		std::vector<glm::qua<float>> m_HandQuaternion;// = glm::qua<float>(glm::vec3(0.0f));
 		std::vector<std::vector<glm::mat4>> m_ModelMatrices;//生成模型的model变换矩阵数组
 		std::vector<std::vector<glm::mat4>> m_DefaultModelMatrices;//生成模型的model变换矩阵数组
 		std::vector<glm::vec3> m_AABBMinPos;
@@ -76,16 +78,18 @@ namespace Hazel {
 		glm::vec3 GetPos();
 		glm::vec3 GetPos(int objectindex, int index);
 		glm::vec3 GetRotate();
+		glm::qua<float> GetRotateQuaternion();
 		glm::vec3 GetRotate(int objectindex, int index);
-		glm::vec3 m_ChangedRotate = glm::vec3(0.0f);
+		
 		glm::vec3 GetHandPos();
 		glm::vec3 GetHandEular();
-
+		//glm::qua<float> GetHandQuaternion();
 
 		void ChangePos(glm::vec3 ChangedPos);
 		void ChangePos(glm::vec3 ChangedPos, int objectindex, int index);
 		void ChangeRotate(glm::vec3 ChangedRotate);
 		void ChangeRotate(glm::vec3 ChangedRotate, int objectindex, int index);
+		
 		void ChangeHandPos(glm::vec3 ChangedHandPos);
 		void ChangeHandPos(glm::vec3 ChangedHandPos, int objectindex, int index);
 		void ChangeHandEular(glm::vec3 ChangedHandEular);

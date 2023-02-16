@@ -10,7 +10,7 @@ namespace Hazel {
 		~Arrow() = default;
 
 		void ChangePos(glm::vec3 ChangedPos);
-		void ChangeRotate(glm::vec3 ChangedRotate);
+		void ChangeRotate(glm::qua<float> m_RotateQuaternion);
 		glm::mat4 GetModelMatrix();
 		std::shared_ptr<Model> model;
 
@@ -20,6 +20,7 @@ namespace Hazel {
 	private:
 		glm::vec3 Pos;
 		glm::vec3 Rotation;
+		glm::qua<float> RotateQuaternion = glm::qua<float>(glm::vec3(0.0f));
 		glm::vec3 Scale;
 		glm::mat4 ModelMatrix = glm::mat4(1);//生成模型的model变换矩阵数组
 

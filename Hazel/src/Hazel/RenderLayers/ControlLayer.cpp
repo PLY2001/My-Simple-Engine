@@ -16,7 +16,7 @@ namespace Hazel {
 		ArrowShader.reset(new Shader("res/shaders/Arrow.shader"));
 		ArrowModel.reset(new Model("res/models/arrow.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
 		arrow.reset(new Arrow(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.015f, 0.015f, 0.015f), ArrowModel));
-		RotateArrowModel.reset(new Model("res/models/rotateY.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
+		RotateArrowModel.reset(new Model("res/models/rotate.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
 		rotateArrow.reset(new Arrow(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.015f, 0.015f, 0.015f), RotateArrowModel));
 		Application::Get().shaderIDs.push_back(ArrowShader->RendererID);
 	}
@@ -40,7 +40,7 @@ namespace Hazel {
 			rotateArrow->ChangePos(glm::vec3(Arrow_pos));
 
 			
-			rotateArrow->ChangeRotate(Application::Get().objects->GetRotate());
+			rotateArrow->ChangeRotate(Application::Get().objects->GetRotateQuaternion());
 
 			glDisable(GL_DEPTH_TEST);
 			ArrowShader->Bind();
