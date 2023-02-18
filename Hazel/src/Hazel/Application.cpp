@@ -1007,13 +1007,14 @@ namespace Hazel
 			glm::vec4 WorldClickPos = glm::inverse(ViewMatrix) * glm::inverse(ProjectionMatrix) * glm::vec4(ClickPos, irb120ScreenPos.z, 1.0f);
 			WorldClickPos /= WorldClickPos.w;
 
-
+			
 
 
 			if (first)
 			{
 				LastWorldClickPos = WorldClickPos;
 				//LastArrowPos = ArrowPos;
+				FirstRotate = objects->GetRotate();
 				first = false;
 			}
 			if (m_ControlLayer->GetArrowMode() == ControlLayer::ArrowMode::Trans)
@@ -1039,6 +1040,7 @@ namespace Hazel
 					//m_ControlLayer->rotateArrow->ChangePos(glm::vec3(ArrowPos.x - LastArrowPos.x, 0.0f, 0.0f));
 
 				}
+				LastWorldClickPos = WorldClickPos;
 			}
 			if (m_ControlLayer->GetArrowMode() == ControlLayer::ArrowMode::Rotat)
 			{
@@ -1049,7 +1051,7 @@ namespace Hazel
 					float RotateAngle = -acos(glm::dot(WorldClickVec, LastWorldClickVec)) * (glm::cross(glm::vec3(WorldClickVec.x, 0.0f, WorldClickVec.y), glm::vec3(LastWorldClickVec.x, 0.0f, LastWorldClickVec.y)).y > 0 ? 1.0f : -1.0f);
 					if (RotateAngle < 2 * PI && RotateAngle>-2 * PI)
 					{
-						objects->ChangeRotate(glm::vec3(0.0f, RotateAngle, 0.0f));
+						objects->ChangeRotate(FirstRotate + glm::vec3(0.0f, RotateAngle, 0.0f));
 
 					}
 					
@@ -1061,7 +1063,7 @@ namespace Hazel
 				 	float RotateAngle = acos(glm::dot(WorldClickVec, LastWorldClickVec)) * (glm::cross(glm::vec3(WorldClickVec.x, 0.0f, WorldClickVec.y), glm::vec3(LastWorldClickVec.x, 0.0f, LastWorldClickVec.y)).y > 0 ? 1.0f : -1.0f);
 					if (RotateAngle < 2 * PI && RotateAngle>-2 * PI)
 					{
-						objects->ChangeRotate(glm::vec3(RotateAngle, 0.0f, 0.0f));
+						objects->ChangeRotate(FirstRotate + glm::vec3(RotateAngle, 0.0f, 0.0f));
 					}
 				 	//m_ControlLayer->rotateArrow->ChangeRotate(glm::vec3(RotateAngle, 0.0f, 0.0f), 0);
 				 	
@@ -1073,7 +1075,7 @@ namespace Hazel
 				 	float RotateAngle = acos(glm::dot(WorldClickVec, LastWorldClickVec)) * (glm::cross(glm::vec3(WorldClickVec.x, 0.0f, WorldClickVec.y), glm::vec3(LastWorldClickVec.x, 0.0f, LastWorldClickVec.y)).y > 0 ? 1.0f : -1.0f);
 					if (RotateAngle < 2 * PI && RotateAngle>-2 * PI)
 					{
-						objects->ChangeRotate(glm::vec3(0.0f, 0.0f, RotateAngle));
+						objects->ChangeRotate(FirstRotate + glm::vec3(0.0f, 0.0f, RotateAngle));
 					}
 				 	//m_ControlLayer->rotateArrow->ChangeRotate(glm::vec3(0.0f, 0.0f, RotateAngle), 2);
 				 	
@@ -1082,7 +1084,7 @@ namespace Hazel
 
 
 			}
-			LastWorldClickPos = WorldClickPos;
+			
 			//LastArrowPos = ArrowPos;
 		}
 

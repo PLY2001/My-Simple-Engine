@@ -172,7 +172,7 @@ namespace Hazel {
 		
 		frame++;
 		pathpoint.Path_Pos = Path_Pos_Now - Path_Pos_Last;
-		pathpoint.Path_Rotate = Path_Rotate_Now - Path_Rotate_Last;
+		pathpoint.Path_Rotate = Path_Rotate_Now;// - Path_Rotate_Last;
 		pathpoint.Path_HandPos = Path_HandPos_Now;
 		pathpoint.Path_HandEular = Path_HandEular_Now;
 

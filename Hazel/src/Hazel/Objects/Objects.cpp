@@ -52,20 +52,34 @@ namespace Hazel {
 		//创建变换矩阵
 		if (hasAngle)
 		{
-			object.m_ModelMatrices.resize(object.m_Model->meshes.size());//[j][k]，j关节索引，k是重复个体索引
+			object.m_PosScaleMatrices.resize(object.m_Model->meshes.size());//[j][k]，j关节索引，k是重复个体索引
+			object.m_ModelMatrices.resize(object.m_Model->meshes.size());
 		}
+		object.m_DefaultPosScaleMatrices.resize(object.m_Model->meshes.size());
+		object.m_RotateMatrices.resize(object.m_Model->meshes.size());
 		object.m_DefaultModelMatrices.resize(object.m_Model->meshes.size());
+		
+		
 		for (int i = 0; i < object.m_Model->meshes.size(); i++)
 		{
+			object.m_RotateMatrices[i].push_back(glm::mat4(1.0f));
+
 			if (hasAngle)
 			{
-				object.m_ModelMatrices[i].push_back(object.m_Model->mModelMatrix);
-				object.m_ModelMatrices[i].back() = glm::translate(object.m_ModelMatrices[i].back(), object.m_Pos[0]);
-				object.m_ModelMatrices[i].back() = glm::scale(object.m_ModelMatrices[i].back(), object.m_Scale);
+				object.m_PosScaleMatrices[i].push_back(object.m_Model->mModelMatrix);
+				object.m_PosScaleMatrices[i].back() = glm::translate(object.m_PosScaleMatrices[i].back(), object.m_Pos[0]);
+				object.m_PosScaleMatrices[i].back() = glm::scale(object.m_PosScaleMatrices[i].back(), object.m_Scale);
+
+				object.m_ModelMatrices[i].push_back(object.m_PosScaleMatrices[i].back()* object.m_RotateMatrices[i].back());
 			}
-			object.m_DefaultModelMatrices[i].push_back(object.m_Model->mModelMatrix);
-			object.m_DefaultModelMatrices[i].back() = glm::translate(object.m_DefaultModelMatrices[i].back(), object.m_Pos[0]);
-			object.m_DefaultModelMatrices[i].back() = glm::scale(object.m_DefaultModelMatrices[i].back(), object.m_Scale);
+			object.m_DefaultPosScaleMatrices[i].push_back(object.m_Model->mModelMatrix);
+			object.m_DefaultPosScaleMatrices[i].back() = glm::translate(object.m_DefaultPosScaleMatrices[i].back(), object.m_Pos[0]);
+			object.m_DefaultPosScaleMatrices[i].back() = glm::scale(object.m_DefaultPosScaleMatrices[i].back(), object.m_Scale);
+
+			
+
+			object.m_DefaultModelMatrices[i].push_back(object.m_DefaultPosScaleMatrices[i].back() * object.m_RotateMatrices[i].back());
+			
 		}
 
 
@@ -104,32 +118,41 @@ namespace Hazel {
 		
 		//增加模型
 		objects[m_Objectindex].m_Amount++;
-		m_index = objects[m_Objectindex].m_Amount - 2;
+		//m_index = objects[m_Objectindex].m_Amount - 2;
 		if (m_index < 0)
 		{
 			m_index = 0;
 		}
-		if (int increase = objects[m_Objectindex].m_Amount - objects[m_Objectindex].m_DefaultModelMatrices[0].size() > 0)
+		if (int increase = objects[m_Objectindex].m_Amount - objects[m_Objectindex].m_DefaultPosScaleMatrices[0].size() > 0)
 		{
 			for (int j = 0; j < increase; j++)
 			{
 				objects[m_Objectindex].m_Pos.push_back(objects[m_Objectindex].m_Pos[m_index]);
 				objects[m_Objectindex].m_Rotate.push_back(objects[m_Objectindex].m_Rotate[m_index]);
-				objects[m_Objectindex].m_RotateQuaternion.push_back(glm::qua<float>(objects[m_Objectindex].m_Rotate[m_index]));
+				objects[m_Objectindex].m_RotateQuaternion.push_back(objects[m_Objectindex].m_RotateQuaternion[m_index]);
 			}
 			for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
 			{
 				for (int j = 0; j < increase; j++)
 				{
+					objects[m_Objectindex].m_RotateMatrices[i].push_back(objects[m_Objectindex].m_RotateMatrices[i].back());
+
 					if (objects[m_Objectindex].m_HaveAngle)
 					{
-						objects[m_Objectindex].m_ModelMatrices[i].push_back(ModelMatrix(glm::vec3(objects[m_Objectindex].m_Pos.back())).matrix);
-						objects[m_Objectindex].m_ModelMatrices[i].back() = glm::rotate(objects[m_Objectindex].m_ModelMatrices[i].back(), objects[m_Objectindex].m_Rotate.back().y, glm::vec3(0.0f,1.0f,0.0f));
-						objects[m_Objectindex].m_ModelMatrices[i].back() = glm::scale(objects[m_Objectindex].m_ModelMatrices[i].back(), objects[m_Objectindex].m_Scale);
+						objects[m_Objectindex].m_PosScaleMatrices[i].push_back(ModelMatrix(glm::vec3(objects[m_Objectindex].m_Pos.back())).matrix);
+						//objects[m_Objectindex].m_ModelMatrices[i].back() = glm::rotate(objects[m_Objectindex].m_ModelMatrices[i].back(), objects[m_Objectindex].m_Rotate.back().y, glm::vec3(0.0f,1.0f,0.0f));
+						objects[m_Objectindex].m_PosScaleMatrices[i].back() = glm::scale(objects[m_Objectindex].m_PosScaleMatrices[i].back(), objects[m_Objectindex].m_Scale);
+
+						objects[m_Objectindex].m_ModelMatrices[i].push_back(objects[m_Objectindex].m_PosScaleMatrices[i].back()* objects[m_Objectindex].m_RotateMatrices[i].back());
 					}
-					objects[m_Objectindex].m_DefaultModelMatrices[i].push_back(ModelMatrix(glm::vec3(objects[m_Objectindex].m_Pos.back())).matrix);
-					objects[m_Objectindex].m_DefaultModelMatrices[i].back() = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i].back(), objects[m_Objectindex].m_Rotate.back().y, glm::vec3(0.0f, 1.0f, 0.0f));
-					objects[m_Objectindex].m_DefaultModelMatrices[i].back() = glm::scale(objects[m_Objectindex].m_DefaultModelMatrices[i].back(), objects[m_Objectindex].m_Scale);
+					objects[m_Objectindex].m_DefaultPosScaleMatrices[i].push_back(ModelMatrix(glm::vec3(objects[m_Objectindex].m_Pos.back())).matrix);
+					//objects[m_Objectindex].m_DefaultModelMatrices[i].back() = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i].back(), objects[m_Objectindex].m_Rotate.back().y, glm::vec3(0.0f, 1.0f, 0.0f));//需修改为四元数
+					objects[m_Objectindex].m_DefaultPosScaleMatrices[i].back() = glm::scale(objects[m_Objectindex].m_DefaultPosScaleMatrices[i].back(), objects[m_Objectindex].m_Scale);
+
+					
+
+					objects[m_Objectindex].m_DefaultModelMatrices[i].push_back(objects[m_Objectindex].m_DefaultPosScaleMatrices[i].back() * objects[m_Objectindex].m_RotateMatrices[i].back());
+					
 				}
 			}
 
@@ -178,7 +201,7 @@ namespace Hazel {
 		{
 			m_index = 0;
 		}
-		if (int increase = objects[m_Objectindex].m_Amount - objects[m_Objectindex].m_DefaultModelMatrices[0].size() > 0)
+		if (int increase = objects[m_Objectindex].m_Amount - objects[m_Objectindex].m_DefaultPosScaleMatrices[0].size() > 0)
 		{
 			for (int j = 0; j < increase; j++)
 			{
@@ -190,15 +213,25 @@ namespace Hazel {
 			{
 				for (int j = 0; j < increase; j++)
 				{
+					glm::mat4 RotateMatrix = glm::mat4(1.0f);
+					RotateMatrix = glm::mat4_cast(objects[m_Objectindex].m_RotateQuaternion.back()) * RotateMatrix;
+					objects[m_Objectindex].m_RotateMatrices[i].push_back(RotateMatrix);
+
 					if (objects[m_Objectindex].m_HaveAngle)
 					{
-						objects[m_Objectindex].m_ModelMatrices[i].push_back(ModelMatrix(glm::vec3(objects[m_Objectindex].m_Pos.back())).matrix);
-						objects[m_Objectindex].m_ModelMatrices[i].back() = glm::rotate(objects[m_Objectindex].m_ModelMatrices[i].back(), objects[m_Objectindex].m_Rotate.back().y, glm::vec3(0.0f, 1.0f, 0.0f));
-						objects[m_Objectindex].m_ModelMatrices[i].back() = glm::scale(objects[m_Objectindex].m_ModelMatrices[i].back(), objects[m_Objectindex].m_Scale);
+						objects[m_Objectindex].m_PosScaleMatrices[i].push_back(ModelMatrix(glm::vec3(objects[m_Objectindex].m_Pos.back())).matrix);
+						//objects[m_Objectindex].m_ModelMatrices[i].back() = glm::rotate(objects[m_Objectindex].m_ModelMatrices[i].back(), objects[m_Objectindex].m_Rotate.back().y, glm::vec3(0.0f, 1.0f, 0.0f));
+						objects[m_Objectindex].m_PosScaleMatrices[i].back() = glm::scale(objects[m_Objectindex].m_PosScaleMatrices[i].back(), objects[m_Objectindex].m_Scale);
+
+						objects[m_Objectindex].m_ModelMatrices[i].push_back(objects[m_Objectindex].m_PosScaleMatrices[i].back()* objects[m_Objectindex].m_RotateMatrices[i].back());
 					}
-					objects[m_Objectindex].m_DefaultModelMatrices[i].push_back(ModelMatrix(glm::vec3(objects[m_Objectindex].m_Pos.back())).matrix);
-					objects[m_Objectindex].m_DefaultModelMatrices[i].back() = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i].back(), objects[m_Objectindex].m_Rotate.back().y, glm::vec3(0.0f, 1.0f, 0.0f));
-					objects[m_Objectindex].m_DefaultModelMatrices[i].back() = glm::scale(objects[m_Objectindex].m_DefaultModelMatrices[i].back(), objects[m_Objectindex].m_Scale);
+					objects[m_Objectindex].m_DefaultPosScaleMatrices[i].push_back(ModelMatrix(glm::vec3(objects[m_Objectindex].m_Pos.back())).matrix);
+					//objects[m_Objectindex].m_DefaultModelMatrices[i].back() = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i].back(), objects[m_Objectindex].m_Rotate.back().y, glm::vec3(0.0f, 1.0f, 0.0f));
+					objects[m_Objectindex].m_DefaultPosScaleMatrices[i].back() = glm::scale(objects[m_Objectindex].m_DefaultPosScaleMatrices[i].back(), objects[m_Objectindex].m_Scale);
+
+					
+
+					objects[m_Objectindex].m_DefaultModelMatrices[i].push_back(objects[m_Objectindex].m_DefaultPosScaleMatrices[i].back() * objects[m_Objectindex].m_RotateMatrices[i].back());
 				}
 			}
 
@@ -230,7 +263,7 @@ namespace Hazel {
 		{
 			m_index = objects[m_Objectindex].m_Amount-1;
 		}
-		if (int decrease = objects[m_Objectindex].m_DefaultModelMatrices[0].size() - objects[m_Objectindex].m_Amount > 0)
+		if (int decrease = objects[m_Objectindex].m_DefaultPosScaleMatrices[0].size() - objects[m_Objectindex].m_Amount > 0)
 		{
 			for (int j = 0; j < decrease; j++)
 			{
@@ -244,8 +277,14 @@ namespace Hazel {
 				{
 					if (objects[m_Objectindex].m_HaveAngle)
 					{
+						objects[m_Objectindex].m_PosScaleMatrices[i].erase(objects[m_Objectindex].m_PosScaleMatrices[i].begin() + m_index);
+
 						objects[m_Objectindex].m_ModelMatrices[i].erase(objects[m_Objectindex].m_ModelMatrices[i].begin() + m_index);
 					}
+					objects[m_Objectindex].m_DefaultPosScaleMatrices[i].erase(objects[m_Objectindex].m_DefaultPosScaleMatrices[i].begin() + m_index);
+
+					objects[m_Objectindex].m_RotateMatrices[i].erase(objects[m_Objectindex].m_RotateMatrices[i].begin() + m_index);
+
 					objects[m_Objectindex].m_DefaultModelMatrices[i].erase(objects[m_Objectindex].m_DefaultModelMatrices[i].begin() + m_index);
 				}
 			}
@@ -287,7 +326,7 @@ namespace Hazel {
 		//增加模型
 		objects[m_Objectindex].m_Amount++;
 		//m_index = Amount[m_Objectindex] - 1;
-		if (int increase = objects[m_Objectindex].m_Amount - objects[m_Objectindex].m_DefaultModelMatrices[0].size() > 0)
+		if (int increase = objects[m_Objectindex].m_Amount - objects[m_Objectindex].m_DefaultPosScaleMatrices[0].size() > 0)
 		{
 			for (int j = 0; j < increase; j++)
 			{
@@ -299,15 +338,24 @@ namespace Hazel {
 			{
 				for (int j = 0; j < increase; j++)
 				{
+					glm::mat4 RotateMatrix = glm::mat4(1.0f);
+					RotateMatrix = glm::mat4_cast(objects[m_Objectindex].m_RotateQuaternion.back()) * RotateMatrix;
+					objects[m_Objectindex].m_RotateMatrices[i].push_back(RotateMatrix);
 					if (objects[m_Objectindex].m_HaveAngle)
 					{
-						objects[m_Objectindex].m_ModelMatrices[i].push_back(ModelMatrix(glm::vec3(objects[m_Objectindex].m_Pos.back())).matrix);
-						objects[m_Objectindex].m_ModelMatrices[i].back() = glm::rotate(objects[m_Objectindex].m_ModelMatrices[i].back(), objects[m_Objectindex].m_Rotate.back().y, glm::vec3(0.0f, 1.0f, 0.0f));
-						objects[m_Objectindex].m_ModelMatrices[i].back() = glm::scale(objects[m_Objectindex].m_ModelMatrices[i].back(), objects[m_Objectindex].m_Scale);
+						objects[m_Objectindex].m_PosScaleMatrices[i].push_back(ModelMatrix(glm::vec3(objects[m_Objectindex].m_Pos.back())).matrix);
+						//objects[m_Objectindex].m_ModelMatrices[i].back() = glm::rotate(objects[m_Objectindex].m_ModelMatrices[i].back(), objects[m_Objectindex].m_Rotate.back().y, glm::vec3(0.0f, 1.0f, 0.0f));
+						objects[m_Objectindex].m_PosScaleMatrices[i].back() = glm::scale(objects[m_Objectindex].m_PosScaleMatrices[i].back(), objects[m_Objectindex].m_Scale);
+
+						objects[m_Objectindex].m_ModelMatrices[i].push_back(objects[m_Objectindex].m_PosScaleMatrices[i].back()* objects[m_Objectindex].m_RotateMatrices[i].back());
 					}
-					objects[m_Objectindex].m_DefaultModelMatrices[i].push_back(ModelMatrix(glm::vec3(objects[m_Objectindex].m_Pos.back())).matrix);
-					objects[m_Objectindex].m_DefaultModelMatrices[i].back() = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i].back(), objects[m_Objectindex].m_Rotate.back().y, glm::vec3(0.0f, 1.0f, 0.0f));
-					objects[m_Objectindex].m_DefaultModelMatrices[i].back() = glm::scale(objects[m_Objectindex].m_DefaultModelMatrices[i].back(), objects[m_Objectindex].m_Scale);
+					objects[m_Objectindex].m_DefaultPosScaleMatrices[i].push_back(ModelMatrix(glm::vec3(objects[m_Objectindex].m_Pos.back())).matrix);
+					//objects[m_Objectindex].m_DefaultModelMatrices[i].back() = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i].back(), objects[m_Objectindex].m_Rotate.back().y, glm::vec3(0.0f, 1.0f, 0.0f));
+					objects[m_Objectindex].m_DefaultPosScaleMatrices[i].back() = glm::scale(objects[m_Objectindex].m_DefaultPosScaleMatrices[i].back(), objects[m_Objectindex].m_Scale);
+
+					
+
+					objects[m_Objectindex].m_DefaultModelMatrices[i].push_back(objects[m_Objectindex].m_DefaultPosScaleMatrices[i].back() * objects[m_Objectindex].m_RotateMatrices[i].back());
 				}
 			}
 
@@ -365,6 +413,8 @@ namespace Hazel {
 		{
 			// 		for (int i = 0; i < Amount; i++)
 			// 		{
+			
+
 			objects[m_Objectindex].m_ModelMatrices[j][m_index] = objects[m_Objectindex].m_DefaultModelMatrices[j][m_index];
 			// 		}
 
@@ -426,6 +476,7 @@ namespace Hazel {
 		{
 			// 		for (int i = 0; i < Amount; i++)
 			// 		{
+			
 			objects[objectindex].m_ModelMatrices[j][index] = objects[objectindex].m_DefaultModelMatrices[j][index];
 			// 		}
 
@@ -823,8 +874,8 @@ namespace Hazel {
 	{
 		if (m_Objectindex > -1 && m_index > -1)
 		{
-			//return objects[m_Objectindex].m_Rotate[m_index];
-			return glm::eulerAngles(objects[m_Objectindex].m_RotateQuaternion[m_index]);
+			return objects[m_Objectindex].m_Rotate[m_index];
+			//return glm::eulerAngles(objects[m_Objectindex].m_RotateQuaternion[m_index]);
 		}
 		else
 		{
@@ -835,14 +886,14 @@ namespace Hazel {
 	glm::vec3 Objects::GetRotate(int objectindex, int index)
 	{
 		return objects[objectindex].m_Rotate[index];
+		//return glm::eulerAngles(objects[objectindex].m_RotateQuaternion[index]);
 	}
 
 	glm::qua<float> Objects::GetRotateQuaternion()
 	{
 		if (m_Objectindex > -1 && m_index > -1)
 		{
-			//return objects[m_Objectindex].m_RotateQuaternion[m_index];
-			return glm::eulerAngles(objects[m_Objectindex].m_RotateQuaternion[m_index]);
+			return objects[m_Objectindex].m_RotateQuaternion[m_index];
 		}
 		else
 		{
@@ -872,17 +923,18 @@ namespace Hazel {
 		for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
 		{
 			//ModelMatrices[i][index] = glm::translate(ModelMatrices[i][index],ChangedPos/Scale);
-			glm::qua<float> Quaternion = glm::qua<float>(-objects[m_Objectindex].m_Rotate[m_index]);
-			glm::mat4 RotateMatrix = glm::mat4(1.0f);
-			RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
-			glm::qua<float> Quaternion1 = glm::qua<float>(objects[m_Objectindex].m_Rotate[m_index]);
-			glm::mat4 RotateMatrix1 = glm::mat4(1.0f);
-			RotateMatrix1 = glm::mat4_cast(Quaternion1) * RotateMatrix1;
+// 			glm::qua<float> Quaternion = glm::qua<float>(-objects[m_Objectindex].m_Rotate[m_index]);
+// 			glm::mat4 RotateMatrix = glm::mat4(1.0f);
+// 			RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
+// 			glm::qua<float> Quaternion1 = glm::qua<float>(objects[m_Objectindex].m_Rotate[m_index]);
+// 			glm::mat4 RotateMatrix1 = glm::mat4(1.0f);
+// 			RotateMatrix1 = glm::mat4_cast(Quaternion1) * RotateMatrix1;
 
-			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] =  objects[m_Objectindex].m_DefaultModelMatrices[i][m_index]* RotateMatrix;
-			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::translate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], ChangedPos / objects[m_Objectindex].m_Scale);
-			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = objects[m_Objectindex].m_DefaultModelMatrices[i][m_index]*RotateMatrix1;
-			
+			//objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] =  objects[m_Objectindex].m_DefaultModelMatrices[i][m_index]* RotateMatrix;
+			objects[m_Objectindex].m_DefaultPosScaleMatrices[i][m_index] = glm::translate(objects[m_Objectindex].m_DefaultPosScaleMatrices[i][m_index], ChangedPos / objects[m_Objectindex].m_Scale);
+			//objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = objects[m_Objectindex].m_DefaultModelMatrices[i][m_index]*RotateMatrix1;
+
+			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = objects[m_Objectindex].m_DefaultPosScaleMatrices[i][m_index] * objects[m_Objectindex].m_RotateMatrices[i][m_index];
 		}
 		if(objects[m_Objectindex].m_HaveAngle)
 		{
@@ -897,16 +949,17 @@ namespace Hazel {
 		for (int i = 0; i < objects[objectindex].m_Model->meshes.size(); i++)
 		{
 			//ModelMatrices[i][index] = glm::translate(ModelMatrices[i][index],ChangedPos/Scale);
-			glm::qua<float> Quaternion = glm::qua<float>(-objects[objectindex].m_Rotate[index]);
-			glm::mat4 RotateMatrix = glm::mat4(1.0f);
-			RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
-			glm::qua<float> Quaternion1 = glm::qua<float>(objects[objectindex].m_Rotate[index]);
-			glm::mat4 RotateMatrix1 = glm::mat4(1.0f);
-			RotateMatrix1 = glm::mat4_cast(Quaternion1) * RotateMatrix1;
+// 			glm::qua<float> Quaternion = glm::qua<float>(-objects[objectindex].m_Rotate[index]);
+// 			glm::mat4 RotateMatrix = glm::mat4(1.0f);
+// 			RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
+// 			glm::qua<float> Quaternion1 = glm::qua<float>(objects[objectindex].m_Rotate[index]);
+// 			glm::mat4 RotateMatrix1 = glm::mat4(1.0f);
+// 			RotateMatrix1 = glm::mat4_cast(Quaternion1) * RotateMatrix1;
 
-			objects[objectindex].m_DefaultModelMatrices[i][index] =  objects[objectindex].m_DefaultModelMatrices[i][index]*RotateMatrix;
-			objects[objectindex].m_DefaultModelMatrices[i][index] = glm::translate(objects[objectindex].m_DefaultModelMatrices[i][index], ChangedPos / objects[objectindex].m_Scale);
-			objects[objectindex].m_DefaultModelMatrices[i][index] = objects[objectindex].m_DefaultModelMatrices[i][index]* RotateMatrix1;
+			//objects[objectindex].m_DefaultModelMatrices[i][index] =  objects[objectindex].m_DefaultModelMatrices[i][index]*RotateMatrix;
+			objects[objectindex].m_DefaultPosScaleMatrices[i][index] = glm::translate(objects[objectindex].m_DefaultPosScaleMatrices[i][index], ChangedPos / objects[objectindex].m_Scale);
+			//objects[objectindex].m_DefaultModelMatrices[i][index] = objects[objectindex].m_DefaultModelMatrices[i][index]* RotateMatrix1;
+			objects[objectindex].m_DefaultModelMatrices[i][index] = objects[objectindex].m_DefaultPosScaleMatrices[i][index] * objects[objectindex].m_RotateMatrices[i][index];
 		}
 		if (objects[objectindex].m_HaveAngle)
 		{
@@ -918,20 +971,27 @@ namespace Hazel {
 	void Objects::ChangeRotate(glm::vec3 ChangedRotate)
 	{
 
-		objects[m_Objectindex].m_Rotate[m_index] += ChangedRotate;
+		
 		//m_ChangedRotate = ChangedRotate;
-		objects[m_Objectindex].m_RotateQuaternion[m_index] = objects[m_Objectindex].m_RotateQuaternion[m_index] * glm::qua<float>(ChangedRotate);
+		objects[m_Objectindex].m_RotateQuaternion[m_index] = objects[m_Objectindex].m_RotateQuaternion[m_index]*glm::qua<float>(ChangedRotate - objects[m_Objectindex].m_Rotate[m_index]);
+		
 		for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
 		{
 			
-			glm::qua<float> Quaternion = glm::qua<float>(ChangedRotate);
+			//glm::qua<float> Quaternion = glm::qua<float>(ChangedRotate - objects[m_Objectindex].m_Rotate[m_index]);
 			glm::mat4 RotateMatrix = glm::mat4(1.0f);
-			RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
+			RotateMatrix = glm::mat4_cast(glm::qua<float>(ChangedRotate - objects[m_Objectindex].m_Rotate[m_index])) * RotateMatrix;
 			//objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::rotate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], ChangedRotate[RotateAxis], RotateAxisVec3);
 			//objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::translate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], -objects[m_Objectindex].m_Pos[m_index] / objects[m_Objectindex].m_Scale);
-			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] =  objects[m_Objectindex].m_DefaultModelMatrices[i][m_index]*RotateMatrix;
+
+			//objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] =  objects[m_Objectindex].m_DefaultModelMatrices[i][m_index]*RotateMatrix;
+			objects[m_Objectindex].m_RotateMatrices[i][m_index] = objects[m_Objectindex].m_RotateMatrices[i][m_index]*RotateMatrix;
+
 			//objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = glm::translate(objects[m_Objectindex].m_DefaultModelMatrices[i][m_index], objects[m_Objectindex].m_Pos[m_index] / objects[m_Objectindex].m_Scale);
+
+			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = objects[m_Objectindex].m_DefaultPosScaleMatrices[i][m_index] * objects[m_Objectindex].m_RotateMatrices[i][m_index];
 		}
+		objects[m_Objectindex].m_Rotate[m_index] = ChangedRotate;
 		if (objects[m_Objectindex].m_HaveAngle)
 		{
 			ChangeAngle();
@@ -941,22 +1001,84 @@ namespace Hazel {
 
 	void Objects::ChangeRotate(glm::vec3 ChangedRotate, int objectindex, int index)
 	{
-		objects[objectindex].m_Rotate[index] += ChangedRotate;
-		objects[objectindex].m_RotateQuaternion[index] = objects[objectindex].m_RotateQuaternion[index] * glm::qua<float>(ChangedRotate);
+		
+		objects[objectindex].m_RotateQuaternion[index] = objects[objectindex].m_RotateQuaternion[index]*glm::qua<float>(ChangedRotate - objects[objectindex].m_Rotate[index]);
+		
 		for (int i = 0; i < objects[objectindex].m_Model->meshes.size(); i++)
 		{
-			glm::qua<float> Quaternion = glm::qua<float>(ChangedRotate);
+			//glm::qua<float> Quaternion = glm::qua<float>(ChangedRotate);
 			glm::mat4 RotateMatrix = glm::mat4(1.0f);
-			RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
+			RotateMatrix = glm::mat4_cast(glm::qua<float>(ChangedRotate - objects[objectindex].m_Rotate[index])) * RotateMatrix;
 			//objects[objectindex].m_DefaultModelMatrices[i][index] = glm::translate(objects[objectindex].m_DefaultModelMatrices[i][index], -objects[objectindex].m_Pos[index] / objects[objectindex].m_Scale);
-			objects[objectindex].m_DefaultModelMatrices[i][index] = objects[objectindex].m_DefaultModelMatrices[i][index]* RotateMatrix;
+
+			//objects[objectindex].m_DefaultModelMatrices[i][index] = objects[objectindex].m_DefaultModelMatrices[i][index]* RotateMatrix;
+			objects[objectindex].m_RotateMatrices[i][index] = objects[objectindex].m_RotateMatrices[i][index]*RotateMatrix;
+
 			//objects[objectindex].m_DefaultModelMatrices[i][index] = glm::translate(objects[objectindex].m_DefaultModelMatrices[i][index], objects[objectindex].m_Pos[index] / objects[objectindex].m_Scale);
+
+			objects[objectindex].m_DefaultModelMatrices[i][index] = objects[objectindex].m_DefaultPosScaleMatrices[i][index] * objects[objectindex].m_RotateMatrices[i][index];
 		}
+		objects[objectindex].m_Rotate[index] = ChangedRotate;
 		if (objects[objectindex].m_HaveAngle)
 		{
 			ChangeAngle(objectindex, index);
 		}
 		SetAABB(objectindex, index);
+	}
+
+	void Objects::ChangeRotateD(glm::vec3 ChangedRotate, int objectindex, int index)
+	{
+		objects[objectindex].m_Rotate[index] = ChangedRotate;
+		objects[objectindex].m_RotateQuaternion[index] = glm::qua<float>(ChangedRotate);
+
+		for (int i = 0; i < objects[objectindex].m_Model->meshes.size(); i++)
+		{
+			//glm::qua<float> Quaternion = glm::qua<float>(ChangedRotate);
+			glm::mat4 RotateMatrix = glm::mat4(1.0f);
+			RotateMatrix = glm::mat4_cast(objects[objectindex].m_RotateQuaternion[index]) * RotateMatrix;
+			//objects[objectindex].m_DefaultModelMatrices[i][index] = glm::translate(objects[objectindex].m_DefaultModelMatrices[i][index], -objects[objectindex].m_Pos[index] / objects[objectindex].m_Scale);
+
+			//objects[objectindex].m_DefaultModelMatrices[i][index] = objects[objectindex].m_DefaultModelMatrices[i][index]* RotateMatrix;
+
+			objects[objectindex].m_RotateMatrices[i][index] = RotateMatrix;
+
+			//objects[objectindex].m_DefaultModelMatrices[i][index] = glm::translate(objects[objectindex].m_DefaultModelMatrices[i][index], objects[objectindex].m_Pos[index] / objects[objectindex].m_Scale);
+
+			objects[objectindex].m_DefaultModelMatrices[i][index] = objects[objectindex].m_DefaultPosScaleMatrices[i][index] * objects[objectindex].m_RotateMatrices[i][index];
+		}
+		
+		if (objects[objectindex].m_HaveAngle)
+		{
+			ChangeAngle(objectindex, index);
+		}
+		SetAABB(objectindex, index);
+	}
+
+	void Objects::ChangeRotateD(glm::vec3 ChangedRotate)
+	{
+		objects[m_Objectindex].m_Rotate[m_index] = ChangedRotate;
+		objects[m_Objectindex].m_RotateQuaternion[m_index] = glm::qua<float>(ChangedRotate);
+
+		for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
+		{
+			//glm::qua<float> Quaternion = glm::qua<float>(ChangedRotate);
+			glm::mat4 RotateMatrix = glm::mat4(1.0f);
+			RotateMatrix = glm::mat4_cast(objects[m_Objectindex].m_RotateQuaternion[m_index]) * RotateMatrix;
+			//objects[objectindex].m_DefaultModelMatrices[i][index] = glm::translate(objects[objectindex].m_DefaultModelMatrices[i][index], -objects[objectindex].m_Pos[index] / objects[objectindex].m_Scale);
+
+			//objects[objectindex].m_DefaultModelMatrices[i][index] = objects[objectindex].m_DefaultModelMatrices[i][index]* RotateMatrix;
+			objects[m_Objectindex].m_RotateMatrices[i][m_index] = RotateMatrix;
+
+			//objects[objectindex].m_DefaultModelMatrices[i][index] = glm::translate(objects[objectindex].m_DefaultModelMatrices[i][index], objects[objectindex].m_Pos[index] / objects[objectindex].m_Scale);
+
+			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = objects[m_Objectindex].m_DefaultPosScaleMatrices[i][m_index] * objects[m_Objectindex].m_RotateMatrices[i][m_index];
+		}
+
+		if (objects[m_Objectindex].m_HaveAngle)
+		{
+			ChangeAngle(m_Objectindex, m_index);
+		}
+		SetAABB(m_Objectindex, m_index);
 	}
 
 	void Objects::ChangeHandPos(glm::vec3 ChangedHandPos, int objectindex, int index)
@@ -1088,11 +1210,17 @@ namespace Hazel {
 		}
 	}
 
-	bool Objects::SaveScene()
+	bool Objects::SaveScene(int SaveAddress)
 	{
 
 		//Objects
-		std::fstream file("res/save/Objects.json", std::ios::out);
+		// 准备根据格式造字符串流
+		std::stringstream fmt;
+		// 造字符串流
+		fmt << "res/save/Objects" << SaveAddress << ".json";
+		std::string namej = fmt.str();
+
+		std::fstream file(namej, std::ios::out);
 
 		if (!file.is_open())
 		{
@@ -1137,7 +1265,14 @@ namespace Hazel {
 
 
 		//One Object
-		std::fstream file1("res/save/ObjectsDetail.json", std::ios::out);
+
+		// 准备根据格式造字符串流
+		std::stringstream fmt1;
+		// 造字符串流
+		fmt1 << "res/save/ObjectsDetail" << SaveAddress << ".json";
+		std::string namej1 = fmt1.str();
+
+		std::fstream file1(namej1, std::ios::out);
 
 		if (!file1.is_open())
 		{
@@ -1171,6 +1306,10 @@ namespace Hazel {
 				writer1.EndArray();
 				writer1.Key("rotate");
 				writer1.StartArray();
+				//writer1.Double(object.m_RotateQuaternion[i].w);
+				//writer1.Double(object.m_RotateQuaternion[i].x);
+				//writer1.Double(object.m_RotateQuaternion[i].y);
+				//writer1.Double(object.m_RotateQuaternion[i].z);
 				writer1.Double(object.m_Rotate[i].x);
 				writer1.Double(object.m_Rotate[i].y);
 				writer1.Double(object.m_Rotate[i].z);
@@ -1266,9 +1405,15 @@ namespace Hazel {
 		return true;
 	}
 
-	bool Objects::LoadScene()
+	bool Objects::LoadScene(int LoadAddress)
 	{
-		std::ifstream file("res/save/Objects.json", std::ios::in);
+		// 准备根据格式造字符串流
+		std::stringstream fmt;
+		// 造字符串流
+		fmt << "res/save/Objects" << LoadAddress << ".json";
+		std::string namej = fmt.str();
+
+		std::ifstream file(namej, std::ios::in);
 		if (!file.is_open())
 		{
 			std::cout << "can not open json file to read." << std::endl;
@@ -1460,7 +1605,13 @@ namespace Hazel {
 		 * 这句校验很重要，既要校验有该子段，也要校验类型正确，否则会引发程序崩溃
 		 */
 		
-		std::ifstream file1("res/save/ObjectsDetail.json", std::ios::in);
+		 // 准备根据格式造字符串流
+		std::stringstream fmt1;
+		// 造字符串流
+		fmt1 << "res/save/ObjectsDetail" << LoadAddress << ".json";
+		std::string namej1 = fmt1.str();
+
+		std::ifstream file1(namej1, std::ios::in);
 		if (!file1.is_open())
 		{
 			std::cout << "can not open json file to read." << std::endl;

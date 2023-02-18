@@ -254,6 +254,7 @@ namespace Hazel
 
 		bool ModularCopy = false;
 		
+		glm::vec3 FirstRotate = glm::vec3(1.0f);
 	};
 
 	Application* CreateApplication();

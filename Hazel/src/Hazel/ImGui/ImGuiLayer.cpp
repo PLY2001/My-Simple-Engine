@@ -107,29 +107,29 @@ namespace Hazel {
 				if (ImGui::MenuItem(u8"读取场景"))
 				{
 
-					Application::Get().objects.reset(new Objects(Application::Get().modelmap));
-					Application::Get().insbos.reset(new InstanceBufferObjects());
+					//Application::Get().objects.reset(new Objects(Application::Get().modelmap));
+					//Application::Get().insbos.reset(new InstanceBufferObjects());
 					
-					if (Application::Get().objects->LoadScene())
-					{
+					//if (Application::Get().objects->LoadScene())
+					//{
 						
-						Application::Get().insbos->AddObjects(Application::Get().objects);
-						Loaded = true;
+						//Application::Get().insbos->AddObjects(Application::Get().objects);
+						ToLoad = true;
 
 						
 
-					}
+					//}
 				}
 				
 
 
 				if (ImGui::MenuItem(u8"保存场景"))
 				{
-					if (Application::Get().objects->SaveScene())
-					{
-						Save = true;
+					//if (Application::Get().objects->SaveScene())
+					//{
+						ToSave = true;
 						//ImGui::OpenPopup(u8"保存提示");
-					}
+					//}
 				}
 				ImGui::EndMenu();
 			}
@@ -145,7 +145,7 @@ namespace Hazel {
 			ImGui::EndMainMenuBar();
 		}
 
-		if (Loaded||Save)
+		if (ToLoad||ToSave)
 		{
 			ImGui::OpenPopup(u8"提示");
 		}
@@ -155,20 +155,62 @@ namespace Hazel {
 
 		if (ImGui::BeginPopupModal(u8"提示", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			if(Loaded)
+			if(ToLoad)
 			{
-				ImGui::Text(u8"读取场景成功");
+				ImGui::Text(u8"请选择读取档位");
+				ImGui::RadioButton(u8"档位0", &LoadAddress, 0);
+				ImGui::RadioButton(u8"档位1", &LoadAddress, 1);
+				ImGui::RadioButton(u8"档位2", &LoadAddress, 2);
+				if (Loaded)
+				{
+					ImGui::Text(u8"读取场景成功");
+				}
 			}
-			if(Save)
+			if(ToSave)
 			{
-				ImGui::Text(u8"保存场景成功");
+				ImGui::Text(u8"请选择保存档位");
+				ImGui::RadioButton(u8"档位0", &SaveAddress, 0);
+				ImGui::RadioButton(u8"档位1", &SaveAddress, 1);
+				ImGui::RadioButton(u8"档位2", &SaveAddress, 2);
+				if (Saved)
+				{
+					ImGui::Text(u8"保存场景成功");
+				}
+				
 			}
 			ImGui::Separator();
-			if (ImGui::Button(u8"确定", ImVec2(120, 0)))
+			if(ToSave)
 			{
+				if (ImGui::Button(u8"保存", ImVec2(120, 0)))
+				{
+					if (Application::Get().objects->SaveScene(SaveAddress))
+					{
+						Saved = true;
+					}
+				}
+			}
+			if (ToLoad)
+			{
+				if (ImGui::Button(u8"读取", ImVec2(120, 0)))
+				{
+					Application::Get().objects.reset(new Objects(Application::Get().modelmap));
+					Application::Get().insbos.reset(new InstanceBufferObjects());
+					if (Application::Get().objects->LoadScene(LoadAddress))
+					{
+						Application::Get().insbos->AddObjects(Application::Get().objects);
+						Loaded = true;
+					}
+				}
+			}
+			ImGui::SameLine();
+			if (ImGui::Button(u8"关闭", ImVec2(120, 0)))
+			{
+
 				ImGui::CloseCurrentPopup();
+				ToLoad = false;
+				ToSave = false;
 				Loaded = false;
-				Save = false;
+				Saved = false;
 			}
 			ImGui::EndPopup();
 		}
@@ -259,7 +301,7 @@ namespace Hazel {
 			{
 				glm::vec3 Scale = Application::Get().objects->GetScale();
 				HandPos = Application::Get().objects->GetHandPos()/10.0f;
-				HandEular = Application::Get().objects->GetHandEular()*180.0f/PI;
+				HandEular = Application::Get().objects->GetHandEular();
 				if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -652.0f * Scale.x/10.0f, 652.0f * Scale.x / 10.0f))
 				{
 					Application::Get().objects->ChangeHandPos(HandPos*10.0f);
@@ -325,15 +367,17 @@ namespace Hazel {
 		if (Application::Get().objects->GetChoosedIndex() > -1)
 		{
 			Pos = Application::Get().objects->GetPos()/10.0f;
-			Rotate = Application::Get().objects->GetRotate() * glm::vec3(180.0f/PI);
+			
+			Rotate = Application::Get().objects->GetRotate() * glm::vec3(180.0f / PI);;
 			if (ImGui::InputFloat3(u8"平移(m)", (float*)&Pos))
 			{
 				Application::Get().objects->ChangePos(Pos*10.0f - Application::Get().objects->GetPos());
 			}
 			if (ImGui::InputFloat3(u8"旋转(degree)", (float*)&Rotate))
 			{
-				Application::Get().objects->ChangeRotate(glm::vec3(Rotate.x* PI / 180.0f - Application::Get().objects->GetRotate().x,Rotate.y*PI/180.0f- Application::Get().objects->GetRotate().y, Rotate.z* PI / 180.0f - Application::Get().objects->GetRotate().z));
-
+				LastRotate = Application::Get().objects->GetRotate() * glm::vec3(180.0f / PI);
+				//glm::vec3 temp = Application::Get().objects->GetRotate();
+				Application::Get().objects->ChangeRotateD(glm::vec3(Rotate.x,Rotate.y, Rotate.z)* PI / 180.0f);
 			}
 			
 		}
@@ -424,7 +468,8 @@ namespace Hazel {
 						Application::Get().objects->GetAnimation(i, j).Reset();
 						Application::Get().objects->GetAnimation(i, j).Playing = true;
 						Application::Get().objects->ChangePos(Application::Get().objects->GetAnimation(i, j).GetPathKeyPos(0) - Application::Get().objects->GetPos(i, j), i, j);
-						Application::Get().objects->ChangeRotate(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(0) - Application::Get().objects->GetRotate(i, j),i,j);
+						//for(int k = Application::Get().objects->GetAnimation(i, j).GetPathKeySize()-1;k>-1;k--)
+						Application::Get().objects->ChangeRotateD(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(0),i,j);
 						Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(0),i,j);
 						Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(0),i,j);
 					}
@@ -500,7 +545,7 @@ namespace Hazel {
 									if (ImGui::Button(ButtomName.c_str()))
 									{
 										Application::Get().objects->ChangePos(Application::Get().objects->GetAnimation(i, j).GetPathKeyPos(index) - Application::Get().objects->GetPos(i, j), i, j);
-										Application::Get().objects->ChangeRotate(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(index) - Application::Get().objects->GetRotate(i, j), i, j);
+										Application::Get().objects->ChangeRotateD(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(index), i, j);
 										Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(index), i, j);
 										Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(index), i, j);
 										if (Application::Get().objects->objects[i].m_HaveAngle)

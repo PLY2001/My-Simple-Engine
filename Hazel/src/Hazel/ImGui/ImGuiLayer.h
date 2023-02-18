@@ -25,14 +25,19 @@ namespace Hazel {
 		float m_Time = 0.0f; 
 		glm::vec3 Pos = glm::vec3(0.0f);
 		glm::vec3 Rotate = glm::vec3(0.0f);
-
+		glm::vec3 LastRotate = glm::vec3(0.0f);
 		glm::vec3 HandPos = glm::vec3(0.0f);
 		glm::vec3 HandEular = glm::vec3(0.0f);
-		bool Save = false;
+		bool Saved = false;
+		bool ToSave = false;
 		bool Loaded = false;
+		bool ToLoad = false;
 		float PathTime = 0.5;
 		glm::vec3 CircleCenter = glm::vec3(0.0f);
 		float TotalTime = 10.0;
+
+		int SaveAddress = 0;
+		int LoadAddress = 0;
 	};
 
 }

@@ -27,6 +27,7 @@ namespace Hazel {
 		std::vector<glm::vec3> AABBMinPos;
 		std::vector<glm::vec3> AABBMaxPos;
 		void SetAABB();
+
 	};
 
 }
