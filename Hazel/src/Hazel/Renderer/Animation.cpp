@@ -75,14 +75,14 @@ namespace Hazel {
 			}
 			if (pathmodelist[Path_index] == PathMode::Circle)
 			{
-				float theata = acos(glm::dot(glm::normalize(m_Path_Pos[Path_index]-CircleCenterList[Path_index]), glm::normalize(m_Path_Pos[Path_index+1] - CircleCenterList[Path_index])));
-				glm::vec4 TempPos = glm::vec4(Path_Pos_Last - CircleCenterList[Path_index],1.0f);
+				float theata = acos(glm::dot(glm::normalize(glm::vec3(m_Path_Pos[Path_index].x-CircleCenterList[Path_index].x,0.0f, m_Path_Pos[Path_index].z - CircleCenterList[Path_index].z)), glm::normalize(glm::vec3(m_Path_Pos[Path_index+1].x - CircleCenterList[Path_index].x,0.0f, m_Path_Pos[Path_index + 1].z - CircleCenterList[Path_index].z))));
+				glm::vec4 TempPos = glm::vec4(Path_Pos_Last.x - CircleCenterList[Path_index].x,0.0f, Path_Pos_Last.z - CircleCenterList[Path_index].z,1.0f);
 				glm::qua<float> Quaternion = glm::qua<float>(glm::vec3(0.0f,theata * deltaTime / (thisTotalTime),0.0f));
 				glm::mat4 RotateMatrix = glm::mat4(1.0f);
 				RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
 				TempPos = RotateMatrix * TempPos;
-				Path_Pos_Now = glm::vec3(TempPos.x, TempPos.y, TempPos.z) + CircleCenterList[Path_index];
-
+				Path_Pos_Now = glm::vec3(TempPos.x, Path_Pos_Last.y + (m_Path_Pos[Path_index + 1].y - Path_Pos_Last.y) * deltaTime / (thisTotalTime - TimeNow), TempPos.z) + glm::vec3(CircleCenterList[Path_index].x,0.0f, CircleCenterList[Path_index].z);
+				
 // 				float d1 = sqrt((m_Path_Pos[Path_index + 1].x - m_Path_Pos[Path_index].x) * (m_Path_Pos[Path_index + 1].x - m_Path_Pos[Path_index].x) + (m_Path_Pos[Path_index + 1].z - m_Path_Pos[Path_index].z) * (m_Path_Pos[Path_index + 1].z - m_Path_Pos[Path_index].z)) / 2.0f / sin(theata / 2.0);
 // 				float d2 = 2.0 * d1 * sin(TimeNow * theata / 2.0 / thisTotalTime);
 // 				float d3 = 2.0 * d1 * sin((thisTotalTime - TimeNow) * theata / 2.0 / thisTotalTime);
@@ -110,15 +110,17 @@ namespace Hazel {
 // 				}
 				
 				Path_Rotate_Now = Path_Rotate_Last + (m_Path_Rotate[Path_index + 1] - Path_Rotate_Last) * deltaTime / (thisTotalTime - TimeNow);
+				
+				
 				if (HaveAngle)
 				{
-					float theata1 = acos(glm::dot(glm::normalize(m_Path_HandPos[Path_index] - CircleCenterList[Path_index]), glm::normalize(m_Path_HandPos[Path_index + 1] - CircleCenterList[Path_index])));
-					glm::vec4 TempHandPos = glm::vec4(Path_HandPos_Last - CircleCenterList[Path_index], 1.0f);
+					float theata1 = acos(glm::dot(glm::normalize(glm::vec3(m_Path_HandPos[Path_index].x - CircleCenterList[Path_index].x, 0.0f, m_Path_HandPos[Path_index].z - CircleCenterList[Path_index].z)), glm::normalize(glm::vec3(m_Path_HandPos[Path_index + 1].x - CircleCenterList[Path_index].x, 0.0f, m_Path_HandPos[Path_index + 1].z - CircleCenterList[Path_index].z))));
+					glm::vec4 TempHandPos = glm::vec4(Path_HandPos_Last.x - CircleCenterList[Path_index].x, 0.0f, Path_HandPos_Last.z - CircleCenterList[Path_index].z, 1.0f);
 					glm::qua<float> Quaternion1 = glm::qua<float>(glm::vec3(0.0f, theata1 * deltaTime / (thisTotalTime), 0.0f));
 					glm::mat4 RotateMatrix1 = glm::mat4(1.0f);
 					RotateMatrix1 = glm::mat4_cast(Quaternion1) * RotateMatrix1;
 					TempHandPos = RotateMatrix1 * TempHandPos;
-					Path_HandPos_Now = glm::vec3(TempHandPos.x, TempHandPos.y, TempHandPos.z) + CircleCenterList[Path_index];
+					Path_HandPos_Now = glm::vec3(TempHandPos.x, Path_HandPos_Last.y + (m_Path_HandPos[Path_index + 1].y - Path_HandPos_Last.y) * deltaTime / (thisTotalTime - TimeNow), TempHandPos.z) + glm::vec3(CircleCenterList[Path_index].x, 0.0f, CircleCenterList[Path_index].z);
 // 					float d11 = sqrt((m_Path_HandPos[Path_index + 1].x - m_Path_HandPos[Path_index].x) * (m_Path_HandPos[Path_index + 1].x - m_Path_HandPos[Path_index].x) + (m_Path_HandPos[Path_index + 1].z - m_Path_HandPos[Path_index].z) * (m_Path_HandPos[Path_index + 1].z - m_Path_HandPos[Path_index].z)) / 2.0f / sin(theata1 / 2.0);
 // 					float d21 = 2.0 * d11 * sin(TimeNow * theata1 / 2.0 / thisTotalTime);
 // 					float d31 = 2.0 * d11 * sin((thisTotalTime - TimeNow) * theata1 / 2.0 / thisTotalTime);

@@ -100,6 +100,7 @@ namespace Hazel
 				FactoryLightPos[(i * 5 + j) * 2 + 1] = LightPosZ[j];
 				lightMM = glm::mat4(1.0f);
 				lightModelMatrices[i * 5 + j] = glm::translate(lightMM, glm::vec3(LightPosX[i], LightPosY, LightPosZ[j]));
+				lightModelMatrices[i * 5 + j] = glm::scale(lightModelMatrices[i * 5 + j], glm::vec3(1.5f,1.5f,1.5f));
 			}
 		}
 		light.reset(new Model("res/models/light/light.obj"));
@@ -773,7 +774,9 @@ namespace Hazel
 			OpenGLRendererAPI::ClearDepth();
 
 			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendColor(0, 0, 0, 1.0);
+			glBlendFunc(GL_SRC_ALPHA, GL_CONSTANT_ALPHA);
+			
 			LightShader->Bind();
 			LightShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
 			glActiveTexture(GL_TEXTURE12);
@@ -786,8 +789,10 @@ namespace Hazel
 				LightSorted[dis] = lightModelMatrices[i];
 				
 			}
+			//int alpha = 
 			for (std::map<float, glm::mat4>::reverse_iterator it = LightSorted.rbegin(); it != LightSorted.rend(); ++it)
-			{
+			{	
+				
 				LightShader->SetUniformMat4("model", it->second);
 				OpenGLRendererAPI::Draw(light, LightShader);
 			}
@@ -795,8 +800,17 @@ namespace Hazel
 			LightShader->Unbind();
 
 			framebuffer6->Unbind();
-			
-			framebuffer6->Draw(ScreenBasicShader, QuadID6);
+			BloomShader->Bind();
+			BloomShader->SetUniform1f("width0", widthB0);
+			BloomShader->SetUniform1f("height0", heightB0);
+			BloomShader->SetUniform1f("width1", widthB1);
+			BloomShader->SetUniform1f("height1", heightB1);
+			glActiveTexture(GL_TEXTURE13);
+			glBindTexture(GL_TEXTURE_2D, framebufferCM->GetTexID());
+			BloomShader->SetUniform1i("cameramap", 13);
+			//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			framebuffer6->Draw(BloomShader, QuadID6);
+			BloomShader->Unbind();
 			glDisable(GL_BLEND);
 
 

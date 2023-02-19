@@ -418,8 +418,10 @@ namespace Hazel {
 // 		ImGui::InputFloat(u8"planeP", &Application::Get().planeP);
 		//ImGui::InputFloat(u8"F0", &Application::Get().F0);
 		//ImGui::InputFloat(u8"fp", &Application::Get().fp);
-		
-		
+		ImGui::InputFloat(u8"widthB0", &Application::Get().widthB0);
+		ImGui::InputFloat(u8"heightB0", &Application::Get().heightB0);
+		ImGui::InputFloat(u8"widthB1", &Application::Get().widthB1);
+		ImGui::InputFloat(u8"heightB1", &Application::Get().heightB1);
 
 		ImGui::End();
 
