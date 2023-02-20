@@ -93,9 +93,10 @@ namespace Hazel {
 		void ChangePos(glm::vec3 ChangedPos);
 		void ChangePos(glm::vec3 ChangedPos, int objectindex, int index);
 		void ChangeRotate(glm::vec3 ChangedRotate);
-		void ChangeRotateD(glm::vec3 ChangedRotate);
+		//void ChangeRotateD(glm::vec3 ChangedRotate);
 		void ChangeRotate(glm::vec3 ChangedRotate, int objectindex, int index);
-		void ChangeRotateD(glm::vec3 ChangedRotate, int objectindex, int index);
+		//void ChangeRotateD(glm::vec3 ChangedRotate, int objectindex, int index);
+		void ChangeRotateQ(glm::qua<float> RotateQuaternion, int objectindex, int index);
 		
 		void ChangeHandPos(glm::vec3 ChangedHandPos);
 		void ChangeHandPos(glm::vec3 ChangedHandPos, int objectindex, int index);
@@ -149,6 +150,7 @@ namespace Hazel {
 		glm::vec3 load_pos = glm::vec3(0.0f);
 		glm::vec3 load_rotate = glm::vec3(0.0f);
 		//std::vector<float> load_angle;
+		glm::vec3 SolveEularAngle(glm::qua<float> RotateQuaternion, glm::vec3 lastEular);
 	};
 
 

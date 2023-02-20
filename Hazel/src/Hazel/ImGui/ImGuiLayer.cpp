@@ -377,7 +377,7 @@ namespace Hazel {
 			{
 				LastRotate = Application::Get().objects->GetRotate() * glm::vec3(180.0f / PI);
 				//glm::vec3 temp = Application::Get().objects->GetRotate();
-				Application::Get().objects->ChangeRotateD(glm::vec3(Rotate.x,Rotate.y, Rotate.z)* PI / 180.0f);
+				Application::Get().objects->ChangeRotate(glm::vec3(Rotate.x,Rotate.y, Rotate.z)* PI / 180.0f);
 			}
 			
 		}
@@ -418,10 +418,11 @@ namespace Hazel {
 // 		ImGui::InputFloat(u8"planeP", &Application::Get().planeP);
 		//ImGui::InputFloat(u8"F0", &Application::Get().F0);
 		//ImGui::InputFloat(u8"fp", &Application::Get().fp);
-		ImGui::InputFloat(u8"widthB0", &Application::Get().widthB0);
-		ImGui::InputFloat(u8"heightB0", &Application::Get().heightB0);
-		ImGui::InputFloat(u8"widthB1", &Application::Get().widthB1);
-		ImGui::InputFloat(u8"heightB1", &Application::Get().heightB1);
+// 		ImGui::InputFloat(u8"widthB0", &Application::Get().widthB0);
+// 		ImGui::InputFloat(u8"heightB0", &Application::Get().heightB0);
+// 		ImGui::InputFloat(u8"widthB1", &Application::Get().widthB1);
+// 		ImGui::InputFloat(u8"heightB1", &Application::Get().heightB1);
+		
 
 		ImGui::End();
 
@@ -442,10 +443,11 @@ namespace Hazel {
 			ImGui::InputFloat(u8"时间间隔", &PathTime, 0.0f, 10000.0f, "%.1f");
 			//ImGui::PushItemWidth(10);
 			ImGui::SameLine();
+			glm::qua<float> RotateQuaternion = Application::Get().objects->GetRotateQuaternion();
 			if (ImGui::Button(u8"设点"))
 			{
 				Application::Get().objects->GetMyAnimation().SetPathPos(Pos * 10.0f);
-				Application::Get().objects->GetMyAnimation().SetPathRotate(Rotate * PI / 180.0f);
+				Application::Get().objects->GetMyAnimation().SetPathRotate(RotateQuaternion);
 				Application::Get().objects->GetMyAnimation().SetPathHandPos(Application::Get().objects->GetHandPos());
 				Application::Get().objects->GetMyAnimation().SetPathHandEular(Application::Get().objects->GetHandEular());
 				Application::Get().objects->GetMyAnimation().SetPathTime(PathTime);
@@ -471,7 +473,7 @@ namespace Hazel {
 						Application::Get().objects->GetAnimation(i, j).Playing = true;
 						Application::Get().objects->ChangePos(Application::Get().objects->GetAnimation(i, j).GetPathKeyPos(0) - Application::Get().objects->GetPos(i, j), i, j);
 						//for(int k = Application::Get().objects->GetAnimation(i, j).GetPathKeySize()-1;k>-1;k--)
-						Application::Get().objects->ChangeRotateD(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(0),i,j);
+						Application::Get().objects->ChangeRotateQ(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(0),i,j);
 						Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(0),i,j);
 						Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(0),i,j);
 					}
@@ -547,7 +549,7 @@ namespace Hazel {
 									if (ImGui::Button(ButtomName.c_str()))
 									{
 										Application::Get().objects->ChangePos(Application::Get().objects->GetAnimation(i, j).GetPathKeyPos(index) - Application::Get().objects->GetPos(i, j), i, j);
-										Application::Get().objects->ChangeRotateD(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(index), i, j);
+										Application::Get().objects->ChangeRotateQ(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(index), i, j);
 										Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(index), i, j);
 										Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(index), i, j);
 										if (Application::Get().objects->objects[i].m_HaveAngle)

@@ -260,6 +260,9 @@ namespace Hazel
 		float heightB0 = 1000.0f;//bloom核最小高
 		float widthB1 = 15000.0f;//bloom核最大宽
 		float heightB1 = 10000.0f;//bloom核最大高
+
+		
+		
 	};
 
 	Application* CreateApplication();

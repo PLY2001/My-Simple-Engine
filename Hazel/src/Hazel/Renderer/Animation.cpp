@@ -23,9 +23,9 @@ namespace Hazel {
 		m_Path_Pos.push_back(Pos);
 	}
 
-	void Animation::SetPathRotate(glm::vec3 Rotate)
+	void Animation::SetPathRotate(glm::qua<float> RotateQuaternion)
 	{
-		m_Path_Rotate.push_back(Rotate);
+		m_Path_Rotate.push_back(RotateQuaternion);
 	}
 
 	void Animation::SetPathHandPos(glm::vec3 HandPos)
@@ -66,7 +66,8 @@ namespace Hazel {
 			if(pathmodelist[Path_index] == PathMode::Straght)
 			{
 				Path_Pos_Now = Path_Pos_Last + (m_Path_Pos[Path_index + 1] - Path_Pos_Last) * deltaTime / (thisTotalTime - TimeNow);
-				Path_Rotate_Now = Path_Rotate_Last + (m_Path_Rotate[Path_index + 1] - Path_Rotate_Last) * deltaTime / (thisTotalTime - TimeNow);
+				Path_Rotate_Now = glm::slerp(Path_Rotate_Last, m_Path_Rotate[Path_index + 1], deltaTime / (thisTotalTime - TimeNow));
+				
 				if (HaveAngle)
 				{
 					Path_HandPos_Now = Path_HandPos_Last + (m_Path_HandPos[Path_index + 1] - Path_HandPos_Last) * deltaTime / (thisTotalTime - TimeNow);
@@ -109,7 +110,8 @@ namespace Hazel {
 // 					Path_Pos_Now = glm::vec3((b1 * a22 - a12 * b2) / (a11 * a22 - a12 * a21), Path_Pos_Last.y, (a11 * b2 - b1 * a21) / (a11 * a22 - a12 * a21));
 // 				}
 				
-				Path_Rotate_Now = Path_Rotate_Last + (m_Path_Rotate[Path_index + 1] - Path_Rotate_Last) * deltaTime / (thisTotalTime - TimeNow);
+				//Path_Rotate_Now = Path_Rotate_Last + (m_Path_Rotate[Path_index + 1] - Path_Rotate_Last) * deltaTime / (thisTotalTime - TimeNow);
+				Path_Rotate_Now = glm::slerp(Path_Rotate_Last, m_Path_Rotate[Path_index + 1], deltaTime / (thisTotalTime-TimeNow));
 				
 				
 				if (HaveAngle)
@@ -181,12 +183,129 @@ namespace Hazel {
 		return pathpoint;
 	}
 
+	glm::vec3 Animation::SolveEularAngle(glm::qua<float> RotateQuaternion)
+	{
+		glm::vec3 Eular = glm::vec3(0.0f);
+		glm::mat4 Matrix = glm::mat4_cast(RotateQuaternion);
+		//  		float q0 = RotateQuaternion.w;
+		//  		float q1 = RotateQuaternion.x;
+		//  		float q2 = RotateQuaternion.y;
+		//  		float q3 = RotateQuaternion.z;
+		//   		float A13 = -2 * q0 * q2 + 2 * q1 * q3;
+		//   		float A21 = -2 * q0 * q3 + 2 * q1 * q2;
+		//   		float A22 = q0 * q0 - q1 * q1 + q2 * q2 - q3 * q3;
+		//   		float A23 = 2 * q0 * q1 + 2 * q2 * q3;
+		//   		float A33 = q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3;
+		float A13 = Matrix[2][0];
+		float A12 = Matrix[1][0];
+		float A11 = Matrix[0][0];
+		float A23 = Matrix[2][1];
+		float A33 = Matrix[2][2];
+		if (A11 >= 0 || A33 >= 0)
+		{
+			Eular.y = asin(A13);
+		}
+		else if (A11 < 0 && A33 < 0 && A13 >= 0)
+		{
+			Eular.y = PI - asin(A13);
+		}
+		else if (A11 < 0 && A33 < 0 && A13 <= 0)
+		{
+			Eular.y = -PI - asin(A13);
+		}
+
+		//if (cos(Eular.y) > -0.001 && cos(Eular.y) < 0.001)
+		//{
+			//Eular.x = lastEular.x;
+			//Eular.z = lastEular.z;
+		//}
+		//else
+		//{
+			float temp = -A12 / A11;
+			if (temp > 2 && A11 >= 0)
+			{
+				Eular.z = PI / 2 - atan(-A11 / A12);
+			}
+			if (temp > 2 && A11 <= 0)
+			{
+				Eular.z = -PI / 2 - atan(-A11 / A12);
+			}
+			if (temp >= 0 && temp <= 2 && A11 > 0)
+			{
+				Eular.z = atan(temp);
+			}
+			if (temp >= 0 && temp <= 2 && A11 < 0)
+			{
+				Eular.z = -PI + atan(temp);
+			}
+			if (temp > -2 && temp <= 0 && A11 > 0)
+			{
+				Eular.z = atan(temp);
+			}
+			if (temp > -2 && temp <= 0 && A11 < 0)
+			{
+				Eular.z = PI + atan(temp);
+			}
+			if (temp <= -2 && A11 >= 0)
+			{
+				Eular.z = -PI / 2 - atan(-A11 / A12);
+			}
+			if (temp <= -2 && A11 <= 0)
+			{
+				Eular.z = PI / 2 - atan(-A11 / A12);
+			}
+
+			temp = -A23 / A33;
+			if (temp > 2 && A33 >= 0)
+			{
+				Eular.x = PI / 2 - atan(-A33 / A23);
+			}
+			if (temp > 2 && A33 <= 0)
+			{
+				Eular.x = -PI / 2 - atan(-A33 / A23);
+			}
+			if (temp >= 0 && temp <= 2 && A33 > 0)
+			{
+				Eular.x = atan(temp);
+			}
+			if (temp >= 0 && temp <= 2 && A33 < 0)
+			{
+				Eular.x = -PI + atan(temp);
+			}
+			if (temp > -2 && temp <= 0 && A33 > 0)
+			{
+				Eular.x = atan(temp);
+			}
+			if (temp > -2 && temp <= 0 && A33 < 0)
+			{
+				Eular.x = PI + atan(temp);
+			}
+			if (temp <= -2 && A33 >= 0)
+			{
+				Eular.x = -PI / 2 - atan(-A33 / A23);
+			}
+			if (temp <= -2 && A33 <= 0)
+			{
+				Eular.x = PI / 2 - atan(-A33 / A23);
+			}
+		//}
+		// 		if (sin(Eular.x) > -0.001 && sin(Eular.x) < 0.001)
+		// 		{
+		// 			Eular.x = lastEular.x;
+		// 		}
+		// 		if (sin(Eular.z) > -0.001 && sin(Eular.z) < 0.001)
+		// 		{
+		// 			Eular.z = lastEular.z;
+		// 		}
+		return Eular;
+	}
+
 	glm::vec3 Animation::GetPathKeyPos(int index)
 	{
 		return m_Path_Pos[index];
 	}
 
-	glm::vec3 Animation::GetPathKeyRotate(int index)
+	glm::qua<float> Animation::GetPathKeyRotate(int index)
 	{
 		return m_Path_Rotate[index];
 	}

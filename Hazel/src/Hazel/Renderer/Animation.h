@@ -1,12 +1,12 @@
 #pragma once
 #include<numeric>
-
+#define PI 3.1415926
 namespace Hazel {
 
 	struct PathPoint
 	{
 		glm::vec3 Path_Pos = glm::vec3(0.0f);
-		glm::vec3 Path_Rotate = glm::vec3(0.0f);
+		glm::qua<float> Path_Rotate = glm::qua<float>(glm::vec3(0.0f));
 		glm::vec3 Path_HandPos = glm::vec3(0.0f);
 		glm::vec3 Path_HandEular = glm::vec3(0.0f);
 	};
@@ -23,8 +23,8 @@ namespace Hazel {
 		void SetPathPos(glm::vec3 Pos);
 		glm::vec3 GetPathKeyPos(int index);
 
-		void SetPathRotate(glm::vec3 Rotate);
-		glm::vec3 GetPathKeyRotate(int index);
+		void SetPathRotate(glm::qua<float> RotateQuaternion);
+		glm::qua<float> GetPathKeyRotate(int index);
 
 		void SetPathHandPos(glm::vec3 HandPos);
 		glm::vec3 GetPathKeyHandPos(int index);
@@ -63,9 +63,9 @@ namespace Hazel {
 		glm::vec3 Path_Pos_Last = glm::vec3(0.0f);
 
 
-		std::vector<glm::vec3> m_Path_Rotate;
-		glm::vec3 Path_Rotate_Now = glm::vec3(0.0f);
-		glm::vec3 Path_Rotate_Last = glm::vec3(0.0f);
+		std::vector<glm::qua<float>> m_Path_Rotate;
+		glm::qua<float> Path_Rotate_Now = glm::qua<float>(glm::vec3(0.0f));
+		glm::qua<float> Path_Rotate_Last = glm::qua<float>(glm::vec3(0.0f));
 
 
 		std::vector<glm::vec3> m_Path_HandPos;
@@ -81,6 +81,8 @@ namespace Hazel {
 		std::vector<glm::vec3> CircleCenterList;
 
 		bool HaveAngle = false;
+
+		glm::vec3 SolveEularAngle(glm::qua<float> m_RotateQuaternion);
 	};
 
 	

@@ -275,7 +275,7 @@ namespace Hazel
 // 			{
 // 				glfwSetCursorPos((GLFWwindow*)s_Instance->GetWindow().GetNativeWindow(), s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight());
 // 			}
-			
+
 			//相机键盘输入控制
 			camera->KeyControl(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), deltaTime);
 			//ShadowMapWidth = (int)(8192.0f / camera->GetPosition().y);
@@ -323,8 +323,8 @@ namespace Hazel
 
 			//将model矩阵数组填入irb120的实例化数组
 			insbos->SetDatamat4(objects);
-			
-			
+
+
 
 			//向uniform缓冲对象填入相机的view、projection矩阵数据
 			ubo->SetDatamat4(0, sizeof(glm::mat4), &ViewMatrix);
@@ -357,14 +357,14 @@ namespace Hazel
 				{
 					OpenGLRendererAPI::DrawInstanced(objects->objects[i].m_Model, ShadowMapShader, objects->GetAmount(i));//绘制需要投射阴影的物体
 				}
-				
+
 				ShadowMapShader->Unbind();
 				framebufferSM->Unbind();
 				/*
 				ShadowColorMapShader->Bind();
 				ShadowColorMapShader->SetUniformMat4("view", LightViewMatrix);
 				ShadowColorMapShader->SetUniformMat4("projection", LightProjectionMatrix);
-				
+
 				glActiveTexture(GL_TEXTURE11);
 				glBindTexture(GL_TEXTURE_2D, framebufferSM->GetTexID());
 				ShadowColorMapShader->SetUniform1i("shadowmap", 11);
@@ -375,7 +375,7 @@ namespace Hazel
 				OpenGLRendererAPI::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 				OpenGLRendererAPI::ClearColor();
 				OpenGLRendererAPI::ClearDepth();
-				
+
 				for (int i = 0; i < objects->GetObjectAmount(); i++)
 				{
 					OpenGLRendererAPI::DrawInstanced(objects->objects[i].m_Model, ShadowColorMapShader, objects->GetAmount(i));//绘制需要投射阴影的物体
@@ -424,7 +424,7 @@ namespace Hazel
 				glViewport(0, 0, s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight());//还原视口尺寸
 			}
 
-			
+
 
 			//摄像机深度信息
 			CameraDepthMapShader->Bind();
@@ -438,7 +438,7 @@ namespace Hazel
 			OpenGLRendererAPI::Draw(plane, CameraDepthMapShader);
 			framebufferCM->Unbind();
 
-			
+
 
 			CameraDepthMapShader->Unbind();
 
@@ -468,11 +468,11 @@ namespace Hazel
 				aabb->Draw(objects->GetAABBMinPos(), objects->GetAABBMaxPos());
 
 
-				
+
 
 			}
 
-			
+
 
 			OpenGLRendererAPI::CullFace("BACK");
 
@@ -491,7 +491,7 @@ namespace Hazel
 			shader->SetUniform1f("p", basicP);
 			shader->SetUniform1f("F0", F0);
 			shader->SetUniform1f("fp", fp);
-			
+
 			//绘制真实物体
 			for (int i = 0; i < objects->GetObjectAmount(); i++)
 			{
@@ -503,11 +503,11 @@ namespace Hazel
 			PlaneShader->Bind();
 
 			//向shader发送灯光位置和相机位置
-			
+
 			//PlaneShader->SetUniform4f("u_LightPosition", -0.76f, 27.64f, -0.12f, 1.0f);
-			
+
 			PlaneShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
-			
+
 			PlaneShader->SetUniform1fArray("u_LightPosition", FactoryLightPos, 70);
 			PlaneShader->SetUniform1f("p", planeP);
 
@@ -519,7 +519,7 @@ namespace Hazel
 			}
 
 			PlaneShader->Unbind();
-			
+
 
 
 
@@ -549,7 +549,7 @@ namespace Hazel
 				OpenGLRendererAPI::ClearColor();
 				framebuffer1->Draw(ScreenBasicShader, QuadID);
 
-				
+
 			}
 			if (graphicmode == GraphicMode::Normal)
 			{
@@ -698,7 +698,7 @@ namespace Hazel
 // 					glDisable(GL_BLEND);
 
 
-				if(ShadowGaussian)
+				if (ShadowGaussian)
 				{
 					//fifth pass
 					//对阴影高斯滤波
@@ -736,10 +736,10 @@ namespace Hazel
 					glDisable(GL_BLEND);
 				}
 
-				
-				
 
-				
+
+
+
 
 				//绘制移动箭头
 // 					if(irb120->GetChoosedIndex()>-1||Choosed)
@@ -766,53 +766,58 @@ namespace Hazel
 
 
 			}
-
-			framebuffer6->Bind();
-
-			OpenGLRendererAPI::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
-			OpenGLRendererAPI::ClearColor();
-			OpenGLRendererAPI::ClearDepth();
-
-			glEnable(GL_BLEND);
-			glBlendColor(0, 0, 0, 1.0);
-			glBlendFunc(GL_SRC_ALPHA, GL_CONSTANT_ALPHA);
-			
-			LightShader->Bind();
-			LightShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
-			glActiveTexture(GL_TEXTURE12);
-			glBindTexture(GL_TEXTURE_2D, framebufferCM->GetTexID());
-			LightShader->SetUniform1i("cameramap", 12);
-			LightSorted.clear();
-			for (int i = 0; i < 35; i++)
+			if(graphicmode!=GraphicMode::Outline)
 			{
-				float dis = glm::length(camera->GetPosition() - glm::vec3(FactoryLightPos[2 * i], 27.64f, FactoryLightPos[2 * i + 1]));
-				LightSorted[dis] = lightModelMatrices[i];
+				framebuffer6->Bind();
+
 				
-			}
-			//int alpha = 
-			for (std::map<float, glm::mat4>::reverse_iterator it = LightSorted.rbegin(); it != LightSorted.rend(); ++it)
-			{	
+				OpenGLRendererAPI::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+				OpenGLRendererAPI::ClearColor();
+				OpenGLRendererAPI::ClearDepth();
 				
-				LightShader->SetUniformMat4("model", it->second);
-				OpenGLRendererAPI::Draw(light, LightShader);
+				
+
+				glEnable(GL_BLEND);
+				glBlendColor(0, 0, 0, 1.0);
+				glBlendFunc(GL_SRC_ALPHA, GL_CONSTANT_ALPHA);
+
+				LightShader->Bind();
+				LightShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
+				glActiveTexture(GL_TEXTURE12);
+				glBindTexture(GL_TEXTURE_2D, framebufferCM->GetTexID());
+				LightShader->SetUniform1i("cameramap", 12);
+				LightSorted.clear();
+				for (int i = 0; i < 35; i++)
+				{
+					float dis = glm::length(camera->GetPosition() - glm::vec3(FactoryLightPos[2 * i], 27.64f, FactoryLightPos[2 * i + 1]));
+					LightSorted[dis] = lightModelMatrices[i];
+
+				}
+				//int alpha = 
+				for (std::map<float, glm::mat4>::reverse_iterator it = LightSorted.rbegin(); it != LightSorted.rend(); ++it)
+				{
+
+					LightShader->SetUniformMat4("model", it->second);
+					OpenGLRendererAPI::Draw(light, LightShader);
+				}
+
+				LightShader->Unbind();
+
+				framebuffer6->Unbind();
+				BloomShader->Bind();
+				BloomShader->SetUniform1f("width0", widthB0);
+				BloomShader->SetUniform1f("height0", heightB0);
+				BloomShader->SetUniform1f("width1", widthB1);
+				BloomShader->SetUniform1f("height1", heightB1);
+				glActiveTexture(GL_TEXTURE13);
+				glBindTexture(GL_TEXTURE_2D, framebufferCM->GetTexID());
+				BloomShader->SetUniform1i("cameramap", 13);
+				//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				framebuffer6->Draw(BloomShader, QuadID6);
+				BloomShader->Unbind();
+				glDisable(GL_BLEND);
 			}
 			
-			LightShader->Unbind();
-
-			framebuffer6->Unbind();
-			BloomShader->Bind();
-			BloomShader->SetUniform1f("width0", widthB0);
-			BloomShader->SetUniform1f("height0", heightB0);
-			BloomShader->SetUniform1f("width1", widthB1);
-			BloomShader->SetUniform1f("height1", heightB1);
-			glActiveTexture(GL_TEXTURE13);
-			glBindTexture(GL_TEXTURE_2D, framebufferCM->GetTexID());
-			BloomShader->SetUniform1i("cameramap", 13);
-			//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			framebuffer6->Draw(BloomShader, QuadID6);
-			BloomShader->Unbind();
-			glDisable(GL_BLEND);
-
 
 			if (objects->GetChoosedIndex() > -1)//绘制原点
 			{
@@ -831,7 +836,7 @@ namespace Hazel
 					{
 						PathPoint pathpoint = objects->GetAnimation(i, j).GetPathPoint(deltaTime);
 						objects->ChangePos(pathpoint.Path_Pos,i,j);//动画3s
-						objects->ChangeRotate(pathpoint.Path_Rotate,i,j);//动画3s
+						objects->ChangeRotateQ(pathpoint.Path_Rotate,i,j);//动画3s
 						objects->ChangeHandPos(pathpoint.Path_HandPos, i, j);//动画3s
 						objects->ChangeHandEular(pathpoint.Path_HandEular, i, j);//动画3s
 						if(objects->objects[i].m_HaveAngle)
@@ -1028,7 +1033,7 @@ namespace Hazel
 			{
 				LastWorldClickPos = WorldClickPos;
 				//LastArrowPos = ArrowPos;
-				FirstRotate = objects->GetRotate();
+				
 				first = false;
 			}
 			if (m_ControlLayer->GetArrowMode() == ControlLayer::ArrowMode::Trans)
@@ -1054,10 +1059,11 @@ namespace Hazel
 					//m_ControlLayer->rotateArrow->ChangePos(glm::vec3(ArrowPos.x - LastArrowPos.x, 0.0f, 0.0f));
 
 				}
-				LastWorldClickPos = WorldClickPos;
+				
 			}
 			if (m_ControlLayer->GetArrowMode() == ControlLayer::ArrowMode::Rotat)
 			{
+				FirstRotate = objects->GetRotate();
 				if (axis == 0)//y
 				{
 					glm::vec2 WorldClickVec = glm::normalize(glm::vec2(WorldClickPos.x - objects->GetPos().x, WorldClickPos.z - objects->GetPos().z));
@@ -1098,7 +1104,7 @@ namespace Hazel
 
 
 			}
-			
+			LastWorldClickPos = WorldClickPos;
 			//LastArrowPos = ArrowPos;
 		}
 

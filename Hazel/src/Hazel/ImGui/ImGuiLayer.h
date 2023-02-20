@@ -38,6 +38,8 @@ namespace Hazel {
 
 		int SaveAddress = 0;
 		int LoadAddress = 0;
+
+
 	};
 
 }
