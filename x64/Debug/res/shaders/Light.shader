@@ -77,6 +77,8 @@ void main()
 	vec3 projcoords = fs_in.v_CenterProjPosition.xyz/fs_in.v_CenterProjPosition.w;
 	projcoords = projcoords*0.5f+0.5f;//由-1到1转为0到1
 	float depth = texture(cameramap,projcoords.xy).r;
+	//vec3 projcoords = vec3(gl_FragCoord.x/2400.0f,gl_FragCoord.y/1600.0f,gl_FragCoord.z);
+	//float depth = texture(cameramap,projcoords.xy).r;
 	if(depth>projcoords.z&&depth<1)
 	{
 		vec4 diffuseColor=texture(material.texture_diffuse1,fs_in.v_texcoord);

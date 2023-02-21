@@ -1383,6 +1383,7 @@ namespace Hazel {
 
 						writer1.Key("a_rotate");
 						writer1.StartArray();
+						writer1.Double(object.m_Anima[i].GetPathKeyRotate(j).w);
 						writer1.Double(object.m_Anima[i].GetPathKeyRotate(j).x);
 						writer1.Double(object.m_Anima[i].GetPathKeyRotate(j).y);
 						writer1.Double(object.m_Anima[i].GetPathKeyRotate(j).z);
@@ -1757,7 +1758,12 @@ namespace Hazel {
 												if (object3.HasMember("a_rotate") && object3["a_rotate"].IsArray())
 												{
 													const rapidjson::Value& array10 = object3["a_rotate"];
-													objects[i].m_Anima[j].SetPathRotate(glm::vec3(array10[0].GetDouble(), array10[1].GetDouble(), array10[2].GetDouble()));
+													glm::qua<float> quaternion = glm::qua<float>(glm::vec3(0.0f));
+													quaternion.w = array10[0].GetDouble();
+													quaternion.x = array10[1].GetDouble();
+													quaternion.y = array10[2].GetDouble();
+													quaternion.z = array10[3].GetDouble();
+													objects[i].m_Anima[j].SetPathRotate(quaternion);
 
 												}
 
@@ -1827,21 +1833,33 @@ namespace Hazel {
 //   		float A23 = 2 * q0 * q1 + 2 * q2 * q3;
 //   		float A33 = q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3;
 		float A13 = Matrix[2][0];
+		if (A13 > 1.0f)
+		{
+			A13 = 1.0f;
+		}
+		if (A13 < -1.0f)
+		{
+			A13 = -1.0f;
+		}
 		float A12 = Matrix[1][0];
 		float A11 = Matrix[0][0];
 		float A23 = Matrix[2][1];
 		float A33 = Matrix[2][2];
+		//int mode = 0;
 		if (A11 >= 0 || A33 >= 0)
 		{
 			Eular.y = asin(A13);
+			//mode = 1;
 		}
 		else if (A11 < 0 && A33 < 0 && A13 >= 0)
 		{
 			Eular.y = PI - asin(A13);
+			//mode = 2;
 		}
 		else if (A11 < 0 && A33 < 0 && A13 <= 0)
 		{
 			Eular.y = -PI - asin(A13);
+			//mode = 3;
 		}
 
 		if (cos(Eular.y) > -0.001&& cos(Eular.y) < 0.001)
@@ -1927,6 +1945,18 @@ namespace Hazel {
 // 		{
 // 			Eular.z = lastEular.z;
 // 		}
+		if (Eular.x > PI || Eular.x < -PI)
+		{
+			Eular.x = lastEular.x;
+		}
+		if (Eular.y > PI || Eular.y < -PI)
+		{
+			Eular.y = lastEular.y;
+		}
+		if (Eular.z > PI || Eular.z < -PI)
+		{
+			Eular.z = lastEular.z;
+		}
 		return Eular;
 	}
 

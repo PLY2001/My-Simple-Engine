@@ -83,7 +83,7 @@ namespace Hazel
 		std::shared_ptr<Shader> OriginShader;
 		std::shared_ptr<Shader> PlaneShader;
 		std::shared_ptr<Shader> LightShader;
-
+		std::shared_ptr<Shader> LoadingShader;
 		//灯光
 		float count = 0;
 		std::unique_ptr<Light> PointLight;
@@ -135,11 +135,15 @@ namespace Hazel
 		//std::unique_ptr<FrameBuffer> framebufferCM1;
 		std::unique_ptr<FrameBuffer> framebuffer6;
 		unsigned int QuadID6;//绘制光晕的平面
+		//std::unique_ptr<FrameBuffer> framebufferLoading;
+		//unsigned int QuadIDLoading;//绘制光晕的平面
+
 		/*IRB120*/
 		
 		/*平面*/
 		std::shared_ptr<Model> plane;
 		std::shared_ptr<Model> light;
+		std::shared_ptr<Model> LoadingModel;
 
 		//std::shared_ptr<Model> ArrowModel;
 		
@@ -204,6 +208,7 @@ namespace Hazel
 		glm::mat4 ViewMatrix;
 		glm::mat4 ProjectionMatrix;
 
+		
 		std::shared_ptr<InstanceBufferObjects> insbos;
 		std::shared_ptr<Model> IRB120Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::shared_ptr<Model> Belt1Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
@@ -261,8 +266,9 @@ namespace Hazel
 		float widthB1 = 15000.0f;//bloom核最大宽
 		float heightB1 = 10000.0f;//bloom核最大高
 
+		float BloomSize = 25.0f;//bloom深浅
 		
-		
+
 	};
 
 	Application* CreateApplication();

@@ -7,7 +7,7 @@ int main(int argc, char** argv)
 {
 	Hazel::Log::Init();
 	//HZ_CORE_ERROR("Error!");
-	HZ_CLIENT_WARN("Value = {0}",5);
+	HZ_CLIENT_INFO("Welcome!");
 
 	auto app = Hazel::CreateApplication();
 	app->Run();

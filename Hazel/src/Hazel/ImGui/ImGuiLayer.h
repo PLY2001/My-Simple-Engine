@@ -21,11 +21,13 @@ namespace Hazel {
 
 		void Begin();
 		void End();
+
+		void Loading(std::string info);
 	private:
 		float m_Time = 0.0f; 
 		glm::vec3 Pos = glm::vec3(0.0f);
 		glm::vec3 Rotate = glm::vec3(0.0f);
-		glm::vec3 LastRotate = glm::vec3(0.0f);
+		//glm::vec3 LastRotate = glm::vec3(0.0f);
 		glm::vec3 HandPos = glm::vec3(0.0f);
 		glm::vec3 HandEular = glm::vec3(0.0f);
 		bool Saved = false;
@@ -39,6 +41,9 @@ namespace Hazel {
 		int SaveAddress = 0;
 		int LoadAddress = 0;
 
+		bool RotateChange = false;
+		bool PosChange = false;
+		//bool firstRotateChange = true;
 
 	};
 

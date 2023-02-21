@@ -25,7 +25,7 @@ uniform float height0;
 uniform float width1;
 uniform float height1;
 uniform sampler2D cameramap;
-
+uniform float BloomSize;
 
 void main() 
 {
@@ -46,6 +46,6 @@ void main()
 
 		}
 	}
-	
-	color = vec4(texColor/25.0f);
+	//texColor = texColor/BloomSize + texture(screenTexture,Texcoords.xy);
+	color = texColor/25.0f;
 }

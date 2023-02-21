@@ -95,6 +95,15 @@ namespace Hazel {
 		}
 	}
 
+	void ImGuiLayer::Loading(std::string info)
+	{
+		ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+		ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+		ImGui::Begin("info");
+		ImGui::Text(info.c_str());
+		ImGui::End();
+	}
+
 	void ImGuiLayer::OnImGuiRender()//ImGui绘制内容
 	{
 		//static bool show = true;
@@ -368,16 +377,38 @@ namespace Hazel {
 		{
 			Pos = Application::Get().objects->GetPos()/10.0f;
 			
-			Rotate = Application::Get().objects->GetRotate() * glm::vec3(180.0f / PI);;
+			Rotate = Application::Get().objects->GetRotate() * glm::vec3(180.0f / PI);
+			
 			if (ImGui::InputFloat3(u8"平移(m)", (float*)&Pos))
 			{
-				Application::Get().objects->ChangePos(Pos*10.0f - Application::Get().objects->GetPos());
+				if (ImGui::IsKeyDown(ImGuiKey_Enter))
+				{
+					PosChange = true;
+
+				}
+				
 			}
-			if (ImGui::InputFloat3(u8"旋转(degree)", (float*)&Rotate))
+			if (PosChange)
 			{
-				LastRotate = Application::Get().objects->GetRotate() * glm::vec3(180.0f / PI);
+				Application::Get().objects->ChangePos(Pos * 10.0f - Application::Get().objects->GetPos());
+				PosChange = false;
+			}
+			
+			if (ImGui::InputFloat3(u8"旋转(degree)", (float*)&Rotate, "%.1f"))
+			{
+				if (ImGui::IsKeyDown(ImGuiKey_Enter))
+				{
+					RotateChange = true;
+					
+				}
+				
+			}
+			if (RotateChange)
+			{
+				
 				//glm::vec3 temp = Application::Get().objects->GetRotate();
-				Application::Get().objects->ChangeRotate(glm::vec3(Rotate.x,Rotate.y, Rotate.z)* PI / 180.0f);
+				Application::Get().objects->ChangeRotate(glm::vec3(Rotate.x, Rotate.y, Rotate.z)* PI / 180.0f);
+				RotateChange = false;
 			}
 			
 		}
@@ -418,10 +449,11 @@ namespace Hazel {
 // 		ImGui::InputFloat(u8"planeP", &Application::Get().planeP);
 		//ImGui::InputFloat(u8"F0", &Application::Get().F0);
 		//ImGui::InputFloat(u8"fp", &Application::Get().fp);
-// 		ImGui::InputFloat(u8"widthB0", &Application::Get().widthB0);
-// 		ImGui::InputFloat(u8"heightB0", &Application::Get().heightB0);
-// 		ImGui::InputFloat(u8"widthB1", &Application::Get().widthB1);
-// 		ImGui::InputFloat(u8"heightB1", &Application::Get().heightB1);
+//  		ImGui::InputFloat(u8"widthB0", &Application::Get().widthB0);
+//  		ImGui::InputFloat(u8"heightB0", &Application::Get().heightB0);
+//  		ImGui::InputFloat(u8"widthB1", &Application::Get().widthB1);
+//  		ImGui::InputFloat(u8"heightB1", &Application::Get().heightB1);
+// 		ImGui::InputFloat(u8"BloomSize", &Application::Get().BloomSize);
 		
 
 		ImGui::End();

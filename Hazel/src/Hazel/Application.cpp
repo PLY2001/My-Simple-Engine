@@ -28,7 +28,17 @@ namespace Hazel
 		m_ControlLayer = new ControlLayer();//控制箭头层，第二层
 		PushOverlay(m_ControlLayer);
 
+		
+		LoadingModel.reset(new Model("res/models/Loading/Loading.obj"));
+		LoadingShader.reset(new Shader("res/shaders/Loading.shader"));
+		OpenGLRendererAPI::Draw(LoadingModel, LoadingShader);
+		m_Window->OnUpdate();//SwapBuffers和PollEvent
+		GLCheckError();//获取错误信息	
 
+// 		m_ImGuiLayer->Begin();
+// 		m_ImGuiLayer->Loading("Loading Shaders");
+// 		m_ImGuiLayer->End();
+		HZ_CORE_INFO("Loading Shaders");
 		//定义shader
 		shader.reset(new Shader("res/shaders/Basic.shader"));
 		OutlineShader.reset(new Shader("res/shaders/Outline.shader"));
@@ -60,7 +70,7 @@ namespace Hazel
 // 		{
 // 			ss << line;
 // 		}
-		
+		HZ_CORE_INFO("Loading Models");
 		insbos.reset(new InstanceBufferObjects());
 		/*IRB120*/
 		IRB120Model.reset(new Model("res/models/ABB_IRB120/ABB_IRB120.obj"));//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
@@ -100,7 +110,7 @@ namespace Hazel
 				FactoryLightPos[(i * 5 + j) * 2 + 1] = LightPosZ[j];
 				lightMM = glm::mat4(1.0f);
 				lightModelMatrices[i * 5 + j] = glm::translate(lightMM, glm::vec3(LightPosX[i], LightPosY, LightPosZ[j]));
-				lightModelMatrices[i * 5 + j] = glm::scale(lightModelMatrices[i * 5 + j], glm::vec3(1.5f,1.5f,1.5f));
+				//lightModelMatrices[i * 5 + j] = glm::scale(lightModelMatrices[i * 5 + j], glm::vec3(1.5f,1.5f,1.5f));
 			}
 		}
 		light.reset(new Model("res/models/light/light.obj"));
@@ -111,6 +121,7 @@ namespace Hazel
 		//ArrowModel.reset(new Model("res/models/arrow.obj", glm::vec3(0.0f, 0.0f, 0.0f)));
 		//arrow.reset(new Arrow(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f), ArrowModel));
 
+		HZ_CORE_INFO("Loading Buffers");
 		//创建帧缓冲1
 		framebuffer1.reset(new FrameBuffer(s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight()));
 		framebuffer1->GenTexture2D();
@@ -204,7 +215,7 @@ namespace Hazel
 
 		
 		origin.reset(new Origin(OriginShader));
-
+		HZ_CORE_INFO("Done!");
 	}
 
 
@@ -804,17 +815,18 @@ namespace Hazel
 				LightShader->Unbind();
 
 				framebuffer6->Unbind();
-				BloomShader->Bind();
-				BloomShader->SetUniform1f("width0", widthB0);
-				BloomShader->SetUniform1f("height0", heightB0);
-				BloomShader->SetUniform1f("width1", widthB1);
-				BloomShader->SetUniform1f("height1", heightB1);
-				glActiveTexture(GL_TEXTURE13);
-				glBindTexture(GL_TEXTURE_2D, framebufferCM->GetTexID());
-				BloomShader->SetUniform1i("cameramap", 13);
-				//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				framebuffer6->Draw(BloomShader, QuadID6);
-				BloomShader->Unbind();
+// 				BloomShader->Bind();
+// 				BloomShader->SetUniform1f("width0", widthB0);
+// 				BloomShader->SetUniform1f("height0", heightB0);
+// 				BloomShader->SetUniform1f("width1", widthB1);
+// 				BloomShader->SetUniform1f("height1", heightB1);
+// 				BloomShader->SetUniform1f("BloomSize", BloomSize);
+// 				glActiveTexture(GL_TEXTURE13);
+// 				glBindTexture(GL_TEXTURE_2D, framebufferCM->GetTexID());
+// 				BloomShader->SetUniform1i("cameramap", 13);
+// 				//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				framebuffer6->Draw(ScreenBasicShader, QuadID6);
+				//BloomShader->Unbind();
 				glDisable(GL_BLEND);
 			}
 			
@@ -823,6 +835,7 @@ namespace Hazel
 			{
 				glDisable(GL_DEPTH_TEST);
 				origin->Draw();
+				
 				glEnable(GL_DEPTH_TEST);
 			}
 
