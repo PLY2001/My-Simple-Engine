@@ -79,7 +79,7 @@ namespace Hazel
 		BeltModel.reset(new Model("res/models/belt/belt.obj"));
 		AVGModel.reset(new Model("res/models/AVGcar/AVGcar.obj"));
 		BoxModel.reset(new Model("res/models/box/box.obj"));
-		MachineModel.reset(new Model("res/models/machine/machine.obj"));
+		MachineModel.reset(new Model("res/models/CNC/CNC.obj"));
 		StorageModel.reset(new Model("res/models/storage/storage.obj"));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("irb120",IRB120Model));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt1", Belt1Model));
@@ -195,6 +195,11 @@ namespace Hazel
 
 		PointLight.reset(new Light(glm::vec3(0.0f, 40.0f, 0.0f)));
 		DirectLight.reset(new Light(glm::vec3(273.72f, 291.68f, 0.0f)));
+		glm::vec4 DirectLightPos = glm::vec4(DirectLight->Pos, 1.0f);
+		glm::mat4 LightModelMatrix = glm::mat4(1.0f);
+		LightModelMatrix = glm::rotate(LightModelMatrix, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		DirectLightPos = LightModelMatrix * DirectLightPos;
+		DirectLight->Pos = glm::vec3(DirectLightPos.x, DirectLightPos.y, DirectLightPos.z);
 		
 
 		camera.reset(new Camera);
@@ -312,6 +317,11 @@ namespace Hazel
 			{
 				count += 0.05f;
 				DirectLight->Pos = glm::vec3(400.0f * cos(count), 400.0f * sin(count), 0.0f);
+				glm::vec4 DirectLightPos = glm::vec4(DirectLight->Pos, 1.0f);
+				glm::mat4 LightModelMatrix = glm::mat4(1.0f);
+				LightModelMatrix = glm::rotate(LightModelMatrix, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+				DirectLightPos = LightModelMatrix * DirectLightPos;
+				DirectLight->Pos = glm::vec3(DirectLightPos.x, DirectLightPos.y, DirectLightPos.z);
 			}
 
 			//记录每帧的时间
@@ -341,7 +351,9 @@ namespace Hazel
 			ubo->SetDatamat4(0, sizeof(glm::mat4), &ViewMatrix);
 			ubo->SetDatamat4(sizeof(glm::mat4), sizeof(glm::mat4), &ProjectionMatrix);
 
+
 			//设置直射光VP变换矩阵
+			
 			glm::mat4 LightProjectionMatrix = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 1.0f, 2000.0f);
 			glm::mat4 LightViewMatrix = glm::lookAt(DirectLight->Pos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -870,11 +882,10 @@ namespace Hazel
 				layer->OnUpdate();
 
 			m_ImGuiLayer->Begin();
-			if(mousemode == MouseMode::Enable)
-			{	
+			
 				for (Layer* layer : m_LayerStack)//正向遍历层来显示Imgui层
 					layer->OnImGuiRender();
-			}
+			
 			m_ImGuiLayer->End();
 
 			m_Window->OnUpdate();//SwapBuffers和PollEvent
@@ -1143,6 +1154,19 @@ namespace Hazel
 			{
 				ModularCopy = false;
 			}
+		}
+		if (e.GetKeyCode() == HZ_KEY_Q)
+		{
+			if (BillBoard)
+			{
+				BillBoard = false;
+			}
+			else
+			{
+				BillBoard = true;
+			}
+			
+			
 		}
 		return true;
 	}

@@ -218,6 +218,7 @@ namespace Hazel
 		std::shared_ptr<Model> BoxModel;
 		std::shared_ptr<Model> MachineModel;
 		std::shared_ptr<Model> StorageModel;
+		//std::shared_ptr<Model> CNCModel;
 		std::map<std::string, std::shared_ptr<Model>> modelmap;
 
 		float bias = 0.00005f;//直射光阴影自遮挡偏置
@@ -268,7 +269,7 @@ namespace Hazel
 
 		float BloomSize = 25.0f;//bloom深浅
 		
-
+		bool BillBoard = false;
 	};
 
 	Application* CreateApplication();
