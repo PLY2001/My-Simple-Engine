@@ -80,7 +80,7 @@ namespace Hazel
 		AVGModel.reset(new Model("res/models/AVGcar/AVGcar.obj"));
 		BoxModel.reset(new Model("res/models/box/box.obj"));
 		MachineModel.reset(new Model("res/models/CNC/CNC.obj"));
-		StorageModel.reset(new Model("res/models/storage/storage.obj"));
+		StorageModel.reset(new Model("res/models/storage/3DStorage.obj"));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("irb120",IRB120Model));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt1", Belt1Model));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt2", Belt2Model));

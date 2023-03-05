@@ -44,7 +44,17 @@ namespace Hazel {
 		bool RotateChange = false;
 		bool PosChange = false;
 		//bool firstRotateChange = true;
+		std::vector<const char*> NameList;
+		std::vector<int> AmountData;
 
+		float FactoryIn = -10.0f;
+		float FactoryInProcess = -8.0f;
+		float FactoryOutProcess = 8.0f;
+		float FactoryOut = 10.0f;
+
+		int FactoryInAmount = 0;
+		int FactoryProcessAmount = 0;
+		int FactoryOutAmount = 0;
 	};
 
 }

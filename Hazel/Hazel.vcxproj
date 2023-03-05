@@ -161,10 +161,9 @@
     <ClInclude Include="src\Hazel\Objects\Arrow.h" />
     <ClInclude Include="src\Hazel\Objects\ModelMatrix.h" />
     <ClInclude Include="src\Hazel\Objects\Objects.h" />
-    <ClInclude Include="src\Hazel\Renderer\Animation.h" />
-    <ClInclude Include="src\Hazel\Renderer\Origin.h" />
     <ClInclude Include="src\Hazel\RenderLayers\ControlLayer.h" />
     <ClInclude Include="src\Hazel\Renderer\AABB.h" />
+    <ClInclude Include="src\Hazel\Renderer\Animation.h" />
     <ClInclude Include="src\Hazel\Renderer\Buffer.h" />
     <ClInclude Include="src\Hazel\Renderer\Camera.h" />
     <ClInclude Include="src\Hazel\Renderer\ErrorCheck.h" />
@@ -174,6 +173,7 @@
     <ClInclude Include="src\Hazel\Renderer\Model.h" />
     <ClInclude Include="src\Hazel\Renderer\OpenGLContext.h" />
     <ClInclude Include="src\Hazel\Renderer\OpenGLRendererAPI.h" />
+    <ClInclude Include="src\Hazel\Renderer\Origin.h" />
     <ClInclude Include="src\Hazel\Renderer\Shader.h" />
     <ClInclude Include="src\Hazel\Renderer\Skybox.h" />
     <ClInclude Include="src\Hazel\Renderer\Texture.h" />
@@ -607,10 +607,9 @@
     <ClCompile Include="src\Hazel\Log.cpp" />
     <ClCompile Include="src\Hazel\Objects\Arrow.cpp" />
     <ClCompile Include="src\Hazel\Objects\Objects.cpp" />
-    <ClCompile Include="src\Hazel\Renderer\Animation.cpp" />
-    <ClCompile Include="src\Hazel\Renderer\Origin.cpp" />
     <ClCompile Include="src\Hazel\RenderLayers\ControlLayer.cpp" />
     <ClCompile Include="src\Hazel\Renderer\AABB.cpp" />
+    <ClCompile Include="src\Hazel\Renderer\Animation.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Camera.cpp" />
     <ClCompile Include="src\Hazel\Renderer\InstanceBufferObjects.cpp" />
@@ -619,6 +618,7 @@
     <ClCompile Include="src\Hazel\Renderer\Model.cpp" />
     <ClCompile Include="src\Hazel\Renderer\OpenGLContext.cpp" />
     <ClCompile Include="src\Hazel\Renderer\OpenGLRendererAPI.cpp" />
+    <ClCompile Include="src\Hazel\Renderer\Origin.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Shader.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Skybox.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Texture.cpp" />

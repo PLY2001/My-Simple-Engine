@@ -13,6 +13,8 @@
 
 #include "Hazel/Application.h"
 
+#include "implot.h"
+
 
 
 namespace Hazel {
@@ -32,6 +34,7 @@ namespace Hazel {
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
+		ImPlot::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -52,7 +55,7 @@ namespace Hazel {
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			style.WindowRounding = 0.0f;
-			style.Colors[ImGuiCol_WindowBg].w = 0.5f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
 		Application& app = Application::Get();
@@ -68,6 +71,7 @@ namespace Hazel {
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
+		ImPlot::DestroyContext();
 	}
 
 	void ImGuiLayer::Begin()//ImGui绘制前的准备
@@ -107,10 +111,13 @@ namespace Hazel {
 
 	void ImGuiLayer::OnImGuiRender()//ImGui绘制内容
 	{
-		if (Application::Get().mousemode == Application::MouseMode::Enable)
+		//static bool show = true;
+		//ImGui::ShowDemoWindow(&show);//显示imgui示例界面
+		ImPlot::ShowDemoWindow();
+
+		if (Application::Get().mousemode == Application::MouseMode::Enable&& !Application::Get().BillBoard)
 		{
-			//static bool show = true;
-			//ImGui::ShowDemoWindow(&show);//显示imgui示例界面
+			
 
 			if (ImGui::BeginMainMenuBar())
 			{
@@ -235,135 +242,207 @@ namespace Hazel {
 			//自定义imgui窗口
 			ImGui::Begin(u8"编辑栏");                          // Create a window called "Hello, world!" and append into it.
 
-			ImGui::Text(u8"切换渲染风格");
-			ImGui::RadioButton(u8"真实", (int*)&Application::Get().graphicmode, (int)Application::GraphicMode::Normal);
-			ImGui::SameLine();
-			ImGui::RadioButton(u8"描边", (int*)&Application::Get().graphicmode, (int)Application::GraphicMode::Outline);
-			ImGui::SameLine();
-			ImGui::RadioButton(u8"无阴影", (int*)&Application::Get().graphicmode, (int)Application::GraphicMode::NoShadow);
-
-			if (Application::Get().graphicmode == Application::GraphicMode::Normal)
+			if (ImGui::CollapsingHeader(u8"切换渲染风格"))
 			{
-				ImGui::Checkbox(u8"阴影高斯模糊", &Application::Get().ShadowGaussian);
+				//if (ImGui::TreeNode("Configuration##2"))
+				ImGui::RadioButton(u8"真实", (int*)&Application::Get().graphicmode, (int)Application::GraphicMode::Normal);
+				ImGui::SameLine();
+				ImGui::RadioButton(u8"描边", (int*)&Application::Get().graphicmode, (int)Application::GraphicMode::Outline);
+				ImGui::SameLine();
+				ImGui::RadioButton(u8"无阴影", (int*)&Application::Get().graphicmode, (int)Application::GraphicMode::NoShadow);
+				if (Application::Get().graphicmode == Application::GraphicMode::Normal)
+				{
+					ImGui::Checkbox(u8"阴影高斯模糊", &Application::Get().ShadowGaussian);
+				}
 			}
-			ImGui::Text(u8"切换灯光类型");
-			ImGui::RadioButton(u8"直射光", (int*)&Application::Get().lightmode, (int)Application::LightMode::Direct);
-			ImGui::SameLine();
-			ImGui::RadioButton(u8"点光源", (int*)&Application::Get().lightmode, (int)Application::LightMode::Point);
+				
+			
+
+			if (ImGui::CollapsingHeader(u8"切换灯光类型"))
+			{
+				ImGui::RadioButton(u8"直射光", (int*)&Application::Get().lightmode, (int)Application::LightMode::Direct);
+				ImGui::SameLine();
+				ImGui::RadioButton(u8"点光源", (int*)&Application::Get().lightmode, (int)Application::LightMode::Point);
+			}
+			
 			if (Application::Get().objects->GetChoosedIndex() > -1)
 			{
-				if (ImGui::Button(u8"复制所选模型"))
-					Application::Get().objects->AddAmount();
-				ImGui::SameLine();
-				ImGui::Text(u8"所选模型总计 %d 个", Application::Get().objects->GetMyAmount());
-				if (ImGui::Button(u8"模块化复制"))
-					Application::Get().ModularCopy = true;
-				if (ImGui::Button(u8"删除所选模型"))
+				if (ImGui::CollapsingHeader(u8"物体操作"))
 				{
-					if (Application::Get().objects->GetMyAmount() == 1)
+					if (ImGui::TreeNode(u8"复制与删除"))
 					{
-						Application::Get().insbos->ReduceObject(Application::Get().objects->GetChoosedObjectIndex());
-						Application::Get().objects->ReduceObjectAmount();
+						if (ImGui::Button(u8"复制所选模型"))
+							Application::Get().objects->AddAmount();
+						ImGui::SameLine();
+						ImGui::Text(u8"所选模型总计 %d 个", Application::Get().objects->GetMyAmount());
+						if (ImGui::Button(u8"模块化复制"))
+							Application::Get().ModularCopy = true;
+						if (ImGui::Button(u8"删除所选模型"))
+						{
+							if (Application::Get().objects->GetMyAmount() == 1)
+							{
+								Application::Get().insbos->ReduceObject(Application::Get().objects->GetChoosedObjectIndex());
+								Application::Get().objects->ReduceObjectAmount();
+							}
+							else
+							{
+								Application::Get().objects->ReduceAmount();
+							}
+
+						}
+						ImGui::TreePop();
+						ImGui::Separator();
 					}
-					else
+					
+					
+
+					if ((int)Application::Get().objects->GetControlMode() > 0)
 					{
-						Application::Get().objects->ReduceAmount();
+						if (ImGui::TreeNode(u8"机器人控制"))
+						{
+							ImGui::RadioButton(u8"正向运动学", Application::Get().objects->GetControlModeAddress(), 1);
+							ImGui::SameLine();
+							ImGui::RadioButton(u8"逆向运动学", Application::Get().objects->GetControlModeAddress(), 2);
+
+							if ((int)Application::Get().objects->GetControlMode() == 1)
+							{
+								if (ImGui::SliderFloat("Angle1", Application::Get().objects->SetAngle(1), -165.0f, 165.0f))
+								{
+									Application::Get().AngleChanged = true;
+								}
+								if (ImGui::SliderFloat("Angle2", Application::Get().objects->SetAngle(2), -110.0f, 110.0f))
+								{
+									Application::Get().AngleChanged = true;
+								}
+								if (ImGui::SliderFloat("Angle3", Application::Get().objects->SetAngle(3), -110.0f, 70.0f))
+								{
+									Application::Get().AngleChanged = true;
+								}
+								if (ImGui::SliderFloat("Angle4", Application::Get().objects->SetAngle(4), -160.0f, 160.0f))
+								{
+									Application::Get().AngleChanged = true;
+								}
+								if (ImGui::SliderFloat("Angle5", Application::Get().objects->SetAngle(5), -120.0f, 120.0f))
+								{
+									Application::Get().AngleChanged = true;
+								}
+								if (ImGui::SliderFloat("Angle6", Application::Get().objects->SetAngle(6), -400.0f, 400.0f))
+								{
+									Application::Get().AngleChanged = true;
+								}
+							}
+
+							if ((int)Application::Get().objects->GetControlMode() == 2)
+							{
+								glm::vec3 Scale = Application::Get().objects->GetScale();
+								HandPos = Application::Get().objects->GetHandPos() / 10.0f;
+								HandEular = Application::Get().objects->GetHandEular();
+								if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -652.0f * Scale.x / 10.0f, 652.0f * Scale.x / 10.0f))
+								{
+									Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+								}
+
+								if (ImGui::SliderFloat("HandPosY", (float*)&HandPos.y, -184.0f * Scale.y / 10.0f, 1054.0f * Scale.y / 10.0f))
+								{
+									Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+								}
+
+								if (ImGui::SliderFloat("HandPosZ", (float*)&HandPos.z, -652.0f * Scale.z / 10.0f, 652.0f * Scale.z / 10.0f))
+								{
+									Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+								}
+
+								if (ImGui::InputFloat3("HandPos", (float*)&HandPos))
+								{
+									Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+								}
+
+								if (ImGui::SliderFloat("HandEularX", (float*)&HandEular.x, -180.0f, 180.0f))
+								{
+									Application::Get().objects->ChangeHandEular(HandEular);
+									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+								}
+
+								if (ImGui::SliderFloat("HandEularY", (float*)&HandEular.y, -180.0f, 180.0f))
+								{
+									Application::Get().objects->ChangeHandEular(HandEular);
+									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+								}
+
+								if (ImGui::SliderFloat("HandEularZ", (float*)&HandEular.z, -180.0f, 180.0f))
+								{
+									Application::Get().objects->ChangeHandEular(HandEular);
+									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+								}
+
+								if (ImGui::InputFloat3("HandEular", (float*)&HandEular))
+								{
+									Application::Get().objects->ChangeHandEular(HandEular);
+									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+								}
+
+							}
+							ImGui::TreePop();
+							ImGui::Separator();
+						}
+						//ImGui::Text(u8"机器人控制");
+
+						
+						
+						
 					}
 
-				}
+					if (ImGui::TreeNode(u8"平移与旋转"))
+					{
+						Pos = Application::Get().objects->GetPos() / 10.0f;
 
+						Rotate = Application::Get().objects->GetRotate() * glm::vec3(180.0f / PI);
 
-				if ((int)Application::Get().objects->GetControlMode() > 0)
-				{
-					ImGui::Text(u8"机器人控制");
-					ImGui::RadioButton(u8"正向运动学", Application::Get().objects->GetControlModeAddress(), 1);
-					ImGui::SameLine();
-					ImGui::RadioButton(u8"逆向运动学", Application::Get().objects->GetControlModeAddress(), 2);
-				}
+						if (ImGui::InputFloat3(u8"平移(m)", (float*)&Pos))
+						{
+							if (ImGui::IsKeyDown(ImGuiKey_Enter))
+							{
+								PosChange = true;
 
-				if ((int)Application::Get().objects->GetControlMode() == 1)
-				{
-					if (ImGui::SliderFloat("Angle1", Application::Get().objects->SetAngle(1), -165.0f, 165.0f))
-					{
-						Application::Get().AngleChanged = true;
-					}
-					if (ImGui::SliderFloat("Angle2", Application::Get().objects->SetAngle(2), -110.0f, 110.0f))
-					{
-						Application::Get().AngleChanged = true;
-					}
-					if (ImGui::SliderFloat("Angle3", Application::Get().objects->SetAngle(3), -110.0f, 70.0f))
-					{
-						Application::Get().AngleChanged = true;
-					}
-					if (ImGui::SliderFloat("Angle4", Application::Get().objects->SetAngle(4), -160.0f, 160.0f))
-					{
-						Application::Get().AngleChanged = true;
-					}
-					if (ImGui::SliderFloat("Angle5", Application::Get().objects->SetAngle(5), -120.0f, 120.0f))
-					{
-						Application::Get().AngleChanged = true;
-					}
-					if (ImGui::SliderFloat("Angle6", Application::Get().objects->SetAngle(6), -400.0f, 400.0f))
-					{
-						Application::Get().AngleChanged = true;
-					}
-				}
+							}
 
-				if ((int)Application::Get().objects->GetControlMode() == 2)
-				{
-					glm::vec3 Scale = Application::Get().objects->GetScale();
-					HandPos = Application::Get().objects->GetHandPos() / 10.0f;
-					HandEular = Application::Get().objects->GetHandEular();
-					if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -652.0f * Scale.x / 10.0f, 652.0f * Scale.x / 10.0f))
-					{
-						Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
-						Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+						}
+						if (PosChange)
+						{
+							Application::Get().objects->ChangePos(Pos * 10.0f - Application::Get().objects->GetPos());
+							PosChange = false;
+						}
+
+						if (ImGui::InputFloat3(u8"旋转(degree)", (float*)&Rotate, "%.1f"))
+						{
+							if (ImGui::IsKeyDown(ImGuiKey_Enter))
+							{
+								RotateChange = true;
+
+							}
+
+						}
+						if (RotateChange)
+						{
+
+							//glm::vec3 temp = Application::Get().objects->GetRotate();
+							Application::Get().objects->ChangeRotate(glm::vec3(Rotate.x, Rotate.y, Rotate.z) * PI / 180.0f);
+							RotateChange = false;
+						}
+						ImGui::TreePop();
+						ImGui::Separator();
 					}
 
-					if (ImGui::SliderFloat("HandPosY", (float*)&HandPos.y, -184.0f * Scale.y / 10.0f, 1054.0f * Scale.y / 10.0f))
-					{
-						Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
-						Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-					}
-
-					if (ImGui::SliderFloat("HandPosZ", (float*)&HandPos.z, -652.0f * Scale.z / 10.0f, 652.0f * Scale.z / 10.0f))
-					{
-						Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
-						Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-					}
-
-					if (ImGui::InputFloat3("HandPos", (float*)&HandPos))
-					{
-						Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
-						Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-					}
-
-					if (ImGui::SliderFloat("HandEularX", (float*)&HandEular.x, -180.0f, 180.0f))
-					{
-						Application::Get().objects->ChangeHandEular(HandEular);
-						Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-					}
-
-					if (ImGui::SliderFloat("HandEularY", (float*)&HandEular.y, -180.0f, 180.0f))
-					{
-						Application::Get().objects->ChangeHandEular(HandEular);
-						Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-					}
-
-					if (ImGui::SliderFloat("HandEularZ", (float*)&HandEular.z, -180.0f, 180.0f))
-					{
-						Application::Get().objects->ChangeHandEular(HandEular);
-						Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-					}
-
-					if (ImGui::InputFloat3("HandEular", (float*)&HandEular))
-					{
-						Application::Get().objects->ChangeHandEular(HandEular);
-						Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-					}
-
+					
+					
 				}
 			}
+			
+			
 
 			//int index = Application::Get().index;
 	// 		if(Application::Get().irb120->GetAmount()>1)
@@ -372,49 +451,22 @@ namespace Hazel {
 	// 			ImGui::Text("IRB 120 AABB: XMin = %.3f , XMax = %.3f , YMin = %.3f , YMax = %.3f , ZMin = %.3f , ZMax = %.3f", Application::Get().irb120->GetAABBMinPos(index).x, Application::Get().irb120->GetAABBMaxPos(index).x, Application::Get().irb120->GetAABBMinPos(index).y, Application::Get().irb120->GetAABBMaxPos(index).y, Application::Get().irb120->GetAABBMinPos(index).z, Application::Get().irb120->GetAABBMaxPos(index).z);
 	// 		}
 
-			ImGui::Text(u8"鼠标点击坐标 = ( %.3f , %.3f )", Application::Get().GetClickPos().x, Application::Get().GetClickPos().y);
-			ImGui::Text(u8"当前选择模型索引 = %d", Application::Get().objects->GetChoosedIndex());
-			ImGui::Text(u8"AABBmin( %.3f , %.3f , %.3f )", Application::Get().objects->GetAABBMinPos().x / 10.0f, Application::Get().objects->GetAABBMinPos().y / 10.0f, Application::Get().objects->GetAABBMinPos().z / 10.0f);
-			ImGui::Text(u8"AABBmax( %.3f , %.3f , %.3f )", Application::Get().objects->GetAABBMaxPos().x / 10.0f, Application::Get().objects->GetAABBMaxPos().y / 10.0f, Application::Get().objects->GetAABBMaxPos().z / 10.0f);
-			if (Application::Get().objects->GetChoosedIndex() > -1)
+			if (ImGui::CollapsingHeader(u8"其他信息"))
 			{
-				Pos = Application::Get().objects->GetPos() / 10.0f;
-
-				Rotate = Application::Get().objects->GetRotate() * glm::vec3(180.0f / PI);
-
-				if (ImGui::InputFloat3(u8"平移(m)", (float*)&Pos))
-				{
-					if (ImGui::IsKeyDown(ImGuiKey_Enter))
-					{
-						PosChange = true;
-
-					}
-
-				}
-				if (PosChange)
-				{
-					Application::Get().objects->ChangePos(Pos * 10.0f - Application::Get().objects->GetPos());
-					PosChange = false;
-				}
-
-				if (ImGui::InputFloat3(u8"旋转(degree)", (float*)&Rotate, "%.1f"))
-				{
-					if (ImGui::IsKeyDown(ImGuiKey_Enter))
-					{
-						RotateChange = true;
-
-					}
-
-				}
-				if (RotateChange)
-				{
-
-					//glm::vec3 temp = Application::Get().objects->GetRotate();
-					Application::Get().objects->ChangeRotate(glm::vec3(Rotate.x, Rotate.y, Rotate.z) * PI / 180.0f);
-					RotateChange = false;
-				}
-
+				ImGui::Text(u8"鼠标点击坐标 = ( %.3f , %.3f )", Application::Get().GetClickPos().x, Application::Get().GetClickPos().y);
+				ImGui::Text(u8"当前选择模型索引 = %d", Application::Get().objects->GetChoosedIndex());
+				ImGui::Text(u8"AABBmin( %.3f , %.3f , %.3f )", Application::Get().objects->GetAABBMinPos().x / 10.0f, Application::Get().objects->GetAABBMinPos().y / 10.0f, Application::Get().objects->GetAABBMinPos().z / 10.0f);
+				ImGui::Text(u8"AABBmax( %.3f , %.3f , %.3f )", Application::Get().objects->GetAABBMaxPos().x / 10.0f, Application::Get().objects->GetAABBMaxPos().y / 10.0f, Application::Get().objects->GetAABBMaxPos().z / 10.0f);
 			}
+			if (ImGui::CollapsingHeader(u8"车间设置"))
+			{
+				ImGui::InputFloat(u8"入库x坐标边界", &FactoryIn, -1000.0f, 1000.0f, "%.1f");
+				ImGui::InputFloat(u8"加工x坐标边界", &FactoryInProcess, -1000.0f, 1000.0f, "%.1f");
+				ImGui::InputFloat(u8"加工毕x坐标边界", &FactoryOutProcess, -1000.0f, 1000.0f, "%.1f");
+				ImGui::InputFloat(u8"出库x坐标边界", &FactoryOut, -1000.0f, 1000.0f, "%.1f");
+			}
+
+			
 
 
 			//ImGui::Checkbox("ToMove",&Application::Get().ToMove);
@@ -430,6 +482,8 @@ namespace Hazel {
 	// 		ImGui::SameLine();
 	// 		ImGui::Text("counter = %d", counter);
 	// 
+			
+			ImGui::Separator();
 			ImGui::Text(u8"每帧平均 %.3f ms (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			//ImGui::InputFloat(u8"bias", &Application::Get().bias);
 			//ImGui::InputFloat(u8"radius", &Application::Get().radius);
@@ -463,40 +517,47 @@ namespace Hazel {
 
 			ImGui::Begin(u8"动画栏");
 
-			if (Application::Get().objects->GetChoosedIndex() > -1)
+			if (ImGui::CollapsingHeader(u8"编辑关键帧"))
 			{
-				ImGui::RadioButton(u8"直线轨迹", (int*)&Application::Get().objects->GetMyAnimation().pathmode, 0);
-				ImGui::SameLine();
-				ImGui::RadioButton(u8"圆弧轨迹", (int*)&Application::Get().objects->GetMyAnimation().pathmode, 1);
-				if (Application::Get().objects->GetMyAnimation().pathmode == PathMode::Circle)
+				if (Application::Get().objects->GetChoosedIndex() > -1)
 				{
+					ImGui::RadioButton(u8"直线轨迹", (int*)&Application::Get().objects->GetMyAnimation().pathmode, 0);
 					ImGui::SameLine();
-					ImGui::InputFloat3(u8"圆弧圆心", (float*)&CircleCenter);
+					ImGui::RadioButton(u8"圆弧轨迹", (int*)&Application::Get().objects->GetMyAnimation().pathmode, 1);
+					if (Application::Get().objects->GetMyAnimation().pathmode == PathMode::Circle)
+					{
+						ImGui::SameLine();
+						ImGui::InputFloat3(u8"圆弧圆心", (float*)&CircleCenter);
 
-				}
-				ImGui::SetNextItemWidth(100);
-				ImGui::InputFloat(u8"时间间隔", &PathTime, 0.0f, 10000.0f, "%.1f");
-				//ImGui::PushItemWidth(10);
-				ImGui::SameLine();
-				glm::qua<float> RotateQuaternion = Application::Get().objects->GetRotateQuaternion();
-				if (ImGui::Button(u8"设点"))
-				{
-					Application::Get().objects->GetMyAnimation().SetPathPos(Pos * 10.0f);
-					Application::Get().objects->GetMyAnimation().SetPathRotate(RotateQuaternion);
-					Application::Get().objects->GetMyAnimation().SetPathHandPos(Application::Get().objects->GetHandPos());
-					Application::Get().objects->GetMyAnimation().SetPathHandEular(Application::Get().objects->GetHandEular());
-					Application::Get().objects->GetMyAnimation().SetPathTime(PathTime);
-					Application::Get().objects->GetMyAnimation().SetPathMode(CircleCenter * 10.0f);
-				}
-				ImGui::SameLine();
+					}
+					ImGui::SetNextItemWidth(100);
+					ImGui::InputFloat(u8"时间间隔", &PathTime, 0.0f, 10000.0f, "%.1f");
+					//ImGui::PushItemWidth(10);
+					ImGui::SameLine();
+					glm::qua<float> RotateQuaternion = Application::Get().objects->GetRotateQuaternion();
+					if (ImGui::Button(u8"设点"))
+					{
+						Application::Get().objects->GetMyAnimation().SetPathPos(Pos * 10.0f);
+						Application::Get().objects->GetMyAnimation().SetPathRotate(RotateQuaternion);
+						Application::Get().objects->GetMyAnimation().SetPathHandPos(Application::Get().objects->GetHandPos());
+						Application::Get().objects->GetMyAnimation().SetPathHandEular(Application::Get().objects->GetHandEular());
+						Application::Get().objects->GetMyAnimation().SetPathTime(PathTime);
+						Application::Get().objects->GetMyAnimation().SetPathMode(CircleCenter * 10.0f);
+					}
+					ImGui::SameLine();
 
-				if (ImGui::Button(u8"删点"))
-				{
-					Application::Get().objects->GetMyAnimation().RemovePath();
+					if (ImGui::Button(u8"删点"))
+					{
+						Application::Get().objects->GetMyAnimation().RemovePath();
+					}
+
+					ImGui::InputFloat(u8"总动画时长", &TotalTime, 0.0f, 10000.0f, "%.1f");
 				}
 			}
-			ImGui::SameLine();
-			if (ImGui::Button(u8"播放"))
+
+			
+			//ImGui::SameLine();
+			if (ImGui::Button(u8"播放动画"))
 			{
 				for (int i = 0; i < Application::Get().objects->GetObjectAmount(); i++)
 				{
@@ -517,28 +578,286 @@ namespace Hazel {
 			}
 
 			ImGui::SetNextItemWidth(100);
-			ImGui::InputFloat(u8"总动画时长", &TotalTime, 0.0f, 10000.0f, "%.1f");
 
-
-
-			static ImGuiTableFlags flags = ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
-			static int freeze_cols = 1;
-			static int freeze_rows = 1;
-			// When using ScrollX or ScrollY we need to specify a size for our table container!
-			// Otherwise by default the table will fit all available space, like a BeginChild() call.
-			ImVec2 outer_size = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 8);
-			int TotalObjAmount = Application::Get().objects->GetObjectAmount();
-			int TotalAmount = 0;
-			for (int i = 0; i < TotalObjAmount; i++)
+			if (ImGui::CollapsingHeader(u8"关键帧表"))
 			{
-				TotalAmount += Application::Get().objects->objects[i].m_Amount;
-			}
-			if (ImGui::BeginTable("KeyTimes", 1 + TotalAmount, flags, outer_size))
-			{
-				ImGui::TableSetupScrollFreeze(freeze_cols, freeze_rows);
-				ImGui::TableSetupColumn(u8"时间节点", ImGuiTableColumnFlags_NoHide); // Make the first column not hideable to match our use of TableSetupScrollFreeze()
-
+				static ImGuiTableFlags flags = ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+				static int freeze_cols = 1;
+				static int freeze_rows = 1;
+				// When using ScrollX or ScrollY we need to specify a size for our table container!
+				// Otherwise by default the table will fit all available space, like a BeginChild() call.
+				ImVec2 outer_size = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 8);
+				int TotalObjAmount = Application::Get().objects->GetObjectAmount();
+				int TotalAmount = 0;
 				for (int i = 0; i < TotalObjAmount; i++)
+				{
+					TotalAmount += Application::Get().objects->objects[i].m_Amount;
+				}
+				if (ImGui::BeginTable("KeyTimes", 1 + TotalAmount, flags, outer_size))
+				{
+					ImGui::TableSetupScrollFreeze(freeze_cols, freeze_rows);
+					ImGui::TableSetupColumn(u8"时间节点", ImGuiTableColumnFlags_NoHide); // Make the first column not hideable to match our use of TableSetupScrollFreeze()
+
+					for (int i = 0; i < TotalObjAmount; i++)
+					{
+						for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
+						{
+							std::string name(Application::Get().objects->objects[i].m_Name);
+
+							// 准备根据格式造字符串流
+							std::stringstream fmt;
+							// 造字符串流
+							fmt << name << ":" << j;
+							std::string namej = fmt.str();
+							ImGui::TableSetupColumn(namej.c_str());
+
+							Application::Get().objects->objects[i].m_Anima[j].Key_index = 0;
+						}
+					}
+					ImGui::TableHeadersRow();
+
+
+					for (int row = 0; row < (int)(TotalTime / 0.5 + 1); row++)
+					{
+
+						int column = 0;
+						ImGui::TableNextRow();
+						ImGui::TableSetColumnIndex(column);
+						ImGui::Text(u8"%.1f秒", row * 0.5f);
+						for (int i = 0; i < TotalObjAmount; i++)
+						{
+							for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
+							{
+								column++;
+								ImGui::TableSetColumnIndex(column);
+								if (Application::Get().objects->objects[i].m_Anima[j].HaveAnimation)
+								{
+									int index = Application::Get().objects->objects[i].m_Anima[j].Key_index;
+									if (index < Application::Get().objects->objects[i].m_Anima[j].GetPathKeySize())
+									{
+										float temp1 = Application::Get().objects->objects[i].m_Anima[j].GetPathTotalTime(index);
+										float temp2 = row * 0.5f;
+										if (Application::Get().objects->objects[i].m_Anima[j].GetPathTotalTime(index) == row * 0.5f)
+										{
+											// 										ImU32 cell_bg_color = ImGui::GetColorU32(ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+											// 										ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, cell_bg_color);
+
+
+											std::string ButtomName = u8"有##" + std::to_string(index) + u8":" + std::to_string(column);//给每个buttom取名为"有##1:1"、"有##1:2"...（为了避免名字相同而冲突，且实际不会显示##1:1、##1:2等）
+
+											ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.84f, 0.33f, 0.33f, 1.0f));
+											ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.90f, 0.33f, 0.33f, 1.0f));
+											ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.33f, 0.33f, 1.0f));
+											ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+											//ImGui::Button("Click");
+
+
+											if (ImGui::Button(ButtomName.c_str()))
+											{
+												Application::Get().objects->ChangePos(Application::Get().objects->GetAnimation(i, j).GetPathKeyPos(index) - Application::Get().objects->GetPos(i, j), i, j);
+												Application::Get().objects->ChangeRotateQ(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(index), i, j);
+												Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(index), i, j);
+												Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(index), i, j);
+												if (Application::Get().objects->objects[i].m_HaveAngle)
+												{
+													if (Application::Get().objects->SolveAngle(i, j))
+													{
+														Application::Get().objects->ChangeAngle(i, j);
+													}
+												}
+											}
+											Application::Get().objects->objects[i].m_Anima[j].Key_index++;
+											ImGui::PopStyleColor(4);
+
+										}
+										else
+										{
+
+											ImGui::Text(u8"无");
+										}
+
+									}
+									else
+									{
+
+										ImGui::Text(u8"无");
+									}
+
+								}
+								else
+								{
+
+									ImGui::Text(u8"无");
+								}
+
+							}
+						}
+
+					}
+					ImGui::EndTable();
+				}
+			}
+
+			
+
+			ImGui::End();
+
+
+
+
+			ImGui::Begin(u8"物品栏");
+			if (ImGui::CollapsingHeader(u8"物品生成"))
+			{
+				if (ImGui::Button(u8"ABB IRB120 六轴机械臂"))
+				{
+					bool finded = false;
+					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+					{
+						if ((*it).m_Name == "irb120")
+						{
+							Application::Get().objects->AddAmount("irb120");
+							finded = true;
+						}
+					}
+					if (!finded)
+					{
+						Application::Get().objects->AddObject("irb120", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
+						Application::Get().insbos->AddObject(Application::Get().objects);
+					}
+
+				}
+				if (ImGui::Button(u8"低传送带"))
+				{
+					bool finded = false;
+					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+					{
+						if ((*it).m_Name == "belt1")
+						{
+							Application::Get().objects->AddAmount("belt1");
+							finded = true;
+						}
+					}
+					if (!finded)
+					{
+						Application::Get().objects->AddObject("belt1", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+						Application::Get().insbos->AddObject(Application::Get().objects);
+					}
+
+				}
+				if (ImGui::Button(u8"中传送带"))
+				{
+					bool finded = false;
+					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+					{
+						if ((*it).m_Name == "belt")
+						{
+							Application::Get().objects->AddAmount("belt");
+							finded = true;
+						}
+					}
+					if (!finded)
+					{
+						Application::Get().objects->AddObject("belt", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+						Application::Get().insbos->AddObject(Application::Get().objects);
+					}
+
+				}
+				if (ImGui::Button(u8"高传送带"))
+				{
+					bool finded = false;
+					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+					{
+						if ((*it).m_Name == "belt2")
+						{
+							Application::Get().objects->AddAmount("belt2");
+							finded = true;
+						}
+					}
+					if (!finded)
+					{
+						Application::Get().objects->AddObject("belt2", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+						Application::Get().insbos->AddObject(Application::Get().objects);
+					}
+
+				}
+				if (ImGui::Button(u8"AGV运输车"))
+				{
+					bool finded = false;
+					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+					{
+						if ((*it).m_Name == "AVG")
+						{
+							Application::Get().objects->AddAmount("AVG");
+							finded = true;
+						}
+					}
+					if (!finded)
+					{
+						Application::Get().objects->AddObject("AVG", glm::vec3(0, 0.8f, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+						Application::Get().insbos->AddObject(Application::Get().objects);
+					}
+
+				}
+				if (ImGui::Button(u8"转运盒"))
+				{
+					bool finded = false;
+					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+					{
+						if ((*it).m_Name == "box")
+						{
+							Application::Get().objects->AddAmount("box");
+							finded = true;
+						}
+					}
+					if (!finded)
+					{
+						Application::Get().objects->AddObject("box", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), false);
+						Application::Get().insbos->AddObject(Application::Get().objects);
+					}
+
+				}
+				if (ImGui::Button(u8"五轴数控机床"))
+				{
+					bool finded = false;
+					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+					{
+						if ((*it).m_Name == "machine")
+						{
+							Application::Get().objects->AddAmount("machine");
+							finded = true;
+						}
+					}
+					if (!finded)
+					{
+						Application::Get().objects->AddObject("machine", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.45f, 0.45f, 0.45f), false);
+						Application::Get().insbos->AddObject(Application::Get().objects);
+					}
+
+				}
+				if (ImGui::Button(u8"立体仓库"))
+				{
+					bool finded = false;
+					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+					{
+						if ((*it).m_Name == "storage")
+						{
+							Application::Get().objects->AddAmount("storage");
+							finded = true;
+						}
+					}
+					if (!finded)
+					{
+						Application::Get().objects->AddObject("storage", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f), false);
+						Application::Get().insbos->AddObject(Application::Get().objects);
+					}
+
+				}
+			}
+			
+
+			if (ImGui::CollapsingHeader(u8"已生成物品"))
+			{
+				for (int i = 0; i < Application::Get().objects->GetObjectAmount(); i++)
 				{
 					for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
 					{
@@ -549,238 +868,10 @@ namespace Hazel {
 						// 造字符串流
 						fmt << name << ":" << j;
 						std::string namej = fmt.str();
-						ImGui::TableSetupColumn(namej.c_str());
-
-						Application::Get().objects->objects[i].m_Anima[j].Key_index = 0;
-					}
-				}
-				ImGui::TableHeadersRow();
-
-
-				for (int row = 0; row < (int)(TotalTime / 0.5 + 1); row++)
-				{
-
-					int column = 0;
-					ImGui::TableNextRow();
-					ImGui::TableSetColumnIndex(column);
-					ImGui::Text(u8"%.1f秒", row * 0.5f);
-					for (int i = 0; i < TotalObjAmount; i++)
-					{
-						for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
+						if (ImGui::Button(namej.c_str()))
 						{
-							column++;
-							ImGui::TableSetColumnIndex(column);
-							if (Application::Get().objects->objects[i].m_Anima[j].HaveAnimation)
-							{
-								int index = Application::Get().objects->objects[i].m_Anima[j].Key_index;
-								if (index < Application::Get().objects->objects[i].m_Anima[j].GetPathKeySize())
-								{
-									float temp1 = Application::Get().objects->objects[i].m_Anima[j].GetPathTotalTime(index);
-									float temp2 = row * 0.5f;
-									if (Application::Get().objects->objects[i].m_Anima[j].GetPathTotalTime(index) == row * 0.5f)
-									{
-
-										std::string ButtomName = u8"有##" + std::to_string(index) + u8":" + std::to_string(column);//给每个buttom取名为"有##1:1"、"有##1:2"...（为了避免名字相同而冲突，且实际不会显示##1:1、##1:2等）
-										if (ImGui::Button(ButtomName.c_str()))
-										{
-											Application::Get().objects->ChangePos(Application::Get().objects->GetAnimation(i, j).GetPathKeyPos(index) - Application::Get().objects->GetPos(i, j), i, j);
-											Application::Get().objects->ChangeRotateQ(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(index), i, j);
-											Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(index), i, j);
-											Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(index), i, j);
-											if (Application::Get().objects->objects[i].m_HaveAngle)
-											{
-												if (Application::Get().objects->SolveAngle(i, j))
-												{
-													Application::Get().objects->ChangeAngle(i, j);
-												}
-											}
-										}
-										Application::Get().objects->objects[i].m_Anima[j].Key_index++;
-
-
-									}
-									else
-										ImGui::Text(u8"无");
-								}
-								else
-									ImGui::Text(u8"无");
-							}
-							else
-								ImGui::Text(u8"无");
+							Application::Get().objects->SetChoosedIndex(i, j);
 						}
-					}
-
-				}
-				ImGui::EndTable();
-			}
-
-			ImGui::End();
-
-
-
-
-			ImGui::Begin(u8"设备栏");
-			if (ImGui::Button(u8"ABB IRB120 六轴机械臂"))
-			{
-				bool finded = false;
-				for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
-				{
-					if ((*it).m_Name == "irb120")
-					{
-						Application::Get().objects->AddAmount("irb120");
-						finded = true;
-					}
-				}
-				if (!finded)
-				{
-					Application::Get().objects->AddObject("irb120", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
-					Application::Get().insbos->AddObject(Application::Get().objects);
-				}
-
-			}
-			if (ImGui::Button(u8"低传送带"))
-			{
-				bool finded = false;
-				for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
-				{
-					if ((*it).m_Name == "belt1")
-					{
-						Application::Get().objects->AddAmount("belt1");
-						finded = true;
-					}
-				}
-				if (!finded)
-				{
-					Application::Get().objects->AddObject("belt1", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
-					Application::Get().insbos->AddObject(Application::Get().objects);
-				}
-
-			}
-			if (ImGui::Button(u8"中传送带"))
-			{
-				bool finded = false;
-				for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
-				{
-					if ((*it).m_Name == "belt")
-					{
-						Application::Get().objects->AddAmount("belt");
-						finded = true;
-					}
-				}
-				if (!finded)
-				{
-					Application::Get().objects->AddObject("belt", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
-					Application::Get().insbos->AddObject(Application::Get().objects);
-				}
-
-			}
-			if (ImGui::Button(u8"高传送带"))
-			{
-				bool finded = false;
-				for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
-				{
-					if ((*it).m_Name == "belt2")
-					{
-						Application::Get().objects->AddAmount("belt2");
-						finded = true;
-					}
-				}
-				if (!finded)
-				{
-					Application::Get().objects->AddObject("belt2", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
-					Application::Get().insbos->AddObject(Application::Get().objects);
-				}
-
-			}
-			if (ImGui::Button(u8"AGV运输车"))
-			{
-				bool finded = false;
-				for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
-				{
-					if ((*it).m_Name == "AVG")
-					{
-						Application::Get().objects->AddAmount("AVG");
-						finded = true;
-					}
-				}
-				if (!finded)
-				{
-					Application::Get().objects->AddObject("AVG", glm::vec3(0, 0.8f, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
-					Application::Get().insbos->AddObject(Application::Get().objects);
-				}
-
-			}
-			if (ImGui::Button(u8"转运盒"))
-			{
-				bool finded = false;
-				for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
-				{
-					if ((*it).m_Name == "box")
-					{
-						Application::Get().objects->AddAmount("box");
-						finded = true;
-					}
-				}
-				if (!finded)
-				{
-					Application::Get().objects->AddObject("box", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), false);
-					Application::Get().insbos->AddObject(Application::Get().objects);
-				}
-
-			}
-			if (ImGui::Button(u8"五轴数控机床"))
-			{
-				bool finded = false;
-				for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
-				{
-					if ((*it).m_Name == "machine")
-					{
-						Application::Get().objects->AddAmount("machine");
-						finded = true;
-					}
-				}
-				if (!finded)
-				{
-					Application::Get().objects->AddObject("machine", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.45f, 0.45f, 0.45f), false);
-					Application::Get().insbos->AddObject(Application::Get().objects);
-				}
-
-			}
-			if (ImGui::Button(u8"立体仓库"))
-			{
-				bool finded = false;
-				for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
-				{
-					if ((*it).m_Name == "storage")
-					{
-						Application::Get().objects->AddAmount("storage");
-						finded = true;
-					}
-				}
-				if (!finded)
-				{
-					Application::Get().objects->AddObject("storage", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f), false);
-					Application::Get().insbos->AddObject(Application::Get().objects);
-				}
-
-			}
-
-			ImGui::Text(u8" ");
-			ImGui::Text(u8"已生成物品");
-			for (int i = 0; i < TotalObjAmount; i++)
-			{
-				for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
-				{
-					std::string name(Application::Get().objects->objects[i].m_Name);
-
-					// 准备根据格式造字符串流
-					std::stringstream fmt;
-					// 造字符串流
-					fmt << name << ":" << j;
-					std::string namej = fmt.str();
-					if (ImGui::Button(namej.c_str()))
-					{
-						Application::Get().objects->SetChoosedIndex(i, j);
 					}
 				}
 			}
@@ -808,44 +899,173 @@ namespace Hazel {
 			// 			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 			// 		}
 		}
-		if(Application::Get().BillBoard)
+		if(Application::Get().BillBoard&& Application::Get().mousemode == Application::MouseMode::Enable)
 		{
+
 			if (Application::Get().objects->GetChoosedIndex() > -1)
 			{
-				ImGui::Begin(u8"设备实时数据");
 				ImVec2 center1 = ImGui::GetMainViewport()->GetCenter();
 				glm::vec4 pos = Application::Get().ProjectionMatrix * Application::Get().ViewMatrix * glm::vec4(Application::Get().objects->GetPos(), 1.0f);
 				pos /= pos.w;
-				ImGui::SetWindowPos(ImVec2(center1.x + (pos.x * 0.5f) * Application::Get().GetWindow().GetWidth(), center1.y + (-pos.y * 0.5f) * Application::Get().GetWindow().GetHeight()));//窗口左上角的坐标，原点是电脑屏幕左上角
-				ImGui::SetWindowSize(ImVec2(200, 300));//窗口宽、高
-
-				int i = Application::Get().objects->GetChoosedObjectIndex();
-				int j = Application::Get().objects->GetChoosedIndex();
-
-				std::string name(Application::Get().objects->objects[i].m_Name);
-				// 准备根据格式造字符串流
-				std::stringstream fmt;
-				// 造字符串流
-				fmt << name << ":" << j;
-				std::string namej = u8"名称："+fmt.str();
-				ImGui::Text(namej.c_str());
-
-				if (Application::Get().objects->objects[i].m_Anima[j].Playing)
+				ImVec2 WindowPos = ImVec2(center1.x + (pos.x * 0.5f) * Application::Get().GetWindow().GetWidth(), center1.y + (-pos.y * 0.5f) * Application::Get().GetWindow().GetHeight());
+				ImVec2 WindowSize = ImVec2(200, 300);
+				if(pos.x>-1.0f&&pos.x< (1.0f - 2.0f*WindowSize.x/Application::Get().GetWindow().GetWidth())&& pos.y<1.0f && pos.y > (-1.0f + 2.0f * WindowSize.y / Application::Get().GetWindow().GetHeight()))
 				{
-					ImGui::Text(u8"状态：运行中");
-					ImGui::Text(u8"运行时间：%.1f秒", Application::Get().objects->objects[i].m_Anima[j].TimeNow);
-				}
-				else
-				{
-					ImGui::Text(u8"状态：停止中");
+					ImGui::Begin(u8"设备实时数据");
+
+
+					int i = Application::Get().objects->GetChoosedObjectIndex();
+					int j = Application::Get().objects->GetChoosedIndex();
+
+					std::string name(Application::Get().objects->objects[i].m_Name);
+					// 准备根据格式造字符串流
+					std::stringstream fmt;
+					// 造字符串流
+					fmt << name << ":" << j;
+					std::string namej = u8"名称：" + fmt.str();
+					ImGui::Text(namej.c_str());
+
+					if (Application::Get().objects->objects[i].m_Anima[j].Playing)
+					{
+						ImGui::TextColored(ImVec4(0.2f,0.75f,0.17f,1.0f), u8"状态：运行中");
+						ImGui::Text(u8"运行时间：%.1f秒", Application::Get().objects->objects[i].m_Anima[j].TimeNow);
+					}
+					else
+					{
+						ImGui::TextColored(ImVec4(0.84f, 0.33f, 0.33f, 1.0f), u8"状态：停止中");
+						//ImGui::Text(u8"状态：停止中");
+					}
+
+					if (Application::Get().objects->objects[i].m_HaveAngle)
+					{
+						//ImGui::Text(u8"关节控制：有");
+						ImGui::TextColored(ImVec4(0.2f, 0.75f, 0.17f, 1.0f), u8"关节控制：有");
+					}
+					else
+					{
+						//ImGui::Text(u8"关节控制：无");
+						ImGui::TextColored(ImVec4(0.84f, 0.33f, 0.33f, 1.0f), u8"关节控制：无");
+					}
+
+
+
+					ImGui::SetWindowPos(WindowPos);//窗口左上角的坐标，原点是电脑屏幕左上角
+					ImGui::SetWindowSize(WindowSize);//窗口宽、高
+					//ImGui::RenderText(ImVec2(200, 550), "hello"); // 这里指定在 (200,550)处绘制text
+
+					ImGui::End();
 				}
 				
-
-
-				//ImGui::RenderText(ImVec2(200, 550), "hello"); // 这里指定在 (200,550)处绘制text
-
-				ImGui::End();
+				
 			}
+			
+			ImGui::Begin(u8"智能化车间概况");
+			
+			NameList.clear();
+			AmountData.clear();
+			if (ImGui::CollapsingHeader(u8"设备总数"))
+			{
+				for (int i = 0; i < Application::Get().objects->GetObjectAmount(); i++)
+				{
+
+					std::string name(Application::Get().objects->objects[i].m_Name);
+
+					if (name == "box")
+					{
+						FactoryInAmount = 0;
+						FactoryProcessAmount = 0;
+						FactoryOutAmount = 0;
+						for (int j = 0; j < Application::Get().objects->GetAmount(i); j++)
+						{
+							float BoxPosX = Application::Get().objects->GetPos(i, j).x/10.0f;
+							if (BoxPosX > FactoryIn&& BoxPosX < FactoryInProcess)
+							{
+								FactoryInAmount++;
+							}
+							else if (BoxPosX > FactoryInProcess&& BoxPosX < FactoryOutProcess)
+							{
+								FactoryProcessAmount++;
+							}
+							else if (BoxPosX > FactoryOutProcess&& BoxPosX < FactoryOut)
+							{
+								FactoryOutAmount++;
+							}
+						}
+					}
+
+					// 准备根据格式造字符串流
+					std::stringstream fmt;
+					// 造字符串流
+					fmt << name << u8"总数：" << Application::Get().objects->GetAmount(i);
+					std::string namej = fmt.str();
+					ImGui::Text(namej.c_str());
+
+					NameList.push_back(Application::Get().objects->objects[i].m_Name.c_str());
+					AmountData.push_back(Application::Get().objects->GetAmount(i));
+
+					
+
+				}
+// 				static float arr[] = { 0.6f, 0.1f, 1.0f, 0.5f, 0.92f, 0.1f, 0.2f };
+// 				//ImGui::PlotLines("Frame Times", arr, IM_ARRAYSIZE(arr));
+// 				ImGui::PlotHistogram(u8"总数", arr, IM_ARRAYSIZE(arr), 0, NULL, 0.0f, 1.0f, ImVec2(0, 80.0f));
+
+
+// 				int   bar_data[7] = { 0.6f, 0.1f, 1.0f, 0.5f, 0.92f, 0.1f, 0.2f };
+// 				//float x_data[1000] = ...;
+// 				//float y_data[1000] = ...;
+// 				if (ImPlot::BeginPlot("My Plot"))
+// 				{
+// 					ImPlot::PlotBars("My Bar Plot", bar_data, 7);
+// 					//ImPlot::PlotLine("My Line Plot", x_data, y_data, 1000);
+// 					//...
+// 					ImPlot::EndPlot();
+// 				}
+
+				//static const char* labels[] = { "A","B","C","D","E" };
+				//static int data[] = { 1,1,2,3,5 };
+				static ImPlotPieChartFlags flags = 0;
+				ImPlot::PushColormap(ImPlotColormap_Pastel);
+				if (ImPlot::BeginPlot(u8"数量分布图", ImVec2(500, 500), ImPlotFlags_Equal | ImPlotFlags_NoMouseText)) {
+					ImPlot::SetupAxes(NULL, NULL, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations);
+					ImPlot::SetupAxesLimits(0, 1, 0, 1);
+					ImPlot::PlotPieChart(NameList.data(), AmountData.data(), NameList.size(), 0.5, 0.5, 0.4, "%.0f", 180, flags);
+					ImPlot::EndPlot();
+				}
+				ImPlot::PopColormap();
+
+				int data[3] = { FactoryOutAmount,FactoryProcessAmount,FactoryInAmount };
+				static const char* ilabels[] = { u8"出库",u8"加工中",u8"入库" };
+				static const char* glabels[] = { u8"状态" };
+				static const double positions[] = { 0 };
+
+				static int items = 3;
+				static int groups = 1;
+				static float size = 0.67f;
+
+				static ImPlotBarGroupsFlags flags1 = 0;
+				//static bool horz = false;
+
+				//ImGui::CheckboxFlags("Stacked", (unsigned int*)&flags, ImPlotBarGroupsFlags_Stacked);
+				//ImGui::SameLine();
+				//ImGui::Checkbox("Horizontal", &horz);
+
+				//ImGui::SliderInt("Items", &items, 1, 3);
+				//ImGui::SliderFloat("Size", &size, 0, 1);
+
+				if (ImPlot::BeginPlot(u8"出入库统计图")) {
+					ImPlot::SetupLegend(ImPlotLocation_East, ImPlotLegendFlags_Outside);
+					ImPlot::SetupAxes(u8"数量", "", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+					ImPlot::SetupAxisTicks(ImAxis_Y1, positions, groups, glabels);
+					ImPlot::PlotBarGroups(ilabels, data, items, groups, size, 0, flags1 | ImPlotBarGroupsFlags_Horizontal);
+					ImPlot::EndPlot();
+				}
+				
+			}
+			
+			
+			ImGui::End();
+			
 		}
  		
 		
