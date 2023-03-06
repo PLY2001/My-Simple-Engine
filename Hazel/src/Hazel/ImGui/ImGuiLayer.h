@@ -47,10 +47,12 @@ namespace Hazel {
 		std::vector<const char*> NameList;
 		std::vector<int> AmountData;
 
-		float FactoryIn = -10.0f;
-		float FactoryInProcess = -8.0f;
-		float FactoryOutProcess = 8.0f;
-		float FactoryOut = 10.0f;
+		glm::vec3 FactoryInMin = glm::vec3(1.0f);
+		glm::vec3 FactoryInMax = glm::vec3(1.0f);
+		glm::vec3 FactoryProcessMin = glm::vec3(1.0f);
+		glm::vec3 FactoryProcessMax = glm::vec3(1.0f);
+		glm::vec3 FactoryOutMin = glm::vec3(1.0f);
+		glm::vec3 FactoryOutMax = glm::vec3(1.0f);
 
 		int FactoryInAmount = 0;
 		int FactoryProcessAmount = 0;

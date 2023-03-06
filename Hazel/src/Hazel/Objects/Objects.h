@@ -41,6 +41,8 @@ namespace Hazel {
 		std::vector<glm::vec3> m_AABBMinPos;
 		std::vector<glm::vec3> m_AABBMaxPos;
 		std::vector<Animation> m_Anima;
+
+		std::vector<std::string> m_State;
 	};
 
 	class Objects
@@ -58,6 +60,7 @@ namespace Hazel {
 		void AddAmount();
 		void AddAmount(std::string name);
 		void AddAmount(glm::vec3 Pos, glm::vec3 Rotate);
+		void AddAmount(std::string name,glm::vec3 Pos, glm::vec3 Rotate);
 		void ReduceAmount();
 		void ReduceObjectAmount();
 		void Load_AddAmount();
@@ -90,6 +93,10 @@ namespace Hazel {
 		glm::vec3 GetHandEular();
 		//glm::qua<float> GetHandQuaternion();
 
+		std::string GetName();
+		std::string GetState();
+		std::string GetState(int objectindex, int index);
+
 		void ChangePos(glm::vec3 ChangedPos);
 		void ChangePos(glm::vec3 ChangedPos, int objectindex, int index);
 		void ChangeRotate(glm::vec3 ChangedRotate);
@@ -102,6 +109,9 @@ namespace Hazel {
 		void ChangeHandPos(glm::vec3 ChangedHandPos, int objectindex, int index);
 		void ChangeHandEular(glm::vec3 ChangedHandEular);
 		void ChangeHandEular(glm::vec3 ChangedHandEular, int objectindex, int index);
+
+		void ChangeState(std::string state);
+		void ChangeState(std::string state, int objectindex, int index);
 
 		void SetChoosedIndex(int ObjectIndex, int index);
 		inline int GetChoosedIndex() { return m_index; }

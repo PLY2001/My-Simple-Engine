@@ -61,6 +61,7 @@ namespace Hazel
 		OriginShader.reset(new Shader("res/shaders/Origin.shader"));
 		PlaneShader.reset(new Shader("res/shaders/Plane.shader"));
 		LightShader.reset(new Shader("res/shaders/Light.shader"));
+		RegionShader.reset(new Shader("res/shaders/Region.shader"));
 
 		//加载模型
 // 		std::ifstream source("res/models/path.txt");
@@ -186,6 +187,7 @@ namespace Hazel
 		shaderIDs.push_back(OriginShader->RendererID);
 		shaderIDs.push_back(PlaneShader->RendererID);
 		shaderIDs.push_back(LightShader->RendererID);
+		shaderIDs.push_back(RegionShader->RendererID);
 
 		ubo->Bind(shaderIDs, "Matrices");
 
@@ -220,6 +222,9 @@ namespace Hazel
 
 		
 		origin.reset(new Origin(OriginShader));
+
+		FactoryRegionPos.resize(6);
+		
 		HZ_CORE_INFO("Done!");
 	}
 
@@ -286,6 +291,8 @@ namespace Hazel
 
 
 			GLClearError();//清除错误信息
+
+			
 
 // 			if (mousemode == MouseMode::Disable)
 // 			{
@@ -484,6 +491,8 @@ namespace Hazel
 			//second pass
 			//render stuff
 
+			
+
 			//绘制碰撞盒
 			if (objects->GetChoosedIndex() > -1)
 			{
@@ -497,7 +506,29 @@ namespace Hazel
 
 
 
+
+
 			OpenGLRendererAPI::CullFace("BACK");
+
+			PlaneShader->Bind();
+
+			//向shader发送灯光位置和相机位置
+
+			//PlaneShader->SetUniform4f("u_LightPosition", -0.76f, 27.64f, -0.12f, 1.0f);
+
+			PlaneShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
+
+			PlaneShader->SetUniform1fArray("u_LightPosition", FactoryLightPos, 70);
+			PlaneShader->SetUniform1f("p", planeP);
+
+
+			//绘制真实物体
+			if (graphicmode != GraphicMode::Outline)
+			{
+				OpenGLRendererAPI::Draw(plane, PlaneShader);
+			}
+
+			PlaneShader->Unbind();
 
 			shader->Bind();
 
@@ -523,27 +554,44 @@ namespace Hazel
 
 			shader->Unbind();
 
-			PlaneShader->Bind();
+			
 
-			//向shader发送灯光位置和相机位置
-
-			//PlaneShader->SetUniform4f("u_LightPosition", -0.76f, 27.64f, -0.12f, 1.0f);
-
-			PlaneShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
-
-			PlaneShader->SetUniform1fArray("u_LightPosition", FactoryLightPos, 70);
-			PlaneShader->SetUniform1f("p", planeP);
-
-
-			//绘制真实物体
-			if (graphicmode != GraphicMode::Outline)
+			//绘制区域
+			if (DivideRegionsMode)
 			{
-				OpenGLRendererAPI::Draw(plane, PlaneShader);
+				region.reset(new Region(LastRegionWorldPos, RegionWorldPos, RegionShader));
+				//glDisable(GL_DEPTH_TEST);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				RegionShader->Bind();
+				RegionShader->SetUniform1f("time", lastTime);
+				RegionShader->SetUniform1f("w", RegionW);
+				region->Draw();
+				RegionShader->Unbind();
+				//glEnable(GL_DEPTH_TEST);
+				glDisable(GL_BLEND);
 			}
 
-			PlaneShader->Unbind();
+			if (BillBoard)
+			{
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				for (int i = 0; i < 3; i++)
+				{
+					region.reset(new Region(FactoryRegionPos[2 * i], FactoryRegionPos[2 * i + 1], RegionShader));
+					//glDisable(GL_DEPTH_TEST);
 
+					RegionShader->Bind();
+					RegionShader->SetUniform1f("time", lastTime);
+					RegionShader->SetUniform1f("w", RegionW);
+					region->Draw();
+					RegionShader->Unbind();
+					
+					//glEnable(GL_DEPTH_TEST);
 
+				}
+				glDisable(GL_BLEND);
+			}
 
 
 			if (graphicmode == GraphicMode::Outline)
@@ -853,6 +901,8 @@ namespace Hazel
 
 			
 
+			
+
 			for (int i = 0; i < objects->GetObjectAmount(); i++)
 			{
 				for (int j = 0; j < objects->GetAmount(i); j++)
@@ -964,7 +1014,7 @@ namespace Hazel
 			
 			ClickPos = glm::vec2(MousePos.x / m_Window->GetWidth() * 2.0f - 1.0f, MousePos.y / m_Window->GetHeight() * 2.0f - 1.0f);
 
-			if(!ModularCopy)
+			if(!ModularCopy&&!DivideRegionsMode)
 			{
 				for (float ClipZ = 1.0f; ClipZ > 0.0f; ClipZ -= 0.0001f)//OpenGL的相机中，z轴指向自己，z越大越近
 				{
@@ -994,7 +1044,7 @@ namespace Hazel
 
 				}
 			}
-			else
+			else if(ModularCopy)
 			{
 				for (float ClipZ = 1.0f; ClipZ > 0.0f; ClipZ -= 0.0001f)//OpenGL的相机中，z轴指向自己，z越大越近
 				{
@@ -1031,6 +1081,11 @@ namespace Hazel
 
 				}
 			}
+			else if (DivideRegionsMode)
+			{
+				ToDivideRegions = true;
+				first = true;
+			}
 
 			return true;
 		}
@@ -1040,9 +1095,10 @@ namespace Hazel
 	{
 		
 		MousePos = glm::vec2(e.GetX(), m_Window->GetHeight() - e.GetY());
+		ClickPos = glm::vec2(MousePos.x / m_Window->GetWidth() * 2.0f - 1.0f, MousePos.y / m_Window->GetHeight() * 2.0f - 1.0f);
 		if (ToMove)
 		{
-			ClickPos = glm::vec2(MousePos.x / m_Window->GetWidth() * 2.0f - 1.0f, MousePos.y / m_Window->GetHeight() * 2.0f - 1.0f);
+			
 
 			glm::vec4 irb120ScreenPos = ProjectionMatrix * ViewMatrix * glm::vec4(objects->GetPos(), 1.0f);
 			irb120ScreenPos /= irb120ScreenPos.w;
@@ -1131,6 +1187,29 @@ namespace Hazel
 			LastWorldClickPos = WorldClickPos;
 			//LastArrowPos = ArrowPos;
 		}
+		else if (ToDivideRegions)
+		{
+			for (float ClipZ = 1.0f; ClipZ > 0.0f; ClipZ -= 0.0001f)//OpenGL的相机中，z轴指向自己，z越大越近
+			{
+				glm::vec4 WorldClickPos = glm::inverse(ViewMatrix) * glm::inverse(ProjectionMatrix) * glm::vec4(ClickPos, ClipZ, 1.0f);
+				WorldClickPos /= WorldClickPos.w;
+
+				if (abs(WorldClickPos.y) < 0.1f)
+				{
+					if (first)
+					{
+						LastRegionWorldPos = WorldClickPos;
+						//LastArrowPos = ArrowPos;
+
+						first = false;
+					}
+					RegionWorldPos = WorldClickPos;
+				}
+
+
+
+			}
+		}
 
 
 		return true;
@@ -1139,6 +1218,7 @@ namespace Hazel
 	bool Application::OnMouseReleaseEvent(MouseButtonReleasedEvent& e)
 	{
 		ToMove = false;
+		ToDivideRegions = false;
 		return true;
 	}
 
@@ -1164,6 +1244,7 @@ namespace Hazel
 			else
 			{
 				BillBoard = true;
+				DivideRegionsMode = false;
 			}
 			
 			

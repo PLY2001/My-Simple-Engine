@@ -20,26 +20,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\CameraDepthMap.shader" />
-    <None Include="res\shaders\AABB.shader" />
-    <None Include="res\shaders\Arrow.shader" />
-    <None Include="res\shaders\Basic.shader" />
-    <None Include="res\shaders\Bloom.shader" />
-    <None Include="res\shaders\Bricks.shader" />
-    <None Include="res\shaders\Gaussian.shader" />
-    <None Include="res\shaders\Outline.shader" />
-    <None Include="res\shaders\Plane.shader" />
-    <None Include="res\shaders\Postprocessing.shader" />
-    <None Include="res\shaders\ScreenBasic.shader" />
-    <None Include="res\shaders\ShadowCubeDraw.shader" />
-    <None Include="res\shaders\ShadowCubeMap.shader" />
-    <None Include="res\shaders\ShadowDraw.shader" />
-    <None Include="res\shaders\ShadowMap.shader" />
-    <None Include="res\shaders\Skybox.shader" />
-    <None Include="res\shaders\Thresholding.shader" />
-    <None Include="res\shaders\ShadowColorMap.shader" />
-    <None Include="res\shaders\Origin.shader" />
-    <None Include="res\shaders\Light.shader" />
-    <None Include="res\shaders\Loading.shader" />
+    <None Include="res\shaders\Region.shader" />
   </ItemGroup>
 </Project>

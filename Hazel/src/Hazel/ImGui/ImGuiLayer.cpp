@@ -113,7 +113,7 @@ namespace Hazel {
 	{
 		//static bool show = true;
 		//ImGui::ShowDemoWindow(&show);//显示imgui示例界面
-		ImPlot::ShowDemoWindow();
+		//ImPlot::ShowDemoWindow();
 
 		if (Application::Get().mousemode == Application::MouseMode::Enable&& !Application::Get().BillBoard)
 		{
@@ -277,6 +277,45 @@ namespace Hazel {
 						ImGui::Text(u8"所选模型总计 %d 个", Application::Get().objects->GetMyAmount());
 						if (ImGui::Button(u8"模块化复制"))
 							Application::Get().ModularCopy = true;
+						if (Application::Get().objects->GetName() == "storage")
+						{
+							if (ImGui::Button(u8"填充仓库"))
+							{
+								glm::vec3 StoragePos = Application::Get().objects->GetPos();
+								bool finded = false;
+								for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+								{
+									if ((*it).m_Name == "box")
+									{
+										for (int i = 0; i < 6; i++)
+										{
+											for (int j = 0; j < 11; j++)
+											{
+												Application::Get().objects->AddAmount("box", StoragePos + glm::vec3(1.48f, 1.55f, -1.2f) + glm::vec3(0.0f, 18.03f / 10.0f * j, -10.12f / 5.0f * i), glm::vec3(0.0f));
+											}
+										}
+										finded = true;
+									}
+								}
+								if (!finded)
+								{
+									Application::Get().objects->AddObject("box", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), false);
+									Application::Get().insbos->AddObject(Application::Get().objects);
+									Application::Get().objects->ReduceAmount();
+									for (int i = 0; i < 6; i++)
+									{
+										for (int j = 0; j < 11; j++)
+										{
+											Application::Get().objects->AddAmount("box", StoragePos + glm::vec3(1.48f, 1.55f, -1.2f) + glm::vec3(0.0f, 18.03f / 10.0f * j, -10.12f / 5.0f * i), glm::vec3(0.0f));
+										}
+									}
+								}
+
+								
+								
+							}
+						}
+						
 						if (ImGui::Button(u8"删除所选模型"))
 						{
 							if (Application::Get().objects->GetMyAmount() == 1)
@@ -298,13 +337,13 @@ namespace Hazel {
 
 					if ((int)Application::Get().objects->GetControlMode() > 0)
 					{
-						if (ImGui::TreeNode(u8"机器人控制"))
+						if (ImGui::TreeNode(u8"机械控制"))
 						{
 							ImGui::RadioButton(u8"正向运动学", Application::Get().objects->GetControlModeAddress(), 1);
 							ImGui::SameLine();
 							ImGui::RadioButton(u8"逆向运动学", Application::Get().objects->GetControlModeAddress(), 2);
 
-							if ((int)Application::Get().objects->GetControlMode() == 1)
+							if ((int)Application::Get().objects->GetControlMode() == 1 && Application::Get().objects->GetName()=="irb120")
 							{
 								if (ImGui::SliderFloat("Angle1", Application::Get().objects->SetAngle(1), -165.0f, 165.0f))
 								{
@@ -331,59 +370,118 @@ namespace Hazel {
 									Application::Get().AngleChanged = true;
 								}
 							}
+							else if ((int)Application::Get().objects->GetControlMode() == 1 && Application::Get().objects->GetName() == "storage")
+							{
+								if (ImGui::SliderFloat("Angle1", Application::Get().objects->SetAngle(1), -10.12f, 0.0f))
+								{
+									Application::Get().AngleChanged = true;
+								}
+								if (ImGui::SliderFloat("Angle2", Application::Get().objects->SetAngle(2), 0.0f, 18.03f))
+								{
+									Application::Get().AngleChanged = true;
+								}
+								if (ImGui::SliderFloat("Angle3", Application::Get().objects->SetAngle(3), -3.3f, 0.0f))
+								{
+									Application::Get().AngleChanged = true;
+								}
+							}
 
 							if ((int)Application::Get().objects->GetControlMode() == 2)
 							{
 								glm::vec3 Scale = Application::Get().objects->GetScale();
 								HandPos = Application::Get().objects->GetHandPos() / 10.0f;
 								HandEular = Application::Get().objects->GetHandEular();
-								if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -652.0f * Scale.x / 10.0f, 652.0f * Scale.x / 10.0f))
+								if (Application::Get().objects->GetName() == "irb120")
 								{
-									Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
-									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-								}
+									if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -652.0f * Scale.x / 10.0f, 652.0f * Scale.x / 10.0f))
+									{
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
 
-								if (ImGui::SliderFloat("HandPosY", (float*)&HandPos.y, -184.0f * Scale.y / 10.0f, 1054.0f * Scale.y / 10.0f))
-								{
-									Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
-									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-								}
+									if (ImGui::SliderFloat("HandPosY", (float*)&HandPos.y, -184.0f * Scale.y / 10.0f, 1054.0f * Scale.y / 10.0f))
+									{
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
 
-								if (ImGui::SliderFloat("HandPosZ", (float*)&HandPos.z, -652.0f * Scale.z / 10.0f, 652.0f * Scale.z / 10.0f))
-								{
-									Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
-									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-								}
+									if (ImGui::SliderFloat("HandPosZ", (float*)&HandPos.z, -652.0f * Scale.z / 10.0f, 652.0f * Scale.z / 10.0f))
+									{
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
 
-								if (ImGui::InputFloat3("HandPos", (float*)&HandPos))
-								{
-									Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
-									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-								}
+									if (ImGui::InputFloat3("HandPos", (float*)&HandPos))
+									{
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
 
-								if (ImGui::SliderFloat("HandEularX", (float*)&HandEular.x, -180.0f, 180.0f))
-								{
-									Application::Get().objects->ChangeHandEular(HandEular);
-									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-								}
+									if (ImGui::SliderFloat("HandEularX", (float*)&HandEular.x, -180.0f, 180.0f))
+									{
+										Application::Get().objects->ChangeHandEular(HandEular);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
 
-								if (ImGui::SliderFloat("HandEularY", (float*)&HandEular.y, -180.0f, 180.0f))
-								{
-									Application::Get().objects->ChangeHandEular(HandEular);
-									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-								}
+									if (ImGui::SliderFloat("HandEularY", (float*)&HandEular.y, -180.0f, 180.0f))
+									{
+										Application::Get().objects->ChangeHandEular(HandEular);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
 
-								if (ImGui::SliderFloat("HandEularZ", (float*)&HandEular.z, -180.0f, 180.0f))
-								{
-									Application::Get().objects->ChangeHandEular(HandEular);
-									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
-								}
+									if (ImGui::SliderFloat("HandEularZ", (float*)&HandEular.z, -180.0f, 180.0f))
+									{
+										Application::Get().objects->ChangeHandEular(HandEular);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
 
-								if (ImGui::InputFloat3("HandEular", (float*)&HandEular))
-								{
-									Application::Get().objects->ChangeHandEular(HandEular);
-									Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									if (ImGui::InputFloat3("HandEular", (float*)&HandEular))
+									{
+										Application::Get().objects->ChangeHandEular(HandEular);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
 								}
+								else if (Application::Get().objects->GetName() == "storage")
+								{
+									static int i = 0;
+									static int j = 0;
+									if (ImGui::SliderInt("HandLocationY", &i, 0, 10))
+									{
+										HandPos.y = i * 18.03f * Scale.y / 10.0f / 10.0f;
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
+									if (ImGui::SliderInt("HandLocationZ", &j, 0, 5))
+									{
+										HandPos.z = - j * 10.12f * Scale.z / 10.0f / 5.0f;
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
+									if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -3.3f * Scale.x / 10.0f, 0.0f * Scale.x / 10.0f))
+									{
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
+
+									if (ImGui::SliderFloat("HandPosY", (float*)&HandPos.y, 0.0f * Scale.y / 10.0f,18.03f * Scale.y / 10.0f))
+									{
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
+
+									if (ImGui::SliderFloat("HandPosZ", (float*)&HandPos.z, -10.12f * Scale.z / 10.0f, 0.0f * Scale.z / 10.0f))
+									{
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
+
+									if (ImGui::InputFloat3("HandPos", (float*)&HandPos))
+									{
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
+								}
+								
 
 							}
 							ImGui::TreePop();
@@ -460,10 +558,39 @@ namespace Hazel {
 			}
 			if (ImGui::CollapsingHeader(u8"车间设置"))
 			{
-				ImGui::InputFloat(u8"入库x坐标边界", &FactoryIn, -1000.0f, 1000.0f, "%.1f");
-				ImGui::InputFloat(u8"加工x坐标边界", &FactoryInProcess, -1000.0f, 1000.0f, "%.1f");
-				ImGui::InputFloat(u8"加工毕x坐标边界", &FactoryOutProcess, -1000.0f, 1000.0f, "%.1f");
-				ImGui::InputFloat(u8"出库x坐标边界", &FactoryOut, -1000.0f, 1000.0f, "%.1f");
+				ImGui::Checkbox(u8"划分区域", &Application::Get().DivideRegionsMode);
+				const char* items[] = { u8"入库区域", u8"加工区域", u8"出库区域" };
+				static int item = -1;
+				ImGui::Combo(u8"区域类型", &item, items, IM_ARRAYSIZE(items));
+				
+				if (ImGui::Button(u8"确定"))
+				{
+					if (item == 0)
+					{
+						FactoryInMin = Application::Get().LastRegionWorldPos;
+						FactoryInMax = Application::Get().RegionWorldPos;
+					}
+					else if (item == 1)
+					{
+						FactoryProcessMin = Application::Get().LastRegionWorldPos;
+						FactoryProcessMax = Application::Get().RegionWorldPos;
+					}
+					else if (item == 2)
+					{
+						FactoryOutMin = Application::Get().LastRegionWorldPos;
+						FactoryOutMax = Application::Get().RegionWorldPos;
+					}
+					Application::Get().FactoryRegionPos[0] = FactoryInMin;
+					Application::Get().FactoryRegionPos[1] = FactoryInMax;
+					Application::Get().FactoryRegionPos[2] = FactoryProcessMin;
+					Application::Get().FactoryRegionPos[3] = FactoryProcessMax;
+					Application::Get().FactoryRegionPos[4] = FactoryOutMin;
+					Application::Get().FactoryRegionPos[5] = FactoryOutMax;
+				}
+// 				ImGui::InputFloat(u8"入库x坐标边界", &FactoryIn, -1000.0f, 1000.0f, "%.1f");
+// 				ImGui::InputFloat(u8"加工x坐标边界", &FactoryInProcess, -1000.0f, 1000.0f, "%.1f");
+// 				ImGui::InputFloat(u8"加工毕x坐标边界", &FactoryOutProcess, -1000.0f, 1000.0f, "%.1f");
+// 				ImGui::InputFloat(u8"出库x坐标边界", &FactoryOut, -1000.0f, 1000.0f, "%.1f");
 			}
 
 			
@@ -491,13 +618,13 @@ namespace Hazel {
 			//ImGui::InputFloat(u8"bias2", &Application::Get().bias2);
 			//ImGui::InputFloat(u8"bias3", &Application::Get().bias3);
 			//ImGui::InputFloat(u8"bias4", &Application::Get().bias4);
-	// 		ImGui::InputFloat(u8"width0", &Application::Get().width0);
-	// 		ImGui::InputFloat(u8"height0", &Application::Get().height0);
-	// 		ImGui::InputFloat(u8"width1", &Application::Get().width1);
-	//  	ImGui::InputFloat(u8"height1", &Application::Get().height1);
+//  			ImGui::InputFloat(u8"width0", &Application::Get().width0);
+//  			ImGui::InputFloat(u8"height0", &Application::Get().height0);
+//  			ImGui::InputFloat(u8"width1", &Application::Get().width1);
+//  			ImGui::InputFloat(u8"height1", &Application::Get().height1);
 			//ImGui::Checkbox("UIClicked", &Application::Get().UIClicked);
-	// 		ImGui::InputFloat(u8"ShadowRoundSize", &Application::Get().ShadowRoundSize);
-	// 		ImGui::InputFloat(u8"ShadowSoftSize", &Application::Get().ShadowSoftSize);
+// 	 		ImGui::InputFloat(u8"ShadowRoundSize", &Application::Get().ShadowRoundSize);
+// 	 		ImGui::InputFloat(u8"ShadowSoftSize", &Application::Get().ShadowSoftSize);
 	// 		ImGui::InputFloat(u8"biasmax", &Application::Get().BiasMax);
 	// 		ImGui::InputFloat(u8"biasmin", &Application::Get().BiasMin);
 	// 		ImGui::InputFloat(u8"shadowColorDepth", &Application::Get().shadowColorDepth);
@@ -511,7 +638,7 @@ namespace Hazel {
 	//  		ImGui::InputFloat(u8"widthB1", &Application::Get().widthB1);
 	//  		ImGui::InputFloat(u8"heightB1", &Application::Get().heightB1);
 	// 		ImGui::InputFloat(u8"BloomSize", &Application::Get().BloomSize);
-
+			//ImGui::InputFloat(u8"RegionW", &Application::Get().RegionW);
 
 			ImGui::End();
 
@@ -847,7 +974,7 @@ namespace Hazel {
 					}
 					if (!finded)
 					{
-						Application::Get().objects->AddObject("storage", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f), false);
+						Application::Get().objects->AddObject("storage", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f), true);
 						Application::Get().insbos->AddObject(Application::Get().objects);
 					}
 
@@ -884,20 +1011,7 @@ namespace Hazel {
 
 
 
-			ImGuiIO& io = ImGui::GetIO();
-			if (!io.WantCaptureMouse)
-			{
-				Application::Get().UIClicked = false;//鼠标不在UI上
-			}
-			else
-			{
-				Application::Get().UIClicked = true;//鼠标在UI上
-			}
-
-			// 		if (Application::Get().mousemode == Application::MouseMode::Disable)
-			// 		{
-			// 			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
-			// 		}
+			
 		}
 		if(Application::Get().BillBoard&& Application::Get().mousemode == Application::MouseMode::Enable)
 		{
@@ -925,14 +1039,19 @@ namespace Hazel {
 					std::string namej = u8"名称：" + fmt.str();
 					ImGui::Text(namej.c_str());
 
+					std::string name1(Application::Get().objects->GetState());
+					name1 = u8"状态：" + name1;
+
+					ImGui::TextColored(ImVec4(0.17f, 0.2f, 0.75f, 1.0f), name1.c_str());
+
 					if (Application::Get().objects->objects[i].m_Anima[j].Playing)
 					{
-						ImGui::TextColored(ImVec4(0.2f,0.75f,0.17f,1.0f), u8"状态：运行中");
+						ImGui::TextColored(ImVec4(0.2f,0.75f,0.17f,1.0f), u8"动画运行中");
 						ImGui::Text(u8"运行时间：%.1f秒", Application::Get().objects->objects[i].m_Anima[j].TimeNow);
 					}
 					else
 					{
-						ImGui::TextColored(ImVec4(0.84f, 0.33f, 0.33f, 1.0f), u8"状态：停止中");
+						ImGui::TextColored(ImVec4(0.84f, 0.33f, 0.33f, 1.0f), u8"动画停止中");
 						//ImGui::Text(u8"状态：停止中");
 					}
 
@@ -977,18 +1096,25 @@ namespace Hazel {
 						FactoryOutAmount = 0;
 						for (int j = 0; j < Application::Get().objects->GetAmount(i); j++)
 						{
-							float BoxPosX = Application::Get().objects->GetPos(i, j).x/10.0f;
-							if (BoxPosX > FactoryIn&& BoxPosX < FactoryInProcess)
+							glm::vec3 BoxPos = Application::Get().objects->GetPos(i, j);
+							if (BoxPos.x > FactoryInMin.x&& BoxPos.x < FactoryInMax.x&& BoxPos.z > FactoryInMin.z&& BoxPos.z < FactoryInMax.z)
 							{
 								FactoryInAmount++;
+								Application::Get().objects->ChangeState(u8"入库", i, j);
 							}
-							else if (BoxPosX > FactoryInProcess&& BoxPosX < FactoryOutProcess)
+							else if (BoxPos.x > FactoryProcessMin.x&& BoxPos.x < FactoryProcessMax.x && BoxPos.z > FactoryProcessMin.z&& BoxPos.z < FactoryProcessMax.z)
 							{
 								FactoryProcessAmount++;
+								Application::Get().objects->ChangeState(u8"加工中", i, j);
 							}
-							else if (BoxPosX > FactoryOutProcess&& BoxPosX < FactoryOut)
+							else if (BoxPos.x > FactoryOutMin.x&& BoxPos.x < FactoryOutMax.x && BoxPos.z > FactoryOutMin.z&& BoxPos.z < FactoryOutMax.z)
 							{
 								FactoryOutAmount++;
+								Application::Get().objects->ChangeState(u8"出库", i, j);
+							}
+							else
+							{
+								Application::Get().objects->ChangeState(u8"无", i, j);
 							}
 						}
 					}
@@ -1068,6 +1194,16 @@ namespace Hazel {
 			
 		}
  		
+		ImGuiIO& io = ImGui::GetIO();
+		if (!io.WantCaptureMouse)
+		{
+			Application::Get().UIClicked = false;//鼠标不在UI上
+		}
+		else
+		{
+			Application::Get().UIClicked = true;//鼠标在UI上
+		}
+
 		
 	}
 

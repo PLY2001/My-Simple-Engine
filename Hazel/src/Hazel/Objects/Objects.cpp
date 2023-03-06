@@ -20,6 +20,7 @@ namespace Hazel {
 		object.m_HaveAngle = hasAngle;
 		object.m_Name = name;
 		object.m_Amount = 1;
+		object.m_State.push_back(u8"无");
 
 		if (hasAngle)
 		{
@@ -44,8 +45,14 @@ namespace Hazel {
 				object.m_Angle[i].push_back(0);
 			}
 		}
-		
-		object.m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
+		if (name == "irb120")
+		{
+			object.m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
+		}
+		else
+		{
+			object.m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+		}
 		object.m_HandEular.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 		object.m_HandQuaternion.push_back(glm::qua<float>(glm::vec3(0.0f, 0.0f, 0.0f)));
 
@@ -164,7 +171,15 @@ namespace Hazel {
 		{
 			objects[m_Objectindex].m_Angle[i].push_back(0);
 		}
-		objects[m_Objectindex].m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
+		if (objects[m_Objectindex].m_Name == "irb120")
+		{
+			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
+		}
+		else
+		{
+			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+		}
+		
 		objects[m_Objectindex].m_HandEular.push_back(glm::vec3(0.0f,0.0f, 0.0f));
 		objects[m_Objectindex].m_HandQuaternion.push_back(glm::qua<float>(glm::vec3(0.0f)));
 		
@@ -172,6 +187,8 @@ namespace Hazel {
 
 		Animation Anima(objects[m_Objectindex].m_HaveAngle);
 		objects[m_Objectindex].m_Anima.push_back(Anima);
+
+		objects[m_Objectindex].m_State.push_back(u8"无");
 
 		m_index = objects[m_Objectindex].m_Amount - 1;
 	}
@@ -243,7 +260,14 @@ namespace Hazel {
 		{
 			objects[m_Objectindex].m_Angle[i].push_back(0);
 		}
-		objects[m_Objectindex].m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
+		if (objects[m_Objectindex].m_Name == "irb120")
+		{
+			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
+		}
+		else
+		{
+			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+		}
 		objects[m_Objectindex].m_HandEular.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 		objects[m_Objectindex].m_HandQuaternion.push_back(glm::qua<float>(glm::vec3(0.0f)));
 
@@ -252,7 +276,25 @@ namespace Hazel {
 		Animation Anima(objects[m_Objectindex].m_HaveAngle);
 		objects[m_Objectindex].m_Anima.push_back(Anima);
 
+		objects[m_Objectindex].m_State.push_back(u8"无");
+
 		m_index = objects[m_Objectindex].m_Amount - 1;
+	}
+
+	void Objects::AddAmount(std::string name, glm::vec3 Pos, glm::vec3 Rotate)
+	{
+		int i = 0;
+		for (Object object : objects)
+		{
+			if (object.m_Name == name)
+			{
+				m_Objectindex = i;
+				break;
+			}
+			i++;
+		}
+
+		AddAmount(Pos,Rotate);
 	}
 
 	void Objects::ReduceAmount()
@@ -302,6 +344,8 @@ namespace Hazel {
 		objects[m_Objectindex].m_HandQuaternion.erase(objects[m_Objectindex].m_HandQuaternion.begin() + m_index);
 
 		objects[m_Objectindex].m_Anima.erase(objects[m_Objectindex].m_Anima.begin() + m_index);
+
+		objects[m_Objectindex].m_State.erase(objects[m_Objectindex].m_State.begin() + m_index);
 
 		m_index = -1;
 		
@@ -367,12 +411,22 @@ namespace Hazel {
 		{
 			objects[m_Objectindex].m_Angle[i].push_back(0);
 		}
-		objects[m_Objectindex].m_HandPos.push_back(glm::vec3( -5.18f, 6.3f, 0.0f));
+		if (objects[m_Objectindex].m_Name == "irb120")
+		{
+			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
+		}
+		else
+		{
+			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+		}
+		
 		objects[m_Objectindex].m_HandEular.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 		objects[m_Objectindex].m_HandQuaternion.push_back(glm::qua<float>(glm::vec3(0.0f)));
 
 		Animation Anima(objects[m_Objectindex].m_HaveAngle);
 		objects[m_Objectindex].m_Anima.push_back(Anima);
+
+		objects[m_Objectindex].m_State.push_back(u8"无");
 
 		SetAABB(m_Objectindex, objects[m_Objectindex].m_Amount - 1);
 	}
@@ -413,57 +467,87 @@ namespace Hazel {
 		{
 			// 		for (int i = 0; i < Amount; i++)
 			// 		{
-			
+
 
 			objects[m_Objectindex].m_ModelMatrices[j][m_index] = objects[m_Objectindex].m_DefaultModelMatrices[j][m_index];
 			// 		}
 
 		}
 
-
-		for (int j = 1; j < objects[m_Objectindex].m_Model->meshes.size(); j++)
+		if (objects[m_Objectindex].m_Name == "irb120")
 		{
-			// 		for (int i = 0; i < Amount; i++)
-			// 		{
-			if (j > 0)
+			for (int j = 1; j < objects[m_Objectindex].m_Model->meshes.size(); j++)
 			{
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[0][m_index]), glm::vec3(0.0f, 1.0f, 0.0f));
-			}
-			if (j > 1)
-			{
+				// 		for (int i = 0; i < Amount; i++)
+				// 		{
+				if (j > 0)
+				{
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[0][m_index]), glm::vec3(0.0f, 1.0f, 0.0f));
+				}
+				if (j > 1)
+				{
 
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, 290.0f, 0.0f));
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[1][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -290.0f, 0.0f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, 290.0f, 0.0f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[1][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -290.0f, 0.0f));
+
+				}
+				if (j > 2)
+				{
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, 560.0f, 0.0f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[2][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -560.0f, 0.0f));
+				}
+				if (j > 3)
+				{
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, 630.0f, 0.0f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[3][m_index]), glm::vec3(1.0f, 0.0f, 0.0f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -630.0f, 0.0f));
+				}
+				if (j > 4)
+				{
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(-302.0f, 630.0f, 0.0f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[4][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(302.0f, -630.0f, 0.0f));
+				}
+				if (j > 5)
+				{
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(-302.0f, 630.0f, 0.0f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[5][m_index]), glm::vec3(1.0f, 0.0f, 0.0f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(302.0f, -630.0f, 0.0f));
+				}
+
+				//}
 
 			}
-			if (j > 2)
+		}
+		else if (objects[m_Objectindex].m_Name == "storage")
+		{
+			for (int j = 1; j < objects[m_Objectindex].m_Model->meshes.size(); j++)
 			{
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, 560.0f, 0.0f));
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[2][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -560.0f, 0.0f));
-			}
-			if (j > 3)
-			{
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, 630.0f, 0.0f));
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[3][m_index]), glm::vec3(1.0f, 0.0f, 0.0f));
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -630.0f, 0.0f));
-			}
-			if (j > 4)
-			{
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(-302.0f, 630.0f, 0.0f));
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[4][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(302.0f, -630.0f, 0.0f));
-			}
-			if (j > 5)
-			{
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(-302.0f, 630.0f, 0.0f));
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[5][m_index]), glm::vec3(1.0f, 0.0f, 0.0f));
-				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(302.0f, -630.0f, 0.0f));
-			}
+				if (j > 0)
+				{
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[0][m_index]), glm::vec3(0.0f, 1.0f, 0.0f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f,0.0f,objects[m_Objectindex].m_Angle[0][m_index]));
+				}
+				if (j > 1)
+				{
 
-			//}
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, objects[m_Objectindex].m_Angle[1][m_index],0.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[1][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -290.0f, 0.0f));
 
+				}
+				if (j > 2)
+				{
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(objects[m_Objectindex].m_Angle[2][m_index], 0.0f, 0.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[2][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -560.0f, 0.0f));
+				}
+
+				
+
+			}
 		}
 		SetAABB(m_Objectindex,m_index);
 
@@ -482,57 +566,91 @@ namespace Hazel {
 
 		}
 
-
-		for (int j = 1; j < objects[objectindex].m_Model->meshes.size(); j++)
+		if (objects[objectindex].m_Name == "irb120")
 		{
-			// 		for (int i = 0; i < Amount; i++)
-			// 		{
-			if (j > 0)
+			for (int j = 1; j < objects[objectindex].m_Model->meshes.size(); j++)
 			{
-				objects[objectindex].m_ModelMatrices[j][index] = glm::rotate(objects[objectindex].m_ModelMatrices[j][index], glm::radians(objects[objectindex].m_Angle[0][index]), glm::vec3(0.0f, 1.0f, 0.0f));
-			}
-			if (j > 1)
-			{
+				// 		for (int i = 0; i < Amount; i++)
+				// 		{
+				if (j > 0)
+				{
+					objects[objectindex].m_ModelMatrices[j][index] = glm::rotate(objects[objectindex].m_ModelMatrices[j][index], glm::radians(objects[objectindex].m_Angle[0][index]), glm::vec3(0.0f, 1.0f, 0.0f));
+				}
+				if (j > 1)
+				{
 
-				objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, 290.0f, 0.0f));
-				objects[objectindex].m_ModelMatrices[j][index] = glm::rotate(objects[objectindex].m_ModelMatrices[j][index], glm::radians(objects[objectindex].m_Angle[1][index]), glm::vec3(0.0f, 0.0f, 1.0f));
-				objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, -290.0f, 0.0f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, 290.0f, 0.0f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::rotate(objects[objectindex].m_ModelMatrices[j][index], glm::radians(objects[objectindex].m_Angle[1][index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, -290.0f, 0.0f));
+
+				}
+				if (j > 2)
+				{
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, 560.0f, 0.0f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::rotate(objects[objectindex].m_ModelMatrices[j][index], glm::radians(objects[objectindex].m_Angle[2][index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, -560.0f, 0.0f));
+				}
+				if (j > 3)
+				{
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, 630.0f, 0.0f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::rotate(objects[objectindex].m_ModelMatrices[j][index], glm::radians(objects[objectindex].m_Angle[3][index]), glm::vec3(1.0f, 0.0f, 0.0f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, -630.0f, 0.0f));
+				}
+				if (j > 4)
+				{
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(-302.0f, 630.0f, 0.0f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::rotate(objects[objectindex].m_ModelMatrices[j][index], glm::radians(objects[objectindex].m_Angle[4][index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(302.0f, -630.0f, 0.0f));
+				}
+				if (j > 5)
+				{
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(-302.0f, 630.0f, 0.0f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::rotate(objects[objectindex].m_ModelMatrices[j][index], glm::radians(objects[objectindex].m_Angle[5][index]), glm::vec3(1.0f, 0.0f, 0.0f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(302.0f, -630.0f, 0.0f));
+				}
+
+				//}
 
 			}
-			if (j > 2)
-			{
-				objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, 560.0f, 0.0f));
-				objects[objectindex].m_ModelMatrices[j][index] = glm::rotate(objects[objectindex].m_ModelMatrices[j][index], glm::radians(objects[objectindex].m_Angle[2][index]), glm::vec3(0.0f, 0.0f, 1.0f));
-				objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, -560.0f, 0.0f));
-			}
-			if (j > 3)
-			{
-				objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, 630.0f, 0.0f));
-				objects[objectindex].m_ModelMatrices[j][index] = glm::rotate(objects[objectindex].m_ModelMatrices[j][index], glm::radians(objects[objectindex].m_Angle[3][index]), glm::vec3(1.0f, 0.0f, 0.0f));
-				objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, -630.0f, 0.0f));
-			}
-			if (j > 4)
-			{
-				objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(-302.0f, 630.0f, 0.0f));
-				objects[objectindex].m_ModelMatrices[j][index] = glm::rotate(objects[objectindex].m_ModelMatrices[j][index], glm::radians(objects[objectindex].m_Angle[4][index]), glm::vec3(0.0f, 0.0f, 1.0f));
-				objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(302.0f, -630.0f, 0.0f));
-			}
-			if (j > 5)
-			{
-				objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(-302.0f, 630.0f, 0.0f));
-				objects[objectindex].m_ModelMatrices[j][index] = glm::rotate(objects[objectindex].m_ModelMatrices[j][index], glm::radians(objects[objectindex].m_Angle[5][index]), glm::vec3(1.0f, 0.0f, 0.0f));
-				objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(302.0f, -630.0f, 0.0f));
-			}
-
-			//}
-
 		}
+		else if (objects[objectindex].m_Name == "storage")
+		{
+			for (int j = 1; j < objects[objectindex].m_Model->meshes.size(); j++)
+			{
+				if (j > 0)
+				{
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[0][m_index]), glm::vec3(0.0f, 1.0f, 0.0f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, 0.0f, objects[objectindex].m_Angle[0][index]));
+				}
+				if (j > 1)
+				{
+
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, objects[objectindex].m_Angle[1][index], 0.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[1][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -290.0f, 0.0f));
+
+				}
+				if (j > 2)
+				{
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(objects[objectindex].m_Angle[2][index], 0.0f, 0.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[2][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -560.0f, 0.0f));
+				}
+
+
+
+			}
+		}
+		
 		SetAABB(objectindex, index);
 	}
 
 	float* Objects::SetAngle(int Axis)
 	{
+
 		return &objects[m_Objectindex].m_Angle[Axis - 1][m_index];
+		
+		
 	}
 
 // 	float* Objects::SetHandPos(int index)
@@ -547,252 +665,275 @@ namespace Hazel {
 
 	bool Objects::SolveAngle()
 	{
+		if (objects[m_Objectindex].m_Name == "irb120")
+		{
+			glm::vec3 Pos = objects[m_Objectindex].m_HandPos[m_index] / objects[m_Objectindex].m_Scale;
+			glm::vec3 Eular = objects[m_Objectindex].m_HandEular[m_index];
+
+			glm::mat4 backwardTranslate = glm::mat4(1);
+			backwardTranslate = glm::translate(backwardTranslate, glm::vec3(216.0f, 0.0f, 0.0f));//夹具中心到上一轴的距离为72+144
+
+
+			glm::mat4 backwardEular = glm::mat4(1);
+			backwardEular = glm::translate(backwardEular, Pos);
+			glm::qua<float> Quaternion = glm::qua<float>(glm::radians(Eular));
+			objects[m_Objectindex].m_HandQuaternion[m_index] = Quaternion;
+			glm::mat4 RotateMatrix = glm::mat4(1.0f);
+			RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
+			backwardEular = backwardEular * RotateMatrix;
+			// 		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.x), glm::vec3(1, 0, 0));
+			// 		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.y), glm::vec3(0, 1, 0));
+			// 		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.z), glm::vec3(0, 0, 1));
+			backwardEular = glm::translate(backwardEular, -Pos);
+
+			glm::vec4 Pw = backwardEular * backwardTranslate * glm::vec4(Pos, 1.0f);
+
+			// 	ImGui::Text("PwX = %.3f", Pw.x);
+			// 	ImGui::Text("PwY = %.3f", Pw.y);
+			// 	ImGui::Text("PwZ = %.3f", Pw.z);
+
+			float SolvedAngles[6] = { 0,0,0,0,0,0 };
+			SolvedAngles[0] = atan2f(Pw.z, -Pw.x) / PI * 180.0f;
+			//ImGui::Text("Angle1 = %.3f", SolvedAngles[0]);
+
+			float x = sqrt(Pw.x * Pw.x + Pw.z * Pw.z);
+			float y = Pw.y - 290.0f;
+			float temp = (float)acos((y * y + x * x - 169004.0f) / 167403.484f);
+			SolvedAngles[2] = (temp + (float)atan2f(70.0f, 302.0f)) / PI * 180.0f - 90.0f;
+			SolvedAngles[1] = atan2f((-y * 310.006f * sin(temp) + x * (270.0f + 310.006f * cos(temp))), (x * 310.006f * sin(temp) + y * (270.0f + 310.006f * cos(temp)))) * 180.0f / PI;
+			//	ImGui::Text("Angle2 = %.3f", SolvedAngles[1]);
+			// 	ImGui::Text("Angle3 = %.3f", SolvedAngles[2]);
+
+
+
+			glm::mat4 T13 = glm::mat4(1);
+			T13 = glm::translate(T13, glm::vec3(-302.0f, 630.0f, 0.0f));
+			//  		glm::qua<float> Quaternion1 = glm::qua<float>(glm::radians(glm::vec3(0.0f, SolvedAngles[0], SolvedAngles[1]+ SolvedAngles[2])));
+			//  		glm::mat4 RotateMatrix1 = glm::mat4(1.0f);
+			//  		RotateMatrix1 = glm::mat4_cast(Quaternion1) * RotateMatrix1;
+			//  		T13 =  T13*RotateMatrix1;
+			T13 = glm::rotate(T13, glm::radians(SolvedAngles[0]), glm::vec3(0.0f, 1.0f, 0.0f));
+			T13 = glm::rotate(T13, glm::radians(SolvedAngles[1]), glm::vec3(0.0f, 0.0f, 1.0f));
+			T13 = glm::rotate(T13, glm::radians(SolvedAngles[2]), glm::vec3(0.0f, 0.0f, 1.0f));
+
+			glm::mat4 T16 = glm::mat4(1);
+			T16 = glm::translate(T16, Pos);
+			glm::qua<float> Quaternion2 = glm::qua<float>(glm::radians(Eular));
+			glm::mat4 RotateMatrix2 = glm::mat4(1.0f);
+			RotateMatrix2 = glm::mat4_cast(Quaternion2) * RotateMatrix2;
+			T16 = T16 * RotateMatrix2;
+			//  		T16 = glm::rotate(T16, glm::radians(Eular.z), glm::vec3(0, 0, 1));
+			//  		T16 = glm::rotate(T16, glm::radians(Eular.y), glm::vec3(0, 1, 0));
+			//  		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
+
+			glm::mat4 T35 = glm::inverse(T13) * T16;
+
+			SolvedAngles[3] = atan2f(T35[0].z, T35[0].y) / PI * 180.0f;//[0]表示第一列，z表示第三行
+			//SolvedAngles[3] = 0.0f;
+			SolvedAngles[5] = atan2f(T35[2].x, -T35[1].x) / PI * 180.0f;
+			//SolvedAngles[5] = 0.0f;
+			SolvedAngles[4] = atan2f(-T35[1].x / cos(SolvedAngles[5] * PI / 180.0f), T35[0].x) / PI * 180.0f;
+			//SolvedAngles[4] = 0.0f;
+
+			// 	ImGui::Text("Angle4 = %.3f", SolvedAngles[3]);
+			// 	ImGui::Text("Angle5 = %.3f", SolvedAngles[4]);
+
+
+			if (SolvedAngles[0] < 165.0f && SolvedAngles[0] > -165.0f)
+			{
+				objects[m_Objectindex].m_Angle[0][m_index] = SolvedAngles[0];
+			}
+			else
+			{
+				return false;
+			}
+			if (SolvedAngles[1] < 110.0f && SolvedAngles[1] > -110.0f)
+			{
+				objects[m_Objectindex].m_Angle[1][m_index] = SolvedAngles[1];
+			}
+			else
+			{
+				return false;
+			}
+			if (SolvedAngles[2] < 70.0f && SolvedAngles[2] > -110.0f)
+			{
+				objects[m_Objectindex].m_Angle[2][m_index] = SolvedAngles[2];
+			}
+			else
+			{
+				return false;
+			}
+
+			//if (SolvedAngles[3] < 160.0f && SolvedAngles[3] > -160.0f)
+			objects[m_Objectindex].m_Angle[3][m_index] = SolvedAngles[3];
+
+			if (SolvedAngles[4] < 120.0f && SolvedAngles[4] > -120.0f)
+			{
+				objects[m_Objectindex].m_Angle[4][m_index] = SolvedAngles[4];
+			}
+			else
+			{
+				return false;
+			}
+			if (SolvedAngles[5] < 400.0f && SolvedAngles[5] > -400.0f)
+			{
+				objects[m_Objectindex].m_Angle[5][m_index] = SolvedAngles[5];
+			}
+			else
+			{
+				return false;
+			}
+			return true;
+		}
+		else if (objects[m_Objectindex].m_Name == "storage")
+		{
+			glm::vec3 Pos = objects[m_Objectindex].m_HandPos[m_index] / objects[m_Objectindex].m_Scale;
+			objects[m_Objectindex].m_Angle[0][m_index] = Pos.z;
+			objects[m_Objectindex].m_Angle[1][m_index] = Pos.y;
+			objects[m_Objectindex].m_Angle[2][m_index] = Pos.x;
+			return true;
+		}
 		
-		glm::vec3 Pos = objects[m_Objectindex].m_HandPos[m_index]/ objects[m_Objectindex].m_Scale;
-		glm::vec3 Eular = objects[m_Objectindex].m_HandEular[m_index];
-		
-		glm::mat4 backwardTranslate = glm::mat4(1);
-		backwardTranslate = glm::translate(backwardTranslate, glm::vec3(216.0f, 0.0f, 0.0f));//夹具中心到上一轴的距离为72+144
-
-
-		glm::mat4 backwardEular = glm::mat4(1);
-		backwardEular = glm::translate(backwardEular, Pos);
-		glm::qua<float> Quaternion = glm::qua<float>(glm::radians(Eular));
-		objects[m_Objectindex].m_HandQuaternion[m_index] = Quaternion;
-		glm::mat4 RotateMatrix = glm::mat4(1.0f);
-		RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
-		backwardEular = backwardEular * RotateMatrix;
-// 		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.x), glm::vec3(1, 0, 0));
-// 		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.y), glm::vec3(0, 1, 0));
-// 		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.z), glm::vec3(0, 0, 1));
-		backwardEular = glm::translate(backwardEular, -Pos);
-
-		glm::vec4 Pw = backwardEular * backwardTranslate * glm::vec4(Pos, 1.0f);
-
-		// 	ImGui::Text("PwX = %.3f", Pw.x);
-		// 	ImGui::Text("PwY = %.3f", Pw.y);
-		// 	ImGui::Text("PwZ = %.3f", Pw.z);
-
-		float SolvedAngles[6] = { 0,0,0,0,0,0 };
-		SolvedAngles[0] = atan2f(Pw.z, -Pw.x) / PI * 180.0f;
-		//ImGui::Text("Angle1 = %.3f", SolvedAngles[0]);
-
-		float x = sqrt(Pw.x * Pw.x + Pw.z * Pw.z);
-		float y = Pw.y - 290.0f;
-		float temp = (float)acos((y * y + x * x - 169004.0f) / 167403.484f);
-		SolvedAngles[2] = (temp + (float)atan2f(70.0f, 302.0f)) / PI * 180.0f - 90.0f;
-		SolvedAngles[1] = atan2f((-y * 310.006f * sin(temp) + x * (270.0f + 310.006f * cos(temp))), (x * 310.006f * sin(temp) + y * (270.0f + 310.006f * cos(temp)))) * 180.0f / PI;
-		//	ImGui::Text("Angle2 = %.3f", SolvedAngles[1]);
-		// 	ImGui::Text("Angle3 = %.3f", SolvedAngles[2]);
-
-
-
-		glm::mat4 T13 = glm::mat4(1);
-		T13 = glm::translate(T13, glm::vec3(-302.0f, 630.0f, 0.0f));
-//  		glm::qua<float> Quaternion1 = glm::qua<float>(glm::radians(glm::vec3(0.0f, SolvedAngles[0], SolvedAngles[1]+ SolvedAngles[2])));
-//  		glm::mat4 RotateMatrix1 = glm::mat4(1.0f);
-//  		RotateMatrix1 = glm::mat4_cast(Quaternion1) * RotateMatrix1;
-//  		T13 =  T13*RotateMatrix1;
-		T13 = glm::rotate(T13, glm::radians(SolvedAngles[0]), glm::vec3(0.0f, 1.0f, 0.0f));
-		T13 = glm::rotate(T13, glm::radians(SolvedAngles[1]), glm::vec3(0.0f, 0.0f, 1.0f));
-		T13 = glm::rotate(T13, glm::radians(SolvedAngles[2]), glm::vec3(0.0f, 0.0f, 1.0f));
-
-		glm::mat4 T16 = glm::mat4(1);
-		T16 = glm::translate(T16, Pos);
-		glm::qua<float> Quaternion2 = glm::qua<float>(glm::radians(Eular));
-		glm::mat4 RotateMatrix2 = glm::mat4(1.0f);
-		RotateMatrix2 = glm::mat4_cast(Quaternion2) * RotateMatrix2;
-		T16 = T16 * RotateMatrix2;
-//  		T16 = glm::rotate(T16, glm::radians(Eular.z), glm::vec3(0, 0, 1));
-//  		T16 = glm::rotate(T16, glm::radians(Eular.y), glm::vec3(0, 1, 0));
-//  		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
-
-		glm::mat4 T35 = glm::inverse(T13) * T16;
-		
-		SolvedAngles[3] = atan2f(T35[0].z, T35[0].y) / PI * 180.0f;//[0]表示第一列，z表示第三行
-		//SolvedAngles[3] = 0.0f;
-		SolvedAngles[5] = atan2f(T35[2].x, -T35[1].x) / PI * 180.0f;
-		//SolvedAngles[5] = 0.0f;
-		SolvedAngles[4] = atan2f(-T35[1].x / cos(SolvedAngles[5] * PI / 180.0f), T35[0].x) / PI * 180.0f;
-		//SolvedAngles[4] = 0.0f;
-		
-		// 	ImGui::Text("Angle4 = %.3f", SolvedAngles[3]);
-		// 	ImGui::Text("Angle5 = %.3f", SolvedAngles[4]);
-
-
-		if (SolvedAngles[0] < 165.0f && SolvedAngles[0] > -165.0f)
-		{
-			objects[m_Objectindex].m_Angle[0][m_index] = SolvedAngles[0];
-		}
-		else
-		{
-			return false;
-		}
-		if (SolvedAngles[1] < 110.0f && SolvedAngles[1] > -110.0f)
-		{
-			objects[m_Objectindex].m_Angle[1][m_index] = SolvedAngles[1];
-		}
-		else
-		{
-			return false;
-		}
-		if (SolvedAngles[2] < 70.0f && SolvedAngles[2] > -110.0f)
-		{
-			objects[m_Objectindex].m_Angle[2][m_index] = SolvedAngles[2];
-		}
-		else
-		{
-			return false;
-		}
-
-		//if (SolvedAngles[3] < 160.0f && SolvedAngles[3] > -160.0f)
-		objects[m_Objectindex].m_Angle[3][m_index] = SolvedAngles[3];
-
-		if (SolvedAngles[4] < 120.0f && SolvedAngles[4] > -120.0f)
-		{
-		objects[m_Objectindex].m_Angle[4][m_index] = SolvedAngles[4];
-	}
-		else
-		{
-		return false;
-		}
-		if (SolvedAngles[5] < 400.0f && SolvedAngles[5] > -400.0f)
-		{
-			objects[m_Objectindex].m_Angle[5][m_index] = SolvedAngles[5];
-		}
-		else
-		{
-			return false;
-		}
 		//ChangeAngle();
-		return true;
+		
 
 	}
 
 	bool Objects::SolveAngle(int objectindex, int index)
 	{
+		if (objects[objectindex].m_Name == "irb120")
+		{
+			glm::vec3 Pos = objects[objectindex].m_HandPos[index] / objects[objectindex].m_Scale;
+			glm::vec3 Eular = objects[objectindex].m_HandEular[index];
+
+			glm::mat4 backwardTranslate = glm::mat4(1);
+			backwardTranslate = glm::translate(backwardTranslate, glm::vec3(216.0f, 0.0f, 0.0f));//夹具中心到上一轴的距离为72+144
+
+
+			glm::mat4 backwardEular = glm::mat4(1);
+			backwardEular = glm::translate(backwardEular, Pos);
+			glm::qua<float> Quaternion = glm::qua<float>(glm::radians(Eular));
+			objects[objectindex].m_HandQuaternion[index] = Quaternion;
+			glm::mat4 RotateMatrix = glm::mat4(1.0f);
+			RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
+			backwardEular = backwardEular * RotateMatrix;
+			//  		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.x), glm::vec3(1, 0, 0));
+			//  		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.y), glm::vec3(0, 1, 0));
+			//  		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.z), glm::vec3(0, 0, 1));
+			backwardEular = glm::translate(backwardEular, -Pos);
+
+			glm::vec4 Pw = backwardEular * backwardTranslate * glm::vec4(Pos, 1.0f);
+
+			// 	ImGui::Text("PwX = %.3f", Pw.x);
+			// 	ImGui::Text("PwY = %.3f", Pw.y);
+			// 	ImGui::Text("PwZ = %.3f", Pw.z);
+
+			float SolvedAngles[6] = { 0,0,0,0,0,0 };
+			SolvedAngles[0] = atan2f(Pw.z, -Pw.x) / PI * 180.0f;
+			//ImGui::Text("Angle1 = %.3f", SolvedAngles[0]);
+
+			float x = sqrt(Pw.x * Pw.x + Pw.z * Pw.z);
+			float y = Pw.y - 290.0f;
+			float temp = (float)acos((y * y + x * x - 169004.0f) / 167403.484f);
+			SolvedAngles[2] = (temp + (float)atan2f(70.0f, 302.0f)) / PI * 180.0f - 90.0f;
+			SolvedAngles[1] = atan2f((-y * 310.006f * sin(temp) + x * (270.0f + 310.006f * cos(temp))), (x * 310.006f * sin(temp) + y * (270.0f + 310.006f * cos(temp)))) * 180.0f / PI;
+			//	ImGui::Text("Angle2 = %.3f", SolvedAngles[1]);
+			// 	ImGui::Text("Angle3 = %.3f", SolvedAngles[2]);
+
+
+
+			glm::mat4 T13 = glm::mat4(1);
+			T13 = glm::translate(T13, glm::vec3(-302.0f, 630.0f, 0.0f));
+			// 		glm::qua<float> Quaternion1 = glm::qua<float>(glm::radians(glm::vec3(0.0f, SolvedAngles[0], SolvedAngles[1] + SolvedAngles[2])));
+			// 		glm::mat4 RotateMatrix1 = glm::mat4(1.0f);
+			// 		RotateMatrix1 = glm::mat4_cast(Quaternion1) * RotateMatrix1;
+			// 		T13 = T13 * RotateMatrix1;
+			T13 = glm::rotate(T13, glm::radians(SolvedAngles[0]), glm::vec3(0.0f, 1.0f, 0.0f));
+			//T13 = glm::translate(T13, glm::vec3(0.0f, 290.0f, 0.0f));
+			T13 = glm::rotate(T13, glm::radians(SolvedAngles[1]), glm::vec3(0.0f, 0.0f, 1.0f));
+			//T13 = glm::translate(T13, glm::vec3(0.0f, -290.0f, 0.0f));
+			//T13 = glm::translate(T13, glm::vec3(0.0f, 560.0f, 0.0f));
+			T13 = glm::rotate(T13, glm::radians(SolvedAngles[2]), glm::vec3(0.0f, 0.0f, 1.0f));
+			//T13 = glm::translate(T13, glm::vec3(0.0f, -560.0f, 0.0f));
+
+			glm::mat4 T16 = glm::mat4(1);
+			T16 = glm::translate(T16, Pos);
+			glm::qua<float> Quaternion2 = glm::qua<float>(glm::radians(Eular));
+			glm::mat4 RotateMatrix2 = glm::mat4(1.0f);
+			RotateMatrix2 = glm::mat4_cast(Quaternion2) * RotateMatrix2;
+			T16 = T16 * RotateMatrix2;
+			//  		T16 = glm::rotate(T16, glm::radians(Eular.z), glm::vec3(0, 0, 1));
+			//  		T16 = glm::rotate(T16, glm::radians(Eular.y), glm::vec3(0, 1, 0));
+			//  		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
+
+			glm::mat4 T35 = glm::inverse(T13) * T16;
+
+			SolvedAngles[3] = atan2f(T35[0].z, T35[0].y) / PI * 180.0f;//[0]表示第一列，z表示第三行
+			//SolvedAngles[3] = 0.0f;
+			SolvedAngles[5] = atan2f(T35[2].x, -T35[1].x) / PI * 180.0f;
+			//SolvedAngles[5] = 0.0f;
+			SolvedAngles[4] = atan2f(-T35[1].x / cos(SolvedAngles[5] * PI / 180.0f), T35[0].x) / PI * 180.0f;
+			//SolvedAngles[4] = 0.0f;
+
+			// 	ImGui::Text("Angle4 = %.3f", SolvedAngles[3]);
+			// 	ImGui::Text("Angle5 = %.3f", SolvedAngles[4]);
+
+
+			if (SolvedAngles[0] < 165.0f && SolvedAngles[0] > -165.0f)
+			{
+				objects[objectindex].m_Angle[0][index] = SolvedAngles[0];
+			}
+			else
+			{
+				return false;
+			}
+			if (SolvedAngles[1] < 110.0f && SolvedAngles[1] > -110.0f)
+			{
+				objects[objectindex].m_Angle[1][index] = SolvedAngles[1];
+			}
+			else
+			{
+				return false;
+			}
+			if (SolvedAngles[2] < 70.0f && SolvedAngles[2] > -110.0f)
+			{
+				objects[objectindex].m_Angle[2][index] = SolvedAngles[2];
+			}
+			else
+			{
+				return false;
+			}
+
+			//if (SolvedAngles[3] < 160.0f && SolvedAngles[3] > -160.0f)
+			objects[objectindex].m_Angle[3][index] = SolvedAngles[3];
+
+			if (SolvedAngles[4] < 120.0f && SolvedAngles[4] > -120.0f)
+			{
+				objects[objectindex].m_Angle[4][index] = SolvedAngles[4];
+			}
+			else
+			{
+				return false;
+			}
+			if (SolvedAngles[5] < 400.0f && SolvedAngles[5] > -400.0f)
+			{
+				objects[objectindex].m_Angle[5][index] = SolvedAngles[5];
+			}
+			else
+			{
+				return false;
+			}
+			//ChangeAngle();
+			return true;
+		}
+		else if (objects[objectindex].m_Name == "storage")
+		{
 		glm::vec3 Pos = objects[objectindex].m_HandPos[index] / objects[objectindex].m_Scale;
-		glm::vec3 Eular = objects[objectindex].m_HandEular[index];
-
-		glm::mat4 backwardTranslate = glm::mat4(1);
-		backwardTranslate = glm::translate(backwardTranslate, glm::vec3(216.0f, 0.0f, 0.0f));//夹具中心到上一轴的距离为72+144
-
-
-		glm::mat4 backwardEular = glm::mat4(1);
-		backwardEular = glm::translate(backwardEular, Pos);
-		glm::qua<float> Quaternion = glm::qua<float>(glm::radians(Eular));
-		objects[objectindex].m_HandQuaternion[index] = Quaternion;
-		glm::mat4 RotateMatrix = glm::mat4(1.0f);
-		RotateMatrix = glm::mat4_cast(Quaternion) * RotateMatrix;
-		backwardEular = backwardEular * RotateMatrix;
-//  		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.x), glm::vec3(1, 0, 0));
-//  		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.y), glm::vec3(0, 1, 0));
-//  		backwardEular = glm::rotate(backwardEular, glm::radians(Eular.z), glm::vec3(0, 0, 1));
-		backwardEular = glm::translate(backwardEular, -Pos);
-
-		glm::vec4 Pw = backwardEular * backwardTranslate * glm::vec4(Pos, 1.0f);
-
-		// 	ImGui::Text("PwX = %.3f", Pw.x);
-		// 	ImGui::Text("PwY = %.3f", Pw.y);
-		// 	ImGui::Text("PwZ = %.3f", Pw.z);
-
-		float SolvedAngles[6] = { 0,0,0,0,0,0 };
-		SolvedAngles[0] = atan2f(Pw.z, -Pw.x) / PI * 180.0f;
-		//ImGui::Text("Angle1 = %.3f", SolvedAngles[0]);
-
-		float x = sqrt(Pw.x * Pw.x + Pw.z * Pw.z);
-		float y = Pw.y - 290.0f;
-		float temp = (float)acos((y * y + x * x - 169004.0f) / 167403.484f);
-		SolvedAngles[2] = (temp + (float)atan2f(70.0f, 302.0f)) / PI * 180.0f - 90.0f;
-		SolvedAngles[1] = atan2f((-y * 310.006f * sin(temp) + x * (270.0f + 310.006f * cos(temp))), (x * 310.006f * sin(temp) + y * (270.0f + 310.006f * cos(temp)))) * 180.0f / PI;
-		//	ImGui::Text("Angle2 = %.3f", SolvedAngles[1]);
-		// 	ImGui::Text("Angle3 = %.3f", SolvedAngles[2]);
-
-
-
-		glm::mat4 T13 = glm::mat4(1);
-		T13 = glm::translate(T13, glm::vec3(-302.0f, 630.0f, 0.0f));
-// 		glm::qua<float> Quaternion1 = glm::qua<float>(glm::radians(glm::vec3(0.0f, SolvedAngles[0], SolvedAngles[1] + SolvedAngles[2])));
-// 		glm::mat4 RotateMatrix1 = glm::mat4(1.0f);
-// 		RotateMatrix1 = glm::mat4_cast(Quaternion1) * RotateMatrix1;
-// 		T13 = T13 * RotateMatrix1;
- 		T13 = glm::rotate(T13, glm::radians(SolvedAngles[0]), glm::vec3(0.0f, 1.0f, 0.0f));
- 		//T13 = glm::translate(T13, glm::vec3(0.0f, 290.0f, 0.0f));
- 		T13 = glm::rotate(T13, glm::radians(SolvedAngles[1]), glm::vec3(0.0f, 0.0f, 1.0f));
- 		//T13 = glm::translate(T13, glm::vec3(0.0f, -290.0f, 0.0f));
- 		//T13 = glm::translate(T13, glm::vec3(0.0f, 560.0f, 0.0f));
- 		T13 = glm::rotate(T13, glm::radians(SolvedAngles[2]), glm::vec3(0.0f, 0.0f, 1.0f));
- 		//T13 = glm::translate(T13, glm::vec3(0.0f, -560.0f, 0.0f));
-
-		glm::mat4 T16 = glm::mat4(1);
-		T16 = glm::translate(T16, Pos);
-		glm::qua<float> Quaternion2 = glm::qua<float>(glm::radians(Eular));
-		glm::mat4 RotateMatrix2 = glm::mat4(1.0f);
-		RotateMatrix2 = glm::mat4_cast(Quaternion2) * RotateMatrix2;
-		T16 = T16 * RotateMatrix2;
-//  		T16 = glm::rotate(T16, glm::radians(Eular.z), glm::vec3(0, 0, 1));
-//  		T16 = glm::rotate(T16, glm::radians(Eular.y), glm::vec3(0, 1, 0));
-//  		T16 = glm::rotate(T16, glm::radians(Eular.x), glm::vec3(1, 0, 0));
-
-		glm::mat4 T35 = glm::inverse(T13) * T16;
-
-		SolvedAngles[3] = atan2f(T35[0].z, T35[0].y) / PI * 180.0f;//[0]表示第一列，z表示第三行
-		//SolvedAngles[3] = 0.0f;
-		SolvedAngles[5] = atan2f(T35[2].x, -T35[1].x) / PI * 180.0f;
-		//SolvedAngles[5] = 0.0f;
-		SolvedAngles[4] = atan2f(-T35[1].x / cos(SolvedAngles[5] * PI / 180.0f), T35[0].x) / PI * 180.0f;
-		//SolvedAngles[4] = 0.0f;
-
-		// 	ImGui::Text("Angle4 = %.3f", SolvedAngles[3]);
-		// 	ImGui::Text("Angle5 = %.3f", SolvedAngles[4]);
-
-
-		if (SolvedAngles[0] < 165.0f && SolvedAngles[0] > -165.0f)
-		{
-			objects[objectindex].m_Angle[0][index] = SolvedAngles[0];
-		}
-		else
-		{
-			return false;
-		}
-		if (SolvedAngles[1] < 110.0f && SolvedAngles[1] > -110.0f)
-		{
-			objects[objectindex].m_Angle[1][index] = SolvedAngles[1];
-		}
-		else
-		{
-			return false;
-		}
-		if (SolvedAngles[2] < 70.0f && SolvedAngles[2] > -110.0f)
-		{
-			objects[objectindex].m_Angle[2][index] = SolvedAngles[2];
-		}
-		else
-		{
-			return false;
-		}
-
-		//if (SolvedAngles[3] < 160.0f && SolvedAngles[3] > -160.0f)
-		objects[objectindex].m_Angle[3][index] = SolvedAngles[3];
-
-		if (SolvedAngles[4] < 120.0f && SolvedAngles[4] > -120.0f)
-		{
-			objects[objectindex].m_Angle[4][index] = SolvedAngles[4];
-		}
-		else
-		{
-			return false;
-		}
-		if (SolvedAngles[5] < 400.0f && SolvedAngles[5] > -400.0f)
-		{
-			objects[objectindex].m_Angle[5][index] = SolvedAngles[5];
-		}
-		else
-		{
-			return false;
-		}
-		//ChangeAngle();
+		objects[objectindex].m_Angle[0][index] = Pos.z;
+		objects[objectindex].m_Angle[1][index] = Pos.y;
+		objects[objectindex].m_Angle[2][index] = Pos.x;
 		return true;
+		}
 	}
 
 	Hazel::Animation& Objects::GetAnimation(int objectindex, int index)
@@ -910,6 +1051,21 @@ namespace Hazel {
 	{
 		return objects[m_Objectindex].m_HandEular[m_index];
 		//return glm::eulerAngles(objects[m_Objectindex].m_HandQuaternion[m_index]);
+	}
+
+	std::string Objects::GetName()
+	{
+		return objects[m_Objectindex].m_Name;
+	}
+
+	std::string Objects::GetState()
+	{
+		return objects[m_Objectindex].m_State[m_index];
+	}
+
+	std::string Objects::GetState(int objectindex, int index)
+	{
+		return objects[objectindex].m_State[index];
 	}
 
 // 	glm::qua<float> Objects::GetHandQuaternion()
@@ -1134,6 +1290,16 @@ namespace Hazel {
 	{
 		objects[m_Objectindex].m_HandEular[m_index] = ChangedHandEular;
 
+	}
+
+	void Objects::ChangeState(std::string state)
+	{
+		objects[m_Objectindex].m_State[m_index] = state;
+	}
+
+	void Objects::ChangeState(std::string state, int objectindex, int index)
+	{
+		objects[objectindex].m_State[index] = state;
 	}
 
 	void Objects::SetChoosedIndex(int ObjectIndex, int index)

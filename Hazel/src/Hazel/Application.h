@@ -22,6 +22,7 @@
 #include "Hazel/Renderer/InstanceBufferObjects.h"
 #include "Hazel/Renderer/Animation.h"
 #include "Hazel/Renderer/Origin.h"
+#include "Hazel/Renderer/Region.h"
 
 namespace Hazel
 {
@@ -84,6 +85,7 @@ namespace Hazel
 		std::shared_ptr<Shader> PlaneShader;
 		std::shared_ptr<Shader> LightShader;
 		std::shared_ptr<Shader> LoadingShader;
+		std::shared_ptr<Shader> RegionShader;
 		//灯光
 		float count = 0;
 		std::unique_ptr<Light> PointLight;
@@ -163,6 +165,8 @@ namespace Hazel
 
 		std::unique_ptr<Origin> origin;
 
+		std::unique_ptr<Region> region;
+
 		std::unique_ptr<AABB> aabb;
 
 	private:
@@ -238,8 +242,8 @@ namespace Hazel
 		float width1 = 360000.0f;//均值模糊核最大宽
 		float height1 = 240000.0f;//均值模糊核最大高
 
-		float ShadowRoundSize = 25.0f;//阴影圆润度（越小越圆润）
-		float ShadowSoftSize = 100.0f;//阴影模糊度
+		float ShadowRoundSize = 40.0f;//阴影圆润度（越小越圆润）
+		float ShadowSoftSize = 60.0f;//阴影模糊度
 		float shadowColorDepth = 0.5f;//阴影颜色深度
 		float hbaoShadowColorDepth = 1.0f;//hbao颜色深度
 
@@ -270,6 +274,14 @@ namespace Hazel
 		float BloomSize = 25.0f;//bloom深浅
 		
 		bool BillBoard = false;
+		bool DivideRegionsMode = false;
+		bool ToDivideRegions = false;
+		glm::vec3 LastRegionWorldPos = glm::vec3(1.0f);
+		glm::vec3 RegionWorldPos = glm::vec3(1.0f);
+
+		std::vector<glm::vec3> FactoryRegionPos;
+
+		float RegionW = 0.0001f;//区域渐变速度
 	};
 
 	Application* CreateApplication();
