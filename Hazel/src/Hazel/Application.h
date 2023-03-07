@@ -218,6 +218,7 @@ namespace Hazel
 		std::shared_ptr<Model> Belt1Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::shared_ptr<Model> Belt2Model;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::shared_ptr<Model> BeltModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
+		std::shared_ptr<Model> BeltLiftModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::shared_ptr<Model> AVGModel;//读取模型，目录从当前项目根目录开始，或者生成的exe根目录。需将noise.jpg复制到每一个模型旁边。
 		std::shared_ptr<Model> BoxModel;
 		std::shared_ptr<Model> MachineModel;
@@ -281,7 +282,7 @@ namespace Hazel
 
 		std::vector<glm::vec3> FactoryRegionPos;
 
-		float RegionW = 0.0001f;//区域渐变速度
+		//float RegionW = 0.0001f;//区域渐变速度
 	};
 
 	Application* CreateApplication();

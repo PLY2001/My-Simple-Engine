@@ -385,6 +385,28 @@ namespace Hazel {
 									Application::Get().AngleChanged = true;
 								}
 							}
+							else if ((int)Application::Get().objects->GetControlMode() == 1 && Application::Get().objects->GetName() == "machine")
+							{
+								if (ImGui::SliderFloat("Angle1", Application::Get().objects->SetAngle(1), -1.848f, 1.848f))
+								{
+									Application::Get().AngleChanged = true;
+								}
+								if (ImGui::SliderFloat("Angle2", Application::Get().objects->SetAngle(2), 0.0f, 0.8f))
+								{
+									Application::Get().AngleChanged = true;
+								}
+								if (ImGui::SliderFloat("Angle3", Application::Get().objects->SetAngle(3), -0.2428f, 0.0f))
+								{
+									Application::Get().AngleChanged = true;
+								}
+							}
+							else if ((int)Application::Get().objects->GetControlMode() == 1 && Application::Get().objects->GetName() == "belt_lift")
+							{
+								if (ImGui::SliderFloat("Angle1", Application::Get().objects->SetAngle(1), 0.0f, 546.0f))
+								{
+									Application::Get().AngleChanged = true;
+								}
+							}
 
 							if ((int)Application::Get().objects->GetControlMode() == 2)
 							{
@@ -481,6 +503,41 @@ namespace Hazel {
 										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 									}
 								}
+								else if (Application::Get().objects->GetName() == "machine")
+								{
+									if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -1.848f * Scale.x / 10.0f, 1.848f * Scale.x / 10.0f))
+									{
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
+
+									if (ImGui::SliderFloat("HandPosY", (float*)&HandPos.y, 0.0f * Scale.y / 10.0f, 0.8f * Scale.y / 10.0f))
+									{
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
+
+									if (ImGui::SliderFloat("HandPosZ", (float*)&HandPos.z, -0.2428f * Scale.z / 10.0f, 0.0f * Scale.z / 10.0f))
+									{
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
+
+									if (ImGui::InputFloat3("HandPos", (float*)&HandPos))
+									{
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
+								}
+								else if (Application::Get().objects->GetName() == "belt_lift")
+								{
+									if (ImGui::SliderFloat("HandPosY", (float*)&HandPos.y, 0.0f * Scale.y / 10.0f, 546.0f * Scale.y / 10.0f))
+									{
+										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
+								}
+
 								
 
 							}
@@ -639,6 +696,7 @@ namespace Hazel {
 	//  		ImGui::InputFloat(u8"heightB1", &Application::Get().heightB1);
 	// 		ImGui::InputFloat(u8"BloomSize", &Application::Get().BloomSize);
 			//ImGui::InputFloat(u8"RegionW", &Application::Get().RegionW);
+			
 
 			ImGui::End();
 
@@ -708,66 +766,85 @@ namespace Hazel {
 
 			if (ImGui::CollapsingHeader(u8"关键帧表"))
 			{
-				static ImGuiTableFlags flags = ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
-				static int freeze_cols = 1;
-				static int freeze_rows = 1;
-				// When using ScrollX or ScrollY we need to specify a size for our table container!
-				// Otherwise by default the table will fit all available space, like a BeginChild() call.
-				ImVec2 outer_size = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 8);
-				int TotalObjAmount = Application::Get().objects->GetObjectAmount();
-				int TotalAmount = 0;
-				for (int i = 0; i < TotalObjAmount; i++)
+				if (Application::Get().objects->GetChoosedIndex() > -1)
 				{
-					TotalAmount += Application::Get().objects->objects[i].m_Amount;
-				}
-				if (ImGui::BeginTable("KeyTimes", 1 + TotalAmount, flags, outer_size))
-				{
-					ImGui::TableSetupScrollFreeze(freeze_cols, freeze_rows);
-					ImGui::TableSetupColumn(u8"时间节点", ImGuiTableColumnFlags_NoHide); // Make the first column not hideable to match our use of TableSetupScrollFreeze()
+					static ImGuiTableFlags flags = ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+					static int freeze_cols = 1;
+					static int freeze_rows = 1;
+					// When using ScrollX or ScrollY we need to specify a size for our table container!
+					// Otherwise by default the table will fit all available space, like a BeginChild() call.
+					ImVec2 outer_size = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing()*2.5f);
+					//int TotalObjAmount = Application::Get().objects->GetObjectAmount();
+					//int TotalAmount = 0;
+	// 				for (int i = 0; i < TotalObjAmount; i++)
+	// 				{
+	// 					TotalAmount += Application::Get().objects->objects[i].m_Amount;
+	// 				}
 
-					for (int i = 0; i < TotalObjAmount; i++)
+					if (ImGui::BeginTable("KeyTimes", 1+ (int)(TotalTime / 0.5 + 1), flags, outer_size))
 					{
-						for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
-						{
-							std::string name(Application::Get().objects->objects[i].m_Name);
+						ImGui::TableSetupScrollFreeze(freeze_cols, freeze_rows);
+						ImGui::TableSetupColumn(u8"物体名称", ImGuiTableColumnFlags_NoHide); // Make the first column not hideable to match our use of TableSetupScrollFreeze()
 
+						for (int column = 0; column < (int)(TotalTime / 0.5 + 1); column++)
+						{
+							std::stringstream fmt;
+							// 造字符串流
+							fmt << float(column*0.5f) <<u8"秒";
+							std::string namej = fmt.str();
+							//ImGui::SetNextItemWidth(100.0f);
+							ImGui::TableSetupColumn(namej.c_str());
+						}
+						Application::Get().objects->GetMyAnimation().Key_index = 0;
+
+// 						for (int i = 0; i < TotalObjAmount; i++)
+// 						{
+// 							for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
+// 							{
+// 								std::string name(Application::Get().objects->objects[i].m_Name);
+// 
+// 								// 准备根据格式造字符串流
+// 								std::stringstream fmt;
+// 								// 造字符串流
+// 								fmt << name << ":" << j;
+// 								std::string namej = fmt.str();
+// 								ImGui::TableSetupColumn(namej.c_str());
+// 
+// 								Application::Get().objects->objects[i].m_Anima[j].Key_index = 0;
+// 							}
+// 						}
+						ImGui::TableHeadersRow();
+
+
+						//for (int row = 0; row < (int)(TotalTime / 0.5 + 1); row++)
+						//{
+
+							//int column = 0;
+							ImGui::TableNextRow();
+							ImGui::TableSetColumnIndex(0);
+							std::string name(Application::Get().objects->GetName());
+							 
 							// 准备根据格式造字符串流
 							std::stringstream fmt;
 							// 造字符串流
-							fmt << name << ":" << j;
+							fmt << name << ":" << Application::Get().objects->GetChoosedIndex();
 							std::string namej = fmt.str();
-							ImGui::TableSetupColumn(namej.c_str());
+							ImGui::Text(namej.c_str());
 
-							Application::Get().objects->objects[i].m_Anima[j].Key_index = 0;
-						}
-					}
-					ImGui::TableHeadersRow();
-
-
-					for (int row = 0; row < (int)(TotalTime / 0.5 + 1); row++)
-					{
-
-						int column = 0;
-						ImGui::TableNextRow();
-						ImGui::TableSetColumnIndex(column);
-						ImGui::Text(u8"%.1f秒", row * 0.5f);
-						for (int i = 0; i < TotalObjAmount; i++)
-						{
-							for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
+							for (int column = 1; column < 1+(int)(TotalTime / 0.5 + 1); column++)
 							{
-								column++;
+								
 								ImGui::TableSetColumnIndex(column);
-								if (Application::Get().objects->objects[i].m_Anima[j].HaveAnimation)
+								if (Application::Get().objects->GetMyAnimation().HaveAnimation)
 								{
-									int index = Application::Get().objects->objects[i].m_Anima[j].Key_index;
-									if (index < Application::Get().objects->objects[i].m_Anima[j].GetPathKeySize())
+									int index = Application::Get().objects->GetMyAnimation().Key_index;
+									if (index < Application::Get().objects->GetMyAnimation().GetPathKeySize())
 									{
-										float temp1 = Application::Get().objects->objects[i].m_Anima[j].GetPathTotalTime(index);
-										float temp2 = row * 0.5f;
-										if (Application::Get().objects->objects[i].m_Anima[j].GetPathTotalTime(index) == row * 0.5f)
+										//float temp1 = Application::Get().objects->GetMyAnimation().GetPathTotalTime(index);
+										//float temp2 = column * 0.5f;
+										if (Application::Get().objects->GetMyAnimation().GetPathTotalTime(index) == (column-1) * 0.5f)
 										{
-											// 										ImU32 cell_bg_color = ImGui::GetColorU32(ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-											// 										ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, cell_bg_color);
+											
 
 
 											std::string ButtomName = u8"有##" + std::to_string(index) + u8":" + std::to_string(column);//给每个buttom取名为"有##1:1"、"有##1:2"...（为了避免名字相同而冲突，且实际不会显示##1:1、##1:2等）
@@ -781,19 +858,19 @@ namespace Hazel {
 
 											if (ImGui::Button(ButtomName.c_str()))
 											{
-												Application::Get().objects->ChangePos(Application::Get().objects->GetAnimation(i, j).GetPathKeyPos(index) - Application::Get().objects->GetPos(i, j), i, j);
-												Application::Get().objects->ChangeRotateQ(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(index), i, j);
-												Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(index), i, j);
-												Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(index), i, j);
-												if (Application::Get().objects->objects[i].m_HaveAngle)
+												Application::Get().objects->ChangePos(Application::Get().objects->GetMyAnimation().GetPathKeyPos(index) - Application::Get().objects->GetPos());
+												Application::Get().objects->ChangeRotateQ(Application::Get().objects->GetMyAnimation().GetPathKeyRotate(index));
+												Application::Get().objects->ChangeHandPos(Application::Get().objects->GetMyAnimation().GetPathKeyHandPos(index));
+												Application::Get().objects->ChangeHandEular(Application::Get().objects->GetMyAnimation().GetPathKeyHandEular(index));
+												if (Application::Get().objects->GetHaveAngle())
 												{
-													if (Application::Get().objects->SolveAngle(i, j))
+													if (Application::Get().objects->SolveAngle())
 													{
-														Application::Get().objects->ChangeAngle(i, j);
+														Application::Get().objects->ChangeAngle();
 													}
 												}
 											}
-											Application::Get().objects->objects[i].m_Anima[j].Key_index++;
+											Application::Get().objects->GetMyAnimation().Key_index++;
 											ImGui::PopStyleColor(4);
 
 										}
@@ -816,12 +893,19 @@ namespace Hazel {
 
 									ImGui::Text(u8"无");
 								}
-
 							}
-						}
+// 							for (int i = 0; i < TotalObjAmount; i++)
+// 							{
+// 								for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
+// 								{
+// 									
+// 
+// 								}
+// 							}
 
+						//}
+						ImGui::EndTable();
 					}
-					ImGui::EndTable();
 				}
 			}
 
@@ -907,6 +991,24 @@ namespace Hazel {
 					}
 
 				}
+				if (ImGui::Button(u8"传送带升降机"))
+				{
+					bool finded = false;
+					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+					{
+						if ((*it).m_Name == "belt_lift")
+						{
+							Application::Get().objects->AddAmount("belt_lift");
+							finded = true;
+						}
+					}
+					if (!finded)
+					{
+						Application::Get().objects->AddObject("belt_lift", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), true);
+						Application::Get().insbos->AddObject(Application::Get().objects);
+					}
+
+				}
 				if (ImGui::Button(u8"AGV运输车"))
 				{
 					bool finded = false;
@@ -943,7 +1045,7 @@ namespace Hazel {
 					}
 
 				}
-				if (ImGui::Button(u8"五轴数控机床"))
+				if (ImGui::Button(u8"注塑机"))
 				{
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
@@ -956,7 +1058,7 @@ namespace Hazel {
 					}
 					if (!finded)
 					{
-						Application::Get().objects->AddObject("machine", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.45f, 0.45f, 0.45f), false);
+						Application::Get().objects->AddObject("machine", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(2.5f,2.5f,2.5f), true);
 						Application::Get().insbos->AddObject(Application::Get().objects);
 					}
 

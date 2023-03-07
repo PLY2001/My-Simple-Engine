@@ -549,6 +549,48 @@ namespace Hazel {
 
 			}
 		}
+		else if (objects[m_Objectindex].m_Name == "machine")
+		{
+			for (int j = 4; j < objects[m_Objectindex].m_Model->meshes.size(); j++)
+			{
+				if (j > 3&&j<6)
+				{
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[0][m_index]), glm::vec3(0.0f, 1.0f, 0.0f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(objects[m_Objectindex].m_Angle[0][m_index],0.0f, 0.0f ));
+				}
+				if (j > 4 && j < 6)
+				{
+
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, objects[m_Objectindex].m_Angle[1][m_index], 0.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[1][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -290.0f, 0.0f));
+
+				}
+				if (j > 5)
+				{
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, 0.0f, objects[m_Objectindex].m_Angle[2][m_index]));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[2][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -560.0f, 0.0f));
+				}
+
+
+
+			}
+		}
+		else if (objects[m_Objectindex].m_Name == "belt_lift")
+		{
+		for (int j = 1; j < objects[m_Objectindex].m_Model->meshes.size(); j++)
+		{
+			if (j > 0)
+			{
+				//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[0][m_index]), glm::vec3(0.0f, 1.0f, 0.0f));
+				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, objects[m_Objectindex].m_Angle[0][m_index], 0.0f));
+			}
+
+
+
+		}
+		}
 		SetAABB(m_Objectindex,m_index);
 
 	}
@@ -640,6 +682,48 @@ namespace Hazel {
 
 
 			}
+		}
+		else if (objects[objectindex].m_Name == "machine")
+		{
+			for (int j = 4; j < objects[objectindex].m_Model->meshes.size(); j++)
+			{
+				if (j > 3 && j < 6)
+				{
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[0][m_index]), glm::vec3(0.0f, 1.0f, 0.0f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(objects[objectindex].m_Angle[0][index],0.0f, 0.0f ));
+				}
+				if (j > 4 && j < 6)
+				{
+
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, objects[objectindex].m_Angle[1][index], 0.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[1][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -290.0f, 0.0f));
+
+				}
+				if (j > 5)
+				{
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3( 0.0f, 0.0f, objects[objectindex].m_Angle[2][index]));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[2][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -560.0f, 0.0f));
+				}
+
+
+
+			}
+		}
+		else if (objects[objectindex].m_Name == "belt_lift")
+		{
+		for (int j = 1; j < objects[objectindex].m_Model->meshes.size(); j++)
+		{
+			if (j > 0)
+			{
+				//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[0][m_index]), glm::vec3(0.0f, 1.0f, 0.0f));
+				objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, objects[objectindex].m_Angle[0][index], 0.0f));
+			}
+
+
+
+		}
 		}
 		
 		SetAABB(objectindex, index);
@@ -793,6 +877,22 @@ namespace Hazel {
 			objects[m_Objectindex].m_Angle[2][m_index] = Pos.x;
 			return true;
 		}
+		else if (objects[m_Objectindex].m_Name == "machine")
+		{
+		glm::vec3 Pos = objects[m_Objectindex].m_HandPos[m_index] / objects[m_Objectindex].m_Scale;
+		objects[m_Objectindex].m_Angle[0][m_index] = Pos.x;
+		objects[m_Objectindex].m_Angle[1][m_index] = Pos.y;
+		objects[m_Objectindex].m_Angle[2][m_index] = Pos.z;
+		return true;
+		}
+		else if (objects[m_Objectindex].m_Name == "belt_lift")
+		{
+		glm::vec3 Pos = objects[m_Objectindex].m_HandPos[m_index] / objects[m_Objectindex].m_Scale;
+		
+		objects[m_Objectindex].m_Angle[0][m_index] = Pos.y;
+		
+		return true;
+		}
 		
 		//ChangeAngle();
 		
@@ -934,6 +1034,22 @@ namespace Hazel {
 		objects[objectindex].m_Angle[2][index] = Pos.x;
 		return true;
 		}
+		else if (objects[objectindex].m_Name == "machine")
+		{
+		glm::vec3 Pos = objects[objectindex].m_HandPos[index] / objects[objectindex].m_Scale;
+		objects[objectindex].m_Angle[0][index] = Pos.x;
+		objects[objectindex].m_Angle[1][index] = Pos.y;
+		objects[objectindex].m_Angle[2][index] = Pos.z;
+		return true;
+		}
+		else if (objects[objectindex].m_Name == "belt_lift")
+		{
+		glm::vec3 Pos = objects[objectindex].m_HandPos[index] / objects[objectindex].m_Scale;
+		
+		objects[objectindex].m_Angle[0][index] = Pos.y;
+		
+		return true;
+		}
 	}
 
 	Hazel::Animation& Objects::GetAnimation(int objectindex, int index)
@@ -1051,6 +1167,11 @@ namespace Hazel {
 	{
 		return objects[m_Objectindex].m_HandEular[m_index];
 		//return glm::eulerAngles(objects[m_Objectindex].m_HandQuaternion[m_index]);
+	}
+
+	bool Objects::GetHaveAngle()
+	{
+		return objects[m_Objectindex].m_HaveAngle;
 	}
 
 	std::string Objects::GetName()
@@ -1268,6 +1389,34 @@ namespace Hazel {
 			ChangeAngle(objectindex, index);
 		}
 		SetAABB(objectindex, index);
+	}
+
+	void Objects::ChangeRotateQ(glm::qua<float> RotateQuaternion)
+	{
+		objects[m_Objectindex].m_Rotate[m_index] = SolveEularAngle(RotateQuaternion, objects[m_Objectindex].m_Rotate[m_index]);
+		objects[m_Objectindex].m_RotateQuaternion[m_index] = RotateQuaternion;
+
+		for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
+		{
+			//glm::qua<float> Quaternion = glm::qua<float>(ChangedRotate);
+			glm::mat4 RotateMatrix = glm::mat4(1.0f);
+			RotateMatrix = glm::mat4_cast(objects[m_Objectindex].m_RotateQuaternion[m_index]) * RotateMatrix;
+			//objects[objectindex].m_DefaultModelMatrices[i][index] = glm::translate(objects[objectindex].m_DefaultModelMatrices[i][index], -objects[objectindex].m_Pos[index] / objects[objectindex].m_Scale);
+
+			//objects[objectindex].m_DefaultModelMatrices[i][index] = objects[objectindex].m_DefaultModelMatrices[i][index]* RotateMatrix;
+
+			objects[m_Objectindex].m_RotateMatrices[i][m_index] = RotateMatrix;
+
+			//objects[objectindex].m_DefaultModelMatrices[i][index] = glm::translate(objects[objectindex].m_DefaultModelMatrices[i][index], objects[objectindex].m_Pos[index] / objects[objectindex].m_Scale);
+
+			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = objects[m_Objectindex].m_DefaultPosScaleMatrices[i][m_index] * objects[m_Objectindex].m_RotateMatrices[i][m_index];
+		}
+
+		if (objects[m_Objectindex].m_HaveAngle)
+		{
+			ChangeAngle(m_Objectindex, m_index);
+		}
+		SetAABB(m_Objectindex, m_index);
 	}
 
 	void Objects::ChangeHandPos(glm::vec3 ChangedHandPos, int objectindex, int index)

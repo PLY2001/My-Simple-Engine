@@ -57,6 +57,8 @@ namespace Hazel {
 		int FactoryInAmount = 0;
 		int FactoryProcessAmount = 0;
 		int FactoryOutAmount = 0;
+
+		
 	};
 
 }

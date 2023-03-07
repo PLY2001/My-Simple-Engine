@@ -93,6 +93,7 @@ namespace Hazel {
 		glm::vec3 GetHandEular();
 		//glm::qua<float> GetHandQuaternion();
 
+		bool GetHaveAngle();
 		std::string GetName();
 		std::string GetState();
 		std::string GetState(int objectindex, int index);
@@ -104,6 +105,7 @@ namespace Hazel {
 		void ChangeRotate(glm::vec3 ChangedRotate, int objectindex, int index);
 		//void ChangeRotateD(glm::vec3 ChangedRotate, int objectindex, int index);
 		void ChangeRotateQ(glm::qua<float> RotateQuaternion, int objectindex, int index);
+		void ChangeRotateQ(glm::qua<float> RotateQuaternion);
 		
 		void ChangeHandPos(glm::vec3 ChangedHandPos);
 		void ChangeHandPos(glm::vec3 ChangedHandPos, int objectindex, int index);

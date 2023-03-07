@@ -78,14 +78,16 @@ namespace Hazel
 		Belt1Model.reset(new Model("res/models/belt1/belt1.obj"));
 		Belt2Model.reset(new Model("res/models/belt2/belt2.obj"));
 		BeltModel.reset(new Model("res/models/belt/belt.obj"));
+		BeltLiftModel.reset(new Model("res/models/belt_lift/belt_lift.obj"));
 		AVGModel.reset(new Model("res/models/AVGcar/AVGcar.obj"));
 		BoxModel.reset(new Model("res/models/box/box.obj"));
-		MachineModel.reset(new Model("res/models/CNC/CNC.obj"));
+		MachineModel.reset(new Model("res/models/machine/machine.obj"));
 		StorageModel.reset(new Model("res/models/storage/3DStorage.obj"));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("irb120",IRB120Model));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt1", Belt1Model));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt2", Belt2Model));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt", BeltModel));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt_lift", BeltLiftModel));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("AVG", AVGModel));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("box", BoxModel));
 		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("machine", MachineModel));
@@ -565,7 +567,7 @@ namespace Hazel
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				RegionShader->Bind();
 				RegionShader->SetUniform1f("time", lastTime);
-				RegionShader->SetUniform1f("w", RegionW);
+				//RegionShader->SetUniform1f("w", RegionW);
 				region->Draw();
 				RegionShader->Unbind();
 				//glEnable(GL_DEPTH_TEST);
@@ -583,7 +585,7 @@ namespace Hazel
 
 					RegionShader->Bind();
 					RegionShader->SetUniform1f("time", lastTime);
-					RegionShader->SetUniform1f("w", RegionW);
+					//RegionShader->SetUniform1f("w", RegionW);
 					region->Draw();
 					RegionShader->Unbind();
 					
