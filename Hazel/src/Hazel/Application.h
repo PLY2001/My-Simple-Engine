@@ -283,6 +283,8 @@ namespace Hazel
 		std::vector<glm::vec3> FactoryRegionPos;
 
 		//float RegionW = 0.0001f;//区域渐变速度
+
+		bool ToGrab = false;
 	};
 
 	Application* CreateApplication();

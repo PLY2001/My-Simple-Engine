@@ -14,6 +14,7 @@ namespace Hazel {
 		TotalTime = accumulate(Path_Time.begin(), Path_Time.end(), 0);
 		frame = 0;
 		TimeNow = 0.0f;
+		TotalTimeNow = 0.0f;
 		Path_index = 0;
 		Playing = false;
 	}
@@ -155,6 +156,7 @@ namespace Hazel {
 				}
 			}
 			TimeNow += deltaTime;
+			TotalTimeNow += deltaTime;
 		}
 		else//²¥·ÅÍê±Ï
 		{
@@ -179,6 +181,7 @@ namespace Hazel {
 		pathpoint.Path_Rotate = Path_Rotate_Now;// - Path_Rotate_Last;
 		pathpoint.Path_HandPos = Path_HandPos_Now;
 		pathpoint.Path_HandEular = Path_HandEular_Now;
+		pathpoint.Path_State2 = m_Path_State2[Path_index];
 
 		return pathpoint;
 	}
@@ -359,6 +362,16 @@ namespace Hazel {
 
 	}
 
+	void Animation::SetPathState2(std::string state2)
+	{
+		m_Path_State2.push_back(state2);
+	}
+
+	std::string Animation::GetPathKeyState2(int index)
+	{
+		return m_Path_State2[index];
+	}
+
 	void Animation::RemovePath()
 	{
 		if(m_Path_Pos.size()>0)
@@ -373,6 +386,7 @@ namespace Hazel {
 			m_Path_Rotate.erase(m_Path_Rotate.end() - 1);
 			m_Path_HandPos.erase(m_Path_HandPos.end() - 1);
 			m_Path_HandEular.erase(m_Path_HandEular.end() - 1);
+			m_Path_State2.erase(m_Path_State2.end() - 1);
 		}
 		
 	}

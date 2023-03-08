@@ -299,7 +299,7 @@ namespace Hazel {
 								}
 								if (!finded)
 								{
-									Application::Get().objects->AddObject("box", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), false);
+									Application::Get().objects->AddObject("box", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
 									Application::Get().insbos->AddObject(Application::Get().objects);
 									Application::Get().objects->ReduceAmount();
 									for (int i = 0; i < 6; i++)
@@ -318,6 +318,8 @@ namespace Hazel {
 						
 						if (ImGui::Button(u8"删除所选模型"))
 						{
+							Application::Get().ModularCopy = false;
+							Application::Get().ToGrab = false;
 							if (Application::Get().objects->GetMyAmount() == 1)
 							{
 								Application::Get().insbos->ReduceObject(Application::Get().objects->GetChoosedObjectIndex());
@@ -335,7 +337,7 @@ namespace Hazel {
 					
 					
 
-					if ((int)Application::Get().objects->GetControlMode() > 0)
+					if ((int)Application::Get().objects->GetControlMode() > 0 && Application::Get().objects->GetName()!="box")
 					{
 						if (ImGui::TreeNode(u8"机械控制"))
 						{
@@ -380,7 +382,7 @@ namespace Hazel {
 								{
 									Application::Get().AngleChanged = true;
 								}
-								if (ImGui::SliderFloat("Angle3", Application::Get().objects->SetAngle(3), -3.3f, 0.0f))
+								if (ImGui::SliderFloat("Angle3", Application::Get().objects->SetAngle(3), -3.3f, 3.3f))
 								{
 									Application::Get().AngleChanged = true;
 								}
@@ -462,6 +464,8 @@ namespace Hazel {
 										Application::Get().objects->ChangeHandEular(HandEular);
 										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 									}
+
+									
 								}
 								else if (Application::Get().objects->GetName() == "storage")
 								{
@@ -479,7 +483,7 @@ namespace Hazel {
 										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
 										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 									}
-									if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -3.3f * Scale.x / 10.0f, 0.0f * Scale.x / 10.0f))
+									if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -3.3f * Scale.x / 10.0f, 4.27f * Scale.x / 10.0f))
 									{
 										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
 										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
@@ -500,6 +504,11 @@ namespace Hazel {
 									if (ImGui::InputFloat3("HandPos", (float*)&HandPos))
 									{
 										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
+									if (ImGui::Button(u8"出入库"))
+									{
+										Application::Get().objects->ChangeHandPos(glm::vec3(0.0f,0.178f,0.0f) * 10.0f);
 										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 									}
 								}
@@ -550,6 +559,69 @@ namespace Hazel {
 						
 						
 					}
+					if (Application::Get().objects->GetChoosedIndex() > -1)
+					{
+						if (Application::Get().objects->GetName() == "irb120" || Application::Get().objects->GetName() == "box" || Application::Get().objects->GetName() == "AVG")
+						{
+							if (ImGui::TreeNode(u8"放置物体"))
+							{
+
+
+								if (ImGui::Button(u8"点击选择"))
+								{
+									Application::Get().ToGrab = true;
+								}
+								ImGui::TreePop();
+								ImGui::Separator();
+							}
+						}
+						
+						if (ImGui::TreeNode(u8"货物"))
+						{
+							if (Application::Get().objects->GetState2() == u8"满载")
+							{
+								BoxLoaded = true;
+							}
+							else if (Application::Get().objects->GetState2() == u8"空载")
+							{
+								BoxLoaded = false;
+							}
+							else
+							{
+								BoxLoaded = false;
+							}
+							
+							if (ImGui::Checkbox(u8"载货", &BoxLoaded))
+							{
+								if (BoxLoaded)
+								{
+									Application::Get().objects->ChangeState2(u8"满载");
+									if (Application::Get().objects->GetName() == "box")
+									{
+										Application::Get().objects->ChangeHandPos(glm::vec3(0.01f,0.01f,0.01f));
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
+									
+								}
+								else
+								{
+									Application::Get().objects->ChangeState2(u8"空载");
+									if (Application::Get().objects->GetName() == "box")
+									{
+										Application::Get().objects->ChangeHandPos(glm::vec3(0.0f, 0.0f, 0.0f));
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
+								}
+							}
+
+								
+
+							ImGui::TreePop();
+							ImGui::Separator();
+						}
+						
+					}
+					
 
 					if (ImGui::TreeNode(u8"平移与旋转"))
 					{
@@ -719,6 +791,7 @@ namespace Hazel {
 					ImGui::InputFloat(u8"时间间隔", &PathTime, 0.0f, 10000.0f, "%.1f");
 					//ImGui::PushItemWidth(10);
 					ImGui::SameLine();
+					Pos = Application::Get().objects->GetPos() / 10.0f;
 					glm::qua<float> RotateQuaternion = Application::Get().objects->GetRotateQuaternion();
 					if (ImGui::Button(u8"设点"))
 					{
@@ -728,6 +801,7 @@ namespace Hazel {
 						Application::Get().objects->GetMyAnimation().SetPathHandEular(Application::Get().objects->GetHandEular());
 						Application::Get().objects->GetMyAnimation().SetPathTime(PathTime);
 						Application::Get().objects->GetMyAnimation().SetPathMode(CircleCenter * 10.0f);
+						Application::Get().objects->GetMyAnimation().SetPathState2(Application::Get().objects->GetState2());
 					}
 					ImGui::SameLine();
 
@@ -735,8 +809,11 @@ namespace Hazel {
 					{
 						Application::Get().objects->GetMyAnimation().RemovePath();
 					}
-
-					ImGui::InputFloat(u8"总动画时长", &TotalTime, 0.0f, 10000.0f, "%.1f");
+// 					ImGui::SetNextItemWidth(100);
+// 					ImGui::InputFloat(u8"总动画时长", &TotalAllTime, 0.0f, 10000.0f, "%.1f");
+// 					ImGui::SameLine();
+					ImGui::SetNextItemWidth(100);
+					ImGui::InputInt(u8"时长索引", &TotalTimeIndex, 0, 10000);
 				}
 			}
 
@@ -757,12 +834,13 @@ namespace Hazel {
 							Application::Get().objects->ChangeRotateQ(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(0), i, j);
 							Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(0), i, j);
 							Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(0), i, j);
+							
 						}
 					}
 				}
 			}
 
-			ImGui::SetNextItemWidth(100);
+			//ImGui::SetNextItemWidth(100);
 
 			if (ImGui::CollapsingHeader(u8"关键帧表"))
 			{
@@ -780,7 +858,9 @@ namespace Hazel {
 	// 				{
 	// 					TotalAmount += Application::Get().objects->objects[i].m_Amount;
 	// 				}
-
+					
+					
+					
 					if (ImGui::BeginTable("KeyTimes", 1+ (int)(TotalTime / 0.5 + 1), flags, outer_size))
 					{
 						ImGui::TableSetupScrollFreeze(freeze_cols, freeze_rows);
@@ -790,12 +870,22 @@ namespace Hazel {
 						{
 							std::stringstream fmt;
 							// 造字符串流
-							fmt << float(column*0.5f) <<u8"秒";
+							fmt << float(column*0.5f + TotalTimeIndex* TotalTime) <<u8"秒";
 							std::string namej = fmt.str();
 							//ImGui::SetNextItemWidth(100.0f);
 							ImGui::TableSetupColumn(namej.c_str());
 						}
 						Application::Get().objects->GetMyAnimation().Key_index = 0;
+						for (int i = 0; i < Application::Get().objects->GetMyAnimation().GetPathKeySize(); i++)
+						{
+							if (Application::Get().objects->GetMyAnimation().GetPathTotalTime(i) > TotalTimeIndex * TotalTime-0.5f)
+							{
+								Application::Get().objects->GetMyAnimation().Key_index = i;
+								break;
+							}
+						}
+						
+						
 
 // 						for (int i = 0; i < TotalObjAmount; i++)
 // 						{
@@ -842,7 +932,7 @@ namespace Hazel {
 									{
 										//float temp1 = Application::Get().objects->GetMyAnimation().GetPathTotalTime(index);
 										//float temp2 = column * 0.5f;
-										if (Application::Get().objects->GetMyAnimation().GetPathTotalTime(index) == (column-1) * 0.5f)
+										if (Application::Get().objects->GetMyAnimation().GetPathTotalTime(index) == (column -1 + TotalTimeIndex * TotalTime/0.5f) * 0.5f )
 										{
 											
 
@@ -869,6 +959,7 @@ namespace Hazel {
 														Application::Get().objects->ChangeAngle();
 													}
 												}
+												Application::Get().objects->ChangeState2(Application::Get().objects->GetMyAnimation().GetPathKeyState2(index));
 											}
 											Application::Get().objects->GetMyAnimation().Key_index++;
 											ImGui::PopStyleColor(4);
@@ -1040,7 +1131,7 @@ namespace Hazel {
 					}
 					if (!finded)
 					{
-						Application::Get().objects->AddObject("box", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), false);
+						Application::Get().objects->AddObject("box", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
 						Application::Get().insbos->AddObject(Application::Get().objects);
 					}
 
@@ -1141,15 +1232,19 @@ namespace Hazel {
 					std::string namej = u8"名称：" + fmt.str();
 					ImGui::Text(namej.c_str());
 
-					std::string name1(Application::Get().objects->GetState());
-					name1 = u8"状态：" + name1;
-
+					std::string name1(Application::Get().objects->GetState1());
+					name1 = u8"状态1：" + name1;
 					ImGui::TextColored(ImVec4(0.17f, 0.2f, 0.75f, 1.0f), name1.c_str());
+
+					std::string name2(Application::Get().objects->GetState2());
+					name2 = u8"状态2：" + name2;
+
+					ImGui::TextColored(ImVec4(0.17f, 0.2f, 0.75f, 1.0f), name2.c_str());
 
 					if (Application::Get().objects->objects[i].m_Anima[j].Playing)
 					{
 						ImGui::TextColored(ImVec4(0.2f,0.75f,0.17f,1.0f), u8"动画运行中");
-						ImGui::Text(u8"运行时间：%.1f秒", Application::Get().objects->objects[i].m_Anima[j].TimeNow);
+						ImGui::Text(u8"运行时间：%.1f秒", Application::Get().objects->objects[i].m_Anima[j].TotalTimeNow);
 					}
 					else
 					{
@@ -1182,6 +1277,27 @@ namespace Hazel {
 			
 			ImGui::Begin(u8"智能化车间概况");
 			
+			if (ImGui::Button(u8"播放动画"))
+			{
+				for (int i = 0; i < Application::Get().objects->GetObjectAmount(); i++)
+				{
+					for (int j = 0; j < Application::Get().objects->GetAmount(i); j++)
+					{
+						if (Application::Get().objects->GetAnimation(i, j).HaveAnimation)
+						{
+							Application::Get().objects->GetAnimation(i, j).Reset();
+							Application::Get().objects->GetAnimation(i, j).Playing = true;
+							Application::Get().objects->ChangePos(Application::Get().objects->GetAnimation(i, j).GetPathKeyPos(0) - Application::Get().objects->GetPos(i, j), i, j);
+							//for(int k = Application::Get().objects->GetAnimation(i, j).GetPathKeySize()-1;k>-1;k--)
+							Application::Get().objects->ChangeRotateQ(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(0), i, j);
+							Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(0), i, j);
+							Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(0), i, j);
+
+						}
+					}
+				}
+			}
+
 			NameList.clear();
 			AmountData.clear();
 			if (ImGui::CollapsingHeader(u8"设备总数"))
@@ -1202,21 +1318,21 @@ namespace Hazel {
 							if (BoxPos.x > FactoryInMin.x&& BoxPos.x < FactoryInMax.x&& BoxPos.z > FactoryInMin.z&& BoxPos.z < FactoryInMax.z)
 							{
 								FactoryInAmount++;
-								Application::Get().objects->ChangeState(u8"入库", i, j);
+								Application::Get().objects->ChangeState1(u8"入库", i, j);
 							}
 							else if (BoxPos.x > FactoryProcessMin.x&& BoxPos.x < FactoryProcessMax.x && BoxPos.z > FactoryProcessMin.z&& BoxPos.z < FactoryProcessMax.z)
 							{
 								FactoryProcessAmount++;
-								Application::Get().objects->ChangeState(u8"加工中", i, j);
+								Application::Get().objects->ChangeState1(u8"加工中", i, j);
 							}
 							else if (BoxPos.x > FactoryOutMin.x&& BoxPos.x < FactoryOutMax.x && BoxPos.z > FactoryOutMin.z&& BoxPos.z < FactoryOutMax.z)
 							{
 								FactoryOutAmount++;
-								Application::Get().objects->ChangeState(u8"出库", i, j);
+								Application::Get().objects->ChangeState1(u8"出库", i, j);
 							}
 							else
 							{
-								Application::Get().objects->ChangeState(u8"无", i, j);
+								Application::Get().objects->ChangeState1(u8"无", i, j);
 							}
 						}
 					}

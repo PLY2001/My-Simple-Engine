@@ -20,7 +20,10 @@ namespace Hazel {
 		object.m_HaveAngle = hasAngle;
 		object.m_Name = name;
 		object.m_Amount = 1;
-		object.m_State.push_back(u8"无");
+		object.m_State1.push_back(u8"无");
+		object.m_State2.push_back(u8"空载");
+		
+		
 
 		if (hasAngle)
 		{
@@ -48,6 +51,10 @@ namespace Hazel {
 		if (name == "irb120")
 		{
 			object.m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
+		}
+		else if (name == "box")
+		{
+			object.m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 		}
 		else
 		{
@@ -97,7 +104,10 @@ namespace Hazel {
 		object.m_Anima.push_back(Anima);
 
 		objects.push_back(object);
-
+		if (hasAngle)
+		{
+			ChangeAngle(ObjectAmount - 1, 0);
+		}
 		SetAABB(ObjectAmount-1, 0);
 
 		m_index = 0;
@@ -175,6 +185,10 @@ namespace Hazel {
 		{
 			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
 		}
+		else if (objects[m_Objectindex].m_Name == "box")
+		{
+			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+		}
 		else
 		{
 			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -182,13 +196,17 @@ namespace Hazel {
 		
 		objects[m_Objectindex].m_HandEular.push_back(glm::vec3(0.0f,0.0f, 0.0f));
 		objects[m_Objectindex].m_HandQuaternion.push_back(glm::qua<float>(glm::vec3(0.0f)));
-		
+		if (objects[m_Objectindex].m_HaveAngle)
+		{
+			ChangeAngle(m_Objectindex, objects[m_Objectindex].m_Amount - 1);
+		}
 		SetAABB(m_Objectindex, objects[m_Objectindex].m_Amount - 1);
 
 		Animation Anima(objects[m_Objectindex].m_HaveAngle);
 		objects[m_Objectindex].m_Anima.push_back(Anima);
 
-		objects[m_Objectindex].m_State.push_back(u8"无");
+		objects[m_Objectindex].m_State1.push_back(u8"无");
+		objects[m_Objectindex].m_State2.push_back(u8"空载");
 
 		m_index = objects[m_Objectindex].m_Amount - 1;
 	}
@@ -264,19 +282,27 @@ namespace Hazel {
 		{
 			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
 		}
+		else if (objects[m_Objectindex].m_Name == "box")
+		{
+			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+		}
 		else
 		{
 			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 		}
 		objects[m_Objectindex].m_HandEular.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 		objects[m_Objectindex].m_HandQuaternion.push_back(glm::qua<float>(glm::vec3(0.0f)));
-
+		if (objects[m_Objectindex].m_HaveAngle)
+		{
+			ChangeAngle(m_Objectindex, objects[m_Objectindex].m_Amount - 1);
+		}
 		SetAABB(m_Objectindex, objects[m_Objectindex].m_Amount - 1);
 
 		Animation Anima(objects[m_Objectindex].m_HaveAngle);
 		objects[m_Objectindex].m_Anima.push_back(Anima);
 
-		objects[m_Objectindex].m_State.push_back(u8"无");
+		objects[m_Objectindex].m_State1.push_back(u8"无");
+		objects[m_Objectindex].m_State2.push_back(u8"空载");
 
 		m_index = objects[m_Objectindex].m_Amount - 1;
 	}
@@ -345,7 +371,8 @@ namespace Hazel {
 
 		objects[m_Objectindex].m_Anima.erase(objects[m_Objectindex].m_Anima.begin() + m_index);
 
-		objects[m_Objectindex].m_State.erase(objects[m_Objectindex].m_State.begin() + m_index);
+		objects[m_Objectindex].m_State1.erase(objects[m_Objectindex].m_State1.begin() + m_index);
+		objects[m_Objectindex].m_State2.erase(objects[m_Objectindex].m_State2.begin() + m_index);
 
 		m_index = -1;
 		
@@ -415,6 +442,10 @@ namespace Hazel {
 		{
 			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
 		}
+		else if (objects[m_Objectindex].m_Name == "box")
+		{
+			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+		}
 		else
 		{
 			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -426,8 +457,12 @@ namespace Hazel {
 		Animation Anima(objects[m_Objectindex].m_HaveAngle);
 		objects[m_Objectindex].m_Anima.push_back(Anima);
 
-		objects[m_Objectindex].m_State.push_back(u8"无");
-
+		objects[m_Objectindex].m_State1.push_back(u8"无");
+		objects[m_Objectindex].m_State2.push_back(u8"空载");
+		if (objects[m_Objectindex].m_HaveAngle)
+		{
+			ChangeAngle(m_Objectindex, objects[m_Objectindex].m_Amount - 1);
+		}
 		SetAABB(m_Objectindex, objects[m_Objectindex].m_Amount - 1);
 	}
 
@@ -591,6 +626,18 @@ namespace Hazel {
 
 		}
 		}
+		else if (objects[m_Objectindex].m_Name == "box")
+		{
+		for (int j = 1; j < objects[m_Objectindex].m_Model->meshes.size(); j++)
+		{
+			if (j > 0)
+			{
+				//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[0][m_index]), glm::vec3(0.0f, 1.0f, 0.0f));
+				objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::scale(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(objects[m_Objectindex].m_Angle[0][m_index], objects[m_Objectindex].m_Angle[0][m_index], objects[m_Objectindex].m_Angle[0][m_index]));
+			}
+
+		}
+		}
 		SetAABB(m_Objectindex,m_index);
 
 	}
@@ -719,6 +766,20 @@ namespace Hazel {
 			{
 				//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[0][m_index]), glm::vec3(0.0f, 1.0f, 0.0f));
 				objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, objects[objectindex].m_Angle[0][index], 0.0f));
+			}
+
+
+
+		}
+		}
+		else if (objects[objectindex].m_Name == "box")
+		{
+		for (int j = 1; j < objects[objectindex].m_Model->meshes.size(); j++)
+		{
+			if (j > 0)
+			{
+				//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[0][m_index]), glm::vec3(0.0f, 1.0f, 0.0f));
+				objects[objectindex].m_ModelMatrices[j][index] = glm::scale(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(objects[objectindex].m_Angle[0][index], objects[objectindex].m_Angle[0][index], objects[objectindex].m_Angle[0][index]));
 			}
 
 
@@ -893,6 +954,14 @@ namespace Hazel {
 		
 		return true;
 		}
+		else if (objects[m_Objectindex].m_Name == "box")
+		{
+		glm::vec3 Pos = objects[m_Objectindex].m_HandPos[m_index] / objects[m_Objectindex].m_Scale;
+
+		objects[m_Objectindex].m_Angle[0][m_index] = Pos.x;
+
+		return true;
+		}
 		
 		//ChangeAngle();
 		
@@ -1050,6 +1119,14 @@ namespace Hazel {
 		
 		return true;
 		}
+		else if (objects[objectindex].m_Name == "box")
+		{
+		glm::vec3 Pos = objects[objectindex].m_HandPos[index] / objects[objectindex].m_Scale;
+
+		objects[objectindex].m_Angle[0][index] = Pos.x;
+
+		return true;
+		}
 	}
 
 	Hazel::Animation& Objects::GetAnimation(int objectindex, int index)
@@ -1179,14 +1256,29 @@ namespace Hazel {
 		return objects[m_Objectindex].m_Name;
 	}
 
-	std::string Objects::GetState()
+	std::string Objects::GetName(int objectindex)
 	{
-		return objects[m_Objectindex].m_State[m_index];
+		return objects[objectindex].m_Name;
 	}
 
-	std::string Objects::GetState(int objectindex, int index)
+	std::string Objects::GetState1()
 	{
-		return objects[objectindex].m_State[index];
+		return objects[m_Objectindex].m_State1[m_index];
+	}
+
+	std::string Objects::GetState1(int objectindex, int index)
+	{
+		return objects[objectindex].m_State1[index];
+	}
+
+	std::string Objects::GetState2()
+	{
+		return objects[m_Objectindex].m_State2[m_index];
+	}
+
+	std::string Objects::GetState2(int objectindex, int index)
+	{
+		return objects[objectindex].m_State2[index];
 	}
 
 // 	glm::qua<float> Objects::GetHandQuaternion()
@@ -1441,14 +1533,24 @@ namespace Hazel {
 
 	}
 
-	void Objects::ChangeState(std::string state)
+	void Objects::ChangeState1(std::string state)
 	{
-		objects[m_Objectindex].m_State[m_index] = state;
+		objects[m_Objectindex].m_State1[m_index] = state;
 	}
 
-	void Objects::ChangeState(std::string state, int objectindex, int index)
+	void Objects::ChangeState1(std::string state, int objectindex, int index)
 	{
-		objects[objectindex].m_State[index] = state;
+		objects[objectindex].m_State1[index] = state;
+	}
+
+	void Objects::ChangeState2(std::string state)
+	{
+		objects[m_Objectindex].m_State2[m_index] = state;
+	}
+
+	void Objects::ChangeState2(std::string state, int objectindex, int index)
+	{
+		objects[objectindex].m_State2[index] = state;
 	}
 
 	void Objects::SetChoosedIndex(int ObjectIndex, int index)
@@ -1606,6 +1708,8 @@ namespace Hazel {
 			writer.EndObject();
 			i++;
 		}
+		
+
 		writer.EndArray();
 		writer.EndObject();
 		file << strBuffer.GetString() << std::endl;
@@ -1646,6 +1750,8 @@ namespace Hazel {
 				writer1.StartObject();//层4
 				writer1.Key("index");
 				writer1.Int(i);
+				writer1.Key("state2");
+				writer1.String(object.m_State2[i].c_str());
 				writer1.Key("pos");
 				writer1.StartArray();
 				writer1.Double(object.m_Pos[i].x);
@@ -1688,6 +1794,10 @@ namespace Hazel {
 					for (int j = 0; j < object.m_Anima[i].GetPathKeySize(); j++)
 					{
 						writer1.StartObject();
+
+						writer1.Key("a_state2");
+						writer1.String(object.m_Anima[i].GetPathKeyState2(j).c_str());
+
 
 						writer1.Key("a_pos");
 						writer1.StartArray();
@@ -2002,6 +2112,10 @@ namespace Hazel {
 								//为防止类型不匹配，一般会添加类型校验
 								if (object2.IsObject())
 								{
+									
+
+									
+
 									if (object2.HasMember("pos") && object2["pos"].IsArray())
 									{
 										const rapidjson::Value& array4 = object2["pos"];
@@ -2017,15 +2131,19 @@ namespace Hazel {
 										load_rotate[2] = array5[2].GetDouble();
 									}
 									
-									
 									m_Objectindex = i;
 									m_index = j;
+									
 									if (j > 0)
 									{
 										Load_AddAmount();
 									}
 									ChangePos(load_pos);
 									ChangeRotate(load_rotate);
+									if (object2.HasMember("state2") && object2["state2"].IsString())
+									{
+										ChangeState2(object2["state2"].GetString());
+									}
 									if (object2.HasMember("angle") && object2["angle"].IsArray())
 									{
 										const rapidjson::Value& array6 = object2["angle"];
@@ -2036,10 +2154,7 @@ namespace Hazel {
 											objects[m_Objectindex].m_Angle[k][m_index] = array6[k].GetDouble();
 										}
 									}
-									if (objects[m_Objectindex].m_HaveAngle)
-									{
-										ChangeAngle();
-									}
+									
 									if (object2.HasMember("poseular") && object2["poseular"].IsArray())
 									{
 										const rapidjson::Value& array7 = object2["poseular"];
@@ -2050,6 +2165,10 @@ namespace Hazel {
 										objects[i].m_HandEular[j].y = array7[4].GetDouble();
 										objects[i].m_HandEular[j].z = array7[5].GetDouble();
 
+									}
+									if (objects[m_Objectindex].m_HaveAngle)
+									{
+										ChangeAngle();
 									}
 
 									if (object2.HasMember("animation") && object2["animation"].IsArray())
@@ -2063,6 +2182,11 @@ namespace Hazel {
 											//为防止类型不匹配，一般会添加类型校验
 											if (object3.IsObject())
 											{
+												if (object3.HasMember("a_state2") && object3["a_state2"].IsString())
+												{
+													objects[i].m_Anima[j].SetPathState2(object3["a_state2"].GetString());
+												}
+
 												if (object3.HasMember("a_pos") && object3["a_pos"].IsArray())
 												{
 													const rapidjson::Value& array9 = object3["a_pos"];

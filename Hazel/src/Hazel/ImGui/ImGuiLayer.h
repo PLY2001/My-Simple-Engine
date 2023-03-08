@@ -36,7 +36,9 @@ namespace Hazel {
 		bool ToLoad = false;
 		float PathTime = 0.5;
 		glm::vec3 CircleCenter = glm::vec3(0.0f);
-		float TotalTime = 10.0;
+		float TotalTime = 30.0f;
+		int TotalTimeIndex = 0;
+		//float TotalAllTime = 10.0;
 
 		int SaveAddress = 0;
 		int LoadAddress = 0;
@@ -58,7 +60,7 @@ namespace Hazel {
 		int FactoryProcessAmount = 0;
 		int FactoryOutAmount = 0;
 
-		
+		bool BoxLoaded = false;
 	};
 
 }

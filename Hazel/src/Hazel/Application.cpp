@@ -923,6 +923,7 @@ namespace Hazel
 								objects->ChangeAngle(i, j);
 							}
 						}
+						objects->ChangeState2(pathpoint.Path_State2, i, j);//动画3s
 					}
 				}
 			}
@@ -1016,7 +1017,7 @@ namespace Hazel
 			
 			ClickPos = glm::vec2(MousePos.x / m_Window->GetWidth() * 2.0f - 1.0f, MousePos.y / m_Window->GetHeight() * 2.0f - 1.0f);
 
-			if(!ModularCopy&&!DivideRegionsMode)
+			if(!ModularCopy&&!DivideRegionsMode&&!ToGrab)
 			{
 				for (float ClipZ = 1.0f; ClipZ > 0.0f; ClipZ -= 0.0001f)//OpenGL的相机中，z轴指向自己，z越大越近
 				{
@@ -1087,6 +1088,92 @@ namespace Hazel
 			{
 				ToDivideRegions = true;
 				first = true;
+			}
+			else if (ToGrab)
+			{
+				for (float ClipZ = 1.0f; ClipZ > 0.0f; ClipZ -= 0.0001f)//OpenGL的相机中，z轴指向自己，z越大越近
+				{
+					glm::vec4 WorldClickPos = glm::inverse(ViewMatrix) * glm::inverse(ProjectionMatrix) * glm::vec4(ClickPos, ClipZ, 1.0f);
+					WorldClickPos /= WorldClickPos.w;
+
+
+					//检测irb120碰撞
+					if (!ToMove)
+					{
+						for (int j = 0; j < objects->GetObjectAmount(); j++)
+						{
+							for (int i = 0; i < objects->GetAmount(j); i++)
+							{
+								if (objects->CheckCollision(j, i, WorldClickPos))
+								{
+									//objects->SetChoosedIndex(j, i);
+									//Choosed = true;
+									glm::vec3 Pos = objects->GetPos();
+									glm::vec3 otherPos = objects->GetPos(j, i);
+									glm::vec4 HandPos = glm::vec4(otherPos - Pos,1.0f);
+									
+									
+									if(objects->GetName() == "irb120")
+									{
+										if (objects->GetName(j) == "box")
+										{
+											glm::mat4 ro = glm::mat4(1.0f);
+											ro = glm::rotate(ro, -objects->GetRotate(j, i).y, glm::vec3(0.0f, 1.0f, 0.0f));
+											HandPos = ro * HandPos;
+											objects->ChangeHandPos(glm::vec3(HandPos.x + 1.2f, HandPos.y, HandPos.z));
+											AngleChanged = Application::Get().objects->SolveAngle();
+											ToGrab = false;
+										}	
+									}
+									else if(objects->GetName() == "box")
+									{
+										if (objects->GetName(j) == "AVG")
+										{
+											objects->ChangePos(glm::vec3(HandPos.x, HandPos.y + 2.53f, HandPos.z));
+											ToGrab = false;
+										}
+										else if (objects->GetName(j) == "belt1")
+										{
+											objects->ChangePos(glm::vec3(0.0f, HandPos.y + 2.0f, 0.0f));
+											ToGrab = false;
+										}
+										else if (objects->GetName(j) == "belt2")
+										{
+											objects->ChangePos(glm::vec3(0.0f, HandPos.y + 4.73f, 0.0f));
+											ToGrab = false;
+										}
+										else
+										{
+											ToGrab = false;
+										}
+									}
+									else if (objects->GetName() == "AVG")
+									{
+										if (objects->GetName(j) == "storage")
+										{
+											objects->ChangePos(glm::vec3(HandPos.x + 9.0f, 0.0f, HandPos.z - 1.2f));
+											ToGrab = false;
+										}
+										else
+										{
+											ToGrab = false;
+										}
+									}
+									else
+									{
+										ToGrab = false;
+									}
+									
+									break;
+								}
+							}
+						}
+
+
+					}
+
+
+				}
 			}
 
 			return true;
@@ -1228,14 +1315,16 @@ namespace Hazel
 	{
 		if (e.GetKeyCode() == HZ_KEY_ESCAPE)
 		{
-			if (!ModularCopy)
+			if (!ModularCopy&&!ToGrab)
 			{
 				objects->SetChoosedIndex(-1, -1);
 			}
 			else
 			{
 				ModularCopy = false;
+				ToGrab = false;
 			}
+			
 		}
 		if (e.GetKeyCode() == HZ_KEY_Q)
 		{

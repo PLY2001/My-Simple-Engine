@@ -9,6 +9,7 @@ namespace Hazel {
 		glm::qua<float> Path_Rotate = glm::qua<float>(glm::vec3(0.0f));
 		glm::vec3 Path_HandPos = glm::vec3(0.0f);
 		glm::vec3 Path_HandEular = glm::vec3(0.0f);
+		std::string Path_State2;
 	};
 
 	enum class PathMode { Straght = 0, Circle = 1 };
@@ -38,6 +39,9 @@ namespace Hazel {
 
 		void SetPathMode(glm::vec3 CircleCenter);
 
+		void SetPathState2(std::string state2);
+		std::string GetPathKeyState2(int index);
+
 		void RemovePath();
 		int GetPathKeySize();
 
@@ -50,6 +54,7 @@ namespace Hazel {
 		float TotalTime = 0.0f;
 		int frame = 0;
 		float TimeNow = 0.0f;
+		float TotalTimeNow = 0.0f;
 		int Path_index = 0;
 		int Key_index = 0;
 		bool Playing = false;
@@ -79,6 +84,8 @@ namespace Hazel {
 
 		std::vector<PathMode> pathmodelist;
 		std::vector<glm::vec3> CircleCenterList;
+
+		std::vector<std::string> m_Path_State2;
 
 		bool HaveAngle = false;
 

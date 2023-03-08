@@ -42,7 +42,8 @@ namespace Hazel {
 		std::vector<glm::vec3> m_AABBMaxPos;
 		std::vector<Animation> m_Anima;
 
-		std::vector<std::string> m_State;
+		std::vector<std::string> m_State1;
+		std::vector<std::string> m_State2;
 	};
 
 	class Objects
@@ -95,8 +96,11 @@ namespace Hazel {
 
 		bool GetHaveAngle();
 		std::string GetName();
-		std::string GetState();
-		std::string GetState(int objectindex, int index);
+		std::string GetName(int objectindex);
+		std::string GetState1();
+		std::string GetState1(int objectindex, int index);
+		std::string GetState2();
+		std::string GetState2(int objectindex, int index);
 
 		void ChangePos(glm::vec3 ChangedPos);
 		void ChangePos(glm::vec3 ChangedPos, int objectindex, int index);
@@ -112,8 +116,10 @@ namespace Hazel {
 		void ChangeHandEular(glm::vec3 ChangedHandEular);
 		void ChangeHandEular(glm::vec3 ChangedHandEular, int objectindex, int index);
 
-		void ChangeState(std::string state);
-		void ChangeState(std::string state, int objectindex, int index);
+		void ChangeState1(std::string state);
+		void ChangeState1(std::string state, int objectindex, int index);
+		void ChangeState2(std::string state);
+		void ChangeState2(std::string state, int objectindex, int index);
 
 		void SetChoosedIndex(int ObjectIndex, int index);
 		inline int GetChoosedIndex() { return m_index; }
