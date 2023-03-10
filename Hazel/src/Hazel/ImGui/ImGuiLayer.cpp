@@ -15,7 +15,7 @@
 
 #include "implot.h"
 
-
+#define IM_CLAMP(V, MN, MX)     ((V) < (MN) ? (MN) : (V) > (MX) ? (MX) : (V))
 
 namespace Hazel {
 
@@ -957,6 +957,7 @@ namespace Hazel {
 													if (Application::Get().objects->SolveAngle())
 													{
 														Application::Get().objects->ChangeAngle();
+														Application::Get().objects->SetAABB();
 													}
 												}
 												Application::Get().objects->ChangeState2(Application::Get().objects->GetMyAnimation().GetPathKeyState2(index));
@@ -1245,6 +1246,7 @@ namespace Hazel {
 					{
 						ImGui::TextColored(ImVec4(0.2f,0.75f,0.17f,1.0f), u8"动画运行中");
 						ImGui::Text(u8"运行时间：%.1f秒", Application::Get().objects->objects[i].m_Anima[j].TotalTimeNow);
+						AnimaTotalTime = Application::Get().objects->objects[i].m_Anima[j].TotalTimeNow; 
 					}
 					else
 					{
@@ -1262,7 +1264,7 @@ namespace Hazel {
 						//ImGui::Text(u8"关节控制：无");
 						ImGui::TextColored(ImVec4(0.84f, 0.33f, 0.33f, 1.0f), u8"关节控制：无");
 					}
-
+					
 
 
 					ImGui::SetWindowPos(WindowPos);//窗口左上角的坐标，原点是电脑屏幕左上角
@@ -1276,6 +1278,40 @@ namespace Hazel {
 			}
 			
 			ImGui::Begin(u8"智能化车间概况");
+			for (int i = 0; i < Application::Get().objects->GetObjectAmount(); i++)
+			{
+				std::string name(Application::Get().objects->objects[i].m_Name);
+				if (name == "box")
+				{
+					FactoryInAmount = 0;
+					FactoryProcessAmount = 0;
+					FactoryOutAmount = 0;
+					FactoryTotalAmount = Application::Get().objects->GetAmount(i);
+					for (int j = 0; j < Application::Get().objects->GetAmount(i); j++)
+					{
+						glm::vec3 BoxPos = Application::Get().objects->GetPos(i, j);
+						if (BoxPos.x > FactoryInMin.x&& BoxPos.x < FactoryInMax.x && BoxPos.z > FactoryInMin.z&& BoxPos.z < FactoryInMax.z)
+						{
+							FactoryInAmount++;
+							Application::Get().objects->ChangeState1(u8"入库", i, j);
+						}
+						else if (BoxPos.x > FactoryProcessMin.x&& BoxPos.x < FactoryProcessMax.x && BoxPos.z > FactoryProcessMin.z&& BoxPos.z < FactoryProcessMax.z)
+						{
+							FactoryProcessAmount++;
+							Application::Get().objects->ChangeState1(u8"加工中", i, j);
+						}
+						else if (BoxPos.x > FactoryOutMin.x&& BoxPos.x < FactoryOutMax.x && BoxPos.z > FactoryOutMin.z&& BoxPos.z < FactoryOutMax.z)
+						{
+							FactoryOutAmount++;
+							Application::Get().objects->ChangeState1(u8"出库", i, j);
+						}
+						else
+						{
+							Application::Get().objects->ChangeState1(u8"无", i, j);
+						}
+					}
+				}
+			}
 			
 			if (ImGui::Button(u8"播放动画"))
 			{
@@ -1307,35 +1343,7 @@ namespace Hazel {
 
 					std::string name(Application::Get().objects->objects[i].m_Name);
 
-					if (name == "box")
-					{
-						FactoryInAmount = 0;
-						FactoryProcessAmount = 0;
-						FactoryOutAmount = 0;
-						for (int j = 0; j < Application::Get().objects->GetAmount(i); j++)
-						{
-							glm::vec3 BoxPos = Application::Get().objects->GetPos(i, j);
-							if (BoxPos.x > FactoryInMin.x&& BoxPos.x < FactoryInMax.x&& BoxPos.z > FactoryInMin.z&& BoxPos.z < FactoryInMax.z)
-							{
-								FactoryInAmount++;
-								Application::Get().objects->ChangeState1(u8"入库", i, j);
-							}
-							else if (BoxPos.x > FactoryProcessMin.x&& BoxPos.x < FactoryProcessMax.x && BoxPos.z > FactoryProcessMin.z&& BoxPos.z < FactoryProcessMax.z)
-							{
-								FactoryProcessAmount++;
-								Application::Get().objects->ChangeState1(u8"加工中", i, j);
-							}
-							else if (BoxPos.x > FactoryOutMin.x&& BoxPos.x < FactoryOutMax.x && BoxPos.z > FactoryOutMin.z&& BoxPos.z < FactoryOutMax.z)
-							{
-								FactoryOutAmount++;
-								Application::Get().objects->ChangeState1(u8"出库", i, j);
-							}
-							else
-							{
-								Application::Get().objects->ChangeState1(u8"无", i, j);
-							}
-						}
-					}
+					
 
 					// 准备根据格式造字符串流
 					std::stringstream fmt;
@@ -1378,6 +1386,11 @@ namespace Hazel {
 				}
 				ImPlot::PopColormap();
 
+				
+				
+			}
+			if (ImGui::CollapsingHeader(u8"出入库统计"))
+			{
 				int data[3] = { FactoryOutAmount,FactoryProcessAmount,FactoryInAmount };
 				static const char* ilabels[] = { u8"出库",u8"加工中",u8"入库" };
 				static const char* glabels[] = { u8"状态" };
@@ -1404,10 +1417,44 @@ namespace Hazel {
 					ImPlot::PlotBarGroups(ilabels, data, items, groups, size, 0, flags1 | ImPlotBarGroupsFlags_Horizontal);
 					ImPlot::EndPlot();
 				}
+			}
+			if (ImGui::CollapsingHeader(u8"生产能力"))
+			{
+				static float progress = 0.0f, progress_dir = 1.0f;
+				if (FactoryTotalAmount > 0)
+				{
+					progress = (float)FactoryOutAmount / (float)FactoryTotalAmount;
+				}
+				else
+				{
+					progress = 0.0f;
+				}
+				// Typically we would use ImVec2(-1.0f,0.0f) or ImVec2(-FLT_MIN,0.0f) to use all available width,
+				// or ImVec2(width,0.0f) for a specified width. ImVec2(0.0f,0.0f) uses ItemWidth.
+				ImGui::ProgressBar(progress, ImVec2(0.0f, 0.0f));
+				ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+				ImGui::Text(u8"生产完成进度");
+
+				
+				if (Application::Get().objects->GetChoosedIndex() > -1)
+				{
+					if (AnimaTotalTime < 0.01)
+					{
+						ImGui::Text(u8"平均产能：0个/天");
+					}
+					else
+					{
+						float channeng = (float)FactoryOutAmount / AnimaTotalTime * 86400.0f;
+						ImGui::Text(u8"平均产能：%.1f个/天", channeng);
+
+					}
+				}
+
+				
 				
 			}
 			
-			
+			//ImGui::Text(u8"生产进度")
 			ImGui::End();
 			
 		}

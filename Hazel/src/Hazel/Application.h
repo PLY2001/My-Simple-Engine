@@ -285,6 +285,9 @@ namespace Hazel
 		//float RegionW = 0.0001f;//区域渐变速度
 
 		bool ToGrab = false;
+		std::vector<PathPoint> pathpoint;
+		std::vector<int> AnimaObjectIndex;
+		std::vector<int> AnimaIndex;
 	};
 
 	Application* CreateApplication();

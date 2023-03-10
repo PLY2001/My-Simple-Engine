@@ -343,6 +343,7 @@ namespace Hazel
 				if (objects->GetChoosedIndex() > -1)
 				{
 					objects->ChangeAngle();
+					objects->SetAABB();
 					AngleChanged = false;
 				}
 			}
@@ -903,7 +904,9 @@ namespace Hazel
 
 			
 
-			
+			pathpoint.clear();
+			AnimaObjectIndex.clear();
+			AnimaIndex.clear();
 
 			for (int i = 0; i < objects->GetObjectAmount(); i++)
 			{
@@ -911,22 +914,34 @@ namespace Hazel
 				{
 					if (objects->GetAnimation(i,j).Playing)
 					{
-						PathPoint pathpoint = objects->GetAnimation(i, j).GetPathPoint(deltaTime);
-						objects->ChangePos(pathpoint.Path_Pos,i,j);//动画3s
-						objects->ChangeRotateQ(pathpoint.Path_Rotate,i,j);//动画3s
-						objects->ChangeHandPos(pathpoint.Path_HandPos, i, j);//动画3s
-						objects->ChangeHandEular(pathpoint.Path_HandEular, i, j);//动画3s
-						if(objects->objects[i].m_HaveAngle)
-						{
-							if (objects->SolveAngle(i,j))
-							{
-								objects->ChangeAngle(i, j);
-							}
-						}
-						objects->ChangeState2(pathpoint.Path_State2, i, j);//动画3s
+
+						pathpoint.push_back(objects->GetAnimation(i, j).GetPathPoint(deltaTime));
+						AnimaObjectIndex.push_back(i);
+						AnimaIndex.push_back(j);
+						
+// 						objects->ChangePos(pathpoint.Path_Pos,i,j);//动画3s
+// 						objects->ChangeRotateQ(pathpoint.Path_Rotate,i,j);//动画3s
+// 						objects->ChangeHandPos(pathpoint.Path_HandPos, i, j);//动画3s
+// 						objects->ChangeHandEular(pathpoint.Path_HandEular, i, j);//动画3s
+// 						if(objects->objects[i].m_HaveAngle)
+// 						{
+// 							if (objects->SolveAngle(i,j))
+// 							{
+// 								objects->ChangeAngle(i, j);
+// 								objects->SetAABB(i, j);
+// 							}
+// 						}
+// 						objects->ChangeState2(pathpoint.Path_State2, i, j);//动画3s
 					}
 				}
 			}
+			int i = 0;
+			for (PathPoint thispathpoint : pathpoint)
+			{
+				objects->ChangeAnimation(thispathpoint, AnimaObjectIndex[i], AnimaIndex[i]);
+				i++;
+			}
+			
 				
 			
 

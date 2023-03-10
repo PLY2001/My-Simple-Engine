@@ -638,7 +638,7 @@ namespace Hazel {
 
 		}
 		}
-		SetAABB(m_Objectindex,m_index);
+		//SetAABB(m_Objectindex,m_index);
 
 	}
 
@@ -787,7 +787,7 @@ namespace Hazel {
 		}
 		}
 		
-		SetAABB(objectindex, index);
+		//SetAABB(objectindex, index);
 	}
 
 	float* Objects::SetAngle(int Axis)
@@ -1636,6 +1636,11 @@ namespace Hazel {
 	}
 
 
+	void Objects::SetAABB()
+	{
+		SetAABB(m_Objectindex, m_index);
+	}
+
 	Hazel::ControlMode Objects::GetControlMode()
 	{
 		if (m_Objectindex > -1)
@@ -2170,6 +2175,7 @@ namespace Hazel {
 									{
 										ChangeAngle();
 									}
+									SetAABB(m_Objectindex,m_index);
 
 									if (object2.HasMember("animation") && object2["animation"].IsArray())
 									{
@@ -2397,6 +2403,39 @@ namespace Hazel {
 			Eular.z = lastEular.z;
 		}
 		return Eular;
+	}
+
+	void Objects::ChangeAnimation(PathPoint pathpoint, int objectindex, int index)
+	{
+		objects[objectindex].m_Pos[index] += pathpoint.Path_Pos;
+		objects[objectindex].m_Rotate[index] = SolveEularAngle(pathpoint.Path_Rotate, objects[objectindex].m_Rotate[index]);
+		objects[objectindex].m_RotateQuaternion[index] = pathpoint.Path_Rotate;
+
+		for (int i = 0; i < objects[objectindex].m_Model->meshes.size(); i++)
+		{
+			//pos
+			objects[objectindex].m_DefaultPosScaleMatrices[i][index] = glm::translate(objects[objectindex].m_DefaultPosScaleMatrices[i][index], pathpoint.Path_Pos / objects[objectindex].m_Scale);
+			objects[objectindex].m_DefaultModelMatrices[i][index] = objects[objectindex].m_DefaultPosScaleMatrices[i][index] * objects[objectindex].m_RotateMatrices[i][index];
+			//rotate
+			glm::mat4 RotateMatrix = glm::mat4(1.0f);
+			RotateMatrix = glm::mat4_cast(objects[objectindex].m_RotateQuaternion[index]) * RotateMatrix;
+			objects[objectindex].m_RotateMatrices[i][index] = RotateMatrix;
+			objects[objectindex].m_DefaultModelMatrices[i][index] = objects[objectindex].m_DefaultPosScaleMatrices[i][index] * objects[objectindex].m_RotateMatrices[i][index];
+		}
+		objects[objectindex].m_HandPos[index] = pathpoint.Path_HandPos;
+		objects[objectindex].m_HandEular[index] = pathpoint.Path_HandEular;
+
+		if (objects[objectindex].m_HaveAngle)
+		{
+			if (SolveAngle(objectindex, index))
+			{
+				ChangeAngle(objectindex, index);
+			}
+		}
+		SetAABB(objectindex, index);
+
+		objects[objectindex].m_State2[index] = pathpoint.Path_State2;
+
 	}
 
 }

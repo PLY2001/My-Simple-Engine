@@ -37,6 +37,7 @@ namespace Hazel {
 		float PathTime = 0.5;
 		glm::vec3 CircleCenter = glm::vec3(0.0f);
 		float TotalTime = 30.0f;
+		float AnimaTotalTime = 0.0f;
 		int TotalTimeIndex = 0;
 		//float TotalAllTime = 10.0;
 
@@ -59,8 +60,11 @@ namespace Hazel {
 		int FactoryInAmount = 0;
 		int FactoryProcessAmount = 0;
 		int FactoryOutAmount = 0;
+		int FactoryTotalAmount = 0;
 
 		bool BoxLoaded = false;
+		float a = 0.4;
+		float b = 1;
 	};
 
 }

@@ -168,7 +168,7 @@ namespace Hazel {
 				Path_HandEular_Now = m_Path_HandEular[Path_index + 1];
 			}
 			Path_index++;
-			TimeNow = 0.0f;
+			TimeNow = deltaTime + TimeNow - thisTotalTime;
 			if (Path_index + 1 > Path_Time.size())
 			{
 				Playing = false;

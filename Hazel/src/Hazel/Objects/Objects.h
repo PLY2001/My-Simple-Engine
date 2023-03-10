@@ -142,14 +142,15 @@ namespace Hazel {
 		
 		//std::vector<std::vector<glm::vec3>> AABBMinPos;
 		//std::vector<std::vector<glm::vec3>> AABBMaxPos;
-		void SetAABB(int ObjectIndex,int index);
+		
 
 		int m_index = -1;
 		int m_Objectindex = -1;
 		//std::vector<bool> haveAngle;
 
 	public:
-
+		void SetAABB(int ObjectIndex, int index);
+		void SetAABB();
 		//std::vector<ControlMode> controlmode;
 		ControlMode GetControlMode();
 		int* GetControlModeAddress();
@@ -169,6 +170,8 @@ namespace Hazel {
 		glm::vec3 load_rotate = glm::vec3(0.0f);
 		//std::vector<float> load_angle;
 		glm::vec3 SolveEularAngle(glm::qua<float> RotateQuaternion, glm::vec3 lastEular);
+
+		void ChangeAnimation(PathPoint pathpoint, int objectindex, int index);
 	};
 
 
