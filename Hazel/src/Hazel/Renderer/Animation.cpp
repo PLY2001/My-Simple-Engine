@@ -15,6 +15,7 @@ namespace Hazel {
 		frame = 0;
 		TimeNow = 0.0f;
 		TotalTimeNow = 0.0f;
+		AllTotalTimeNow = 0.0f;
 		Path_index = 0;
 		Playing = false;
 	}
@@ -24,9 +25,25 @@ namespace Hazel {
 		m_Path_Pos.push_back(Pos);
 	}
 
+	void Animation::SetPathPos(glm::vec3 Pos, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_Pos[index] =  Pos;
+		}
+	}
+
 	void Animation::SetPathRotate(glm::qua<float> RotateQuaternion)
 	{
 		m_Path_Rotate.push_back(RotateQuaternion);
+	}
+
+	void Animation::SetPathRotate(glm::qua<float> RotateQuaternion, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_Rotate[index] = RotateQuaternion;
+		}
 	}
 
 	void Animation::SetPathHandPos(glm::vec3 HandPos)
@@ -34,9 +51,25 @@ namespace Hazel {
 		m_Path_HandPos.push_back(HandPos);
 	}
 
+	void Animation::SetPathHandPos(glm::vec3 HandPos, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_HandPos[index] = HandPos;
+		}
+	}
+
 	void Animation::SetPathHandEular(glm::vec3 HandEular)
 	{
 		m_Path_HandEular.push_back(HandEular);
+	}
+
+	void Animation::SetPathHandEular(glm::vec3 HandEular, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_HandEular[index] = HandEular;
+		}
 	}
 
 	PathPoint Animation::GetPathPoint(float deltaTime)
@@ -156,7 +189,12 @@ namespace Hazel {
 				}
 			}
 			TimeNow += deltaTime;
-			TotalTimeNow += deltaTime;
+			if (m_Path_State2[Path_index] == u8"ÂúÔØ")
+			{
+				TotalTimeNow += deltaTime;
+			}
+			AllTotalTimeNow += deltaTime;
+			
 		}
 		else//²¥·ÅÍê±Ï
 		{
@@ -332,6 +370,14 @@ namespace Hazel {
 		HaveAnimation = true;
 	}
 
+	void Animation::SetPathTime(float Time, int index)
+	{
+		if (index < m_Path_Pos.size()-1&&index>-1)
+		{
+			Path_Time[index] = Time;
+		}
+	}
+
 	float Animation::GetPathTotalTime(int index)
 	{
 		if (m_Path_Pos.size() > 1)
@@ -362,9 +408,27 @@ namespace Hazel {
 
 	}
 
+	void Animation::SetPathMode(glm::vec3 CircleCenter, int index)
+	{
+		
+		if (index < m_Path_Pos.size()-1&&index>-1)
+		{
+			pathmodelist[index] = pathmode;
+			CircleCenterList[index] = CircleCenter;
+		}
+	}
+
 	void Animation::SetPathState2(std::string state2)
 	{
 		m_Path_State2.push_back(state2);
+	}
+
+	void Animation::SetPathState2(std::string state2, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_State2[index] = state2;
+		}
 	}
 
 	std::string Animation::GetPathKeyState2(int index)

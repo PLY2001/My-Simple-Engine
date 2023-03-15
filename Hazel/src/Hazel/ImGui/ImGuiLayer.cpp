@@ -15,7 +15,7 @@
 
 #include "implot.h"
 
-#define IM_CLAMP(V, MN, MX)     ((V) < (MN) ? (MN) : (V) > (MX) ? (MX) : (V))
+//#define IM_CLAMP(V, MN, MX)     ((V) < (MN) ? (MN) : (V) > (MX) ? (MX) : (V))
 
 namespace Hazel {
 
@@ -111,8 +111,8 @@ namespace Hazel {
 
 	void ImGuiLayer::OnImGuiRender()//ImGui绘制内容
 	{
-		//static bool show = true;
-		//ImGui::ShowDemoWindow(&show);//显示imgui示例界面
+// 		static bool show = true;
+ 		//ImGui::ShowDemoWindow(&show);//显示imgui示例界面
 		//ImPlot::ShowDemoWindow();
 
 		if (Application::Get().mousemode == Application::MouseMode::Enable&& !Application::Get().BillBoard)
@@ -277,7 +277,7 @@ namespace Hazel {
 						ImGui::Text(u8"所选模型总计 %d 个", Application::Get().objects->GetMyAmount());
 						if (ImGui::Button(u8"模块化复制"))
 							Application::Get().ModularCopy = true;
-						if (Application::Get().objects->GetName() == "storage")
+						if (Application::Get().objects->GetName() == u8"立体仓库")
 						{
 							if (ImGui::Button(u8"填充仓库"))
 							{
@@ -285,13 +285,13 @@ namespace Hazel {
 								bool finded = false;
 								for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 								{
-									if ((*it).m_Name == "box")
+									if ((*it).m_Name == u8"周转箱")
 									{
 										for (int i = 0; i < 6; i++)
 										{
 											for (int j = 0; j < 11; j++)
 											{
-												Application::Get().objects->AddAmount("box", StoragePos + glm::vec3(1.48f, 1.55f, -1.2f) + glm::vec3(0.0f, 18.03f / 10.0f * j, -10.12f / 5.0f * i), glm::vec3(0.0f));
+												Application::Get().objects->AddAmount(u8"周转箱", StoragePos + glm::vec3(1.48f, 1.55f, -1.2f) + glm::vec3(0.0f, 18.03f / 10.0f * j, -10.12f / 5.0f * i), glm::vec3(0.0f));
 											}
 										}
 										finded = true;
@@ -299,14 +299,14 @@ namespace Hazel {
 								}
 								if (!finded)
 								{
-									Application::Get().objects->AddObject("box", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
+									Application::Get().objects->AddObject(u8"周转箱", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
 									Application::Get().insbos->AddObject(Application::Get().objects);
 									Application::Get().objects->ReduceAmount();
 									for (int i = 0; i < 6; i++)
 									{
 										for (int j = 0; j < 11; j++)
 										{
-											Application::Get().objects->AddAmount("box", StoragePos + glm::vec3(1.48f, 1.55f, -1.2f) + glm::vec3(0.0f, 18.03f / 10.0f * j, -10.12f / 5.0f * i), glm::vec3(0.0f));
+											Application::Get().objects->AddAmount(u8"周转箱", StoragePos + glm::vec3(1.48f, 1.55f, -1.2f) + glm::vec3(0.0f, 18.03f / 10.0f * j, -10.12f / 5.0f * i), glm::vec3(0.0f));
 										}
 									}
 								}
@@ -337,7 +337,7 @@ namespace Hazel {
 					
 					
 
-					if ((int)Application::Get().objects->GetControlMode() > 0 && Application::Get().objects->GetName()!="box")
+					if ((int)Application::Get().objects->GetControlMode() > 0 && Application::Get().objects->GetName()!=u8"周转箱")
 					{
 						if (ImGui::TreeNode(u8"机械控制"))
 						{
@@ -345,7 +345,7 @@ namespace Hazel {
 							ImGui::SameLine();
 							ImGui::RadioButton(u8"逆向运动学", Application::Get().objects->GetControlModeAddress(), 2);
 
-							if ((int)Application::Get().objects->GetControlMode() == 1 && Application::Get().objects->GetName()=="irb120")
+							if ((int)Application::Get().objects->GetControlMode() == 1 && Application::Get().objects->GetName()==u8"六轴机械臂")
 							{
 								if (ImGui::SliderFloat("Angle1", Application::Get().objects->SetAngle(1), -165.0f, 165.0f))
 								{
@@ -372,7 +372,7 @@ namespace Hazel {
 									Application::Get().AngleChanged = true;
 								}
 							}
-							else if ((int)Application::Get().objects->GetControlMode() == 1 && Application::Get().objects->GetName() == "storage")
+							else if ((int)Application::Get().objects->GetControlMode() == 1 && Application::Get().objects->GetName() == u8"立体仓库")
 							{
 								if (ImGui::SliderFloat("Angle1", Application::Get().objects->SetAngle(1), -10.12f, 0.0f))
 								{
@@ -387,13 +387,13 @@ namespace Hazel {
 									Application::Get().AngleChanged = true;
 								}
 							}
-							else if ((int)Application::Get().objects->GetControlMode() == 1 && Application::Get().objects->GetName() == "machine")
+							else if ((int)Application::Get().objects->GetControlMode() == 1 && Application::Get().objects->GetName() == u8"注塑机")
 							{
-								if (ImGui::SliderFloat("Angle1", Application::Get().objects->SetAngle(1), -1.848f, 1.848f))
+								if (ImGui::SliderFloat("Angle1", Application::Get().objects->SetAngle(1), -2.608f, 2.608f))
 								{
 									Application::Get().AngleChanged = true;
 								}
-								if (ImGui::SliderFloat("Angle2", Application::Get().objects->SetAngle(2), 0.0f, 0.8f))
+								if (ImGui::SliderFloat("Angle2", Application::Get().objects->SetAngle(2), 0.0f, 0.94f))
 								{
 									Application::Get().AngleChanged = true;
 								}
@@ -401,8 +401,12 @@ namespace Hazel {
 								{
 									Application::Get().AngleChanged = true;
 								}
+								if (ImGui::SliderFloat("Angle4", Application::Get().objects->SetAngle(4), 0.0f, 90.0f))
+								{
+									Application::Get().AngleChanged = true;
+								}
 							}
-							else if ((int)Application::Get().objects->GetControlMode() == 1 && Application::Get().objects->GetName() == "belt_lift")
+							else if ((int)Application::Get().objects->GetControlMode() == 1 && Application::Get().objects->GetName() == u8"传送带升降机")
 							{
 								if (ImGui::SliderFloat("Angle1", Application::Get().objects->SetAngle(1), 0.0f, 546.0f))
 								{
@@ -415,7 +419,7 @@ namespace Hazel {
 								glm::vec3 Scale = Application::Get().objects->GetScale();
 								HandPos = Application::Get().objects->GetHandPos() / 10.0f;
 								HandEular = Application::Get().objects->GetHandEular();
-								if (Application::Get().objects->GetName() == "irb120")
+								if (Application::Get().objects->GetName() == u8"六轴机械臂")
 								{
 									if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -652.0f * Scale.x / 10.0f, 652.0f * Scale.x / 10.0f))
 									{
@@ -467,7 +471,7 @@ namespace Hazel {
 
 									
 								}
-								else if (Application::Get().objects->GetName() == "storage")
+								else if (Application::Get().objects->GetName() == u8"立体仓库")
 								{
 									static int i = 0;
 									static int j = 0;
@@ -512,15 +516,15 @@ namespace Hazel {
 										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 									}
 								}
-								else if (Application::Get().objects->GetName() == "machine")
+								else if (Application::Get().objects->GetName() == u8"注塑机")
 								{
-									if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -1.848f * Scale.x / 10.0f, 1.848f * Scale.x / 10.0f))
+									if (ImGui::SliderFloat("HandPosX", (float*)&HandPos.x, -2.608f * Scale.x / 10.0f, 2.608f * Scale.x / 10.0f))
 									{
 										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
 										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 									}
 
-									if (ImGui::SliderFloat("HandPosY", (float*)&HandPos.y, 0.0f * Scale.y / 10.0f, 0.8f * Scale.y / 10.0f))
+									if (ImGui::SliderFloat("HandPosY", (float*)&HandPos.y, 0.0f * Scale.y / 10.0f, 0.94f * Scale.y / 10.0f))
 									{
 										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
 										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
@@ -537,8 +541,14 @@ namespace Hazel {
 										Application::Get().objects->ChangeHandPos(HandPos * 10.0f);
 										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
 									}
+
+									if (ImGui::SliderFloat("HandEularX", (float*)&HandEular.x, 0.0f, 90.0f))
+									{
+										Application::Get().objects->ChangeHandEular(HandEular);
+										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
+									}
 								}
-								else if (Application::Get().objects->GetName() == "belt_lift")
+								else if (Application::Get().objects->GetName() == u8"传送带升降机")
 								{
 									if (ImGui::SliderFloat("HandPosY", (float*)&HandPos.y, 0.0f * Scale.y / 10.0f, 546.0f * Scale.y / 10.0f))
 									{
@@ -561,7 +571,7 @@ namespace Hazel {
 					}
 					if (Application::Get().objects->GetChoosedIndex() > -1)
 					{
-						if (Application::Get().objects->GetName() == "irb120" || Application::Get().objects->GetName() == "box" || Application::Get().objects->GetName() == "AVG")
+						if (Application::Get().objects->GetName() == u8"六轴机械臂" || Application::Get().objects->GetName() == u8"周转箱" || Application::Get().objects->GetName() == u8"AGV运输车")
 						{
 							if (ImGui::TreeNode(u8"放置物体"))
 							{
@@ -596,7 +606,7 @@ namespace Hazel {
 								if (BoxLoaded)
 								{
 									Application::Get().objects->ChangeState2(u8"满载");
-									if (Application::Get().objects->GetName() == "box")
+									if (Application::Get().objects->GetName() == u8"周转箱")
 									{
 										Application::Get().objects->ChangeHandPos(glm::vec3(0.01f,0.01f,0.01f));
 										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
@@ -606,7 +616,7 @@ namespace Hazel {
 								else
 								{
 									Application::Get().objects->ChangeState2(u8"空载");
-									if (Application::Get().objects->GetName() == "box")
+									if (Application::Get().objects->GetName() == u8"周转箱")
 									{
 										Application::Get().objects->ChangeHandPos(glm::vec3(0.0f, 0.0f, 0.0f));
 										Application::Get().AngleChanged = Application::Get().objects->SolveAngle();
@@ -720,6 +730,14 @@ namespace Hazel {
 // 				ImGui::InputFloat(u8"加工x坐标边界", &FactoryInProcess, -1000.0f, 1000.0f, "%.1f");
 // 				ImGui::InputFloat(u8"加工毕x坐标边界", &FactoryOutProcess, -1000.0f, 1000.0f, "%.1f");
 // 				ImGui::InputFloat(u8"出库x坐标边界", &FactoryOut, -1000.0f, 1000.0f, "%.1f");
+				if (Application::Get().objects->GetChoosedIndex() > -1)
+				{
+					if (ImGui::Button(u8"设为总时间基准"))
+					{
+						TimeObjectIndex = Application::Get().objects->GetChoosedObjectIndex();
+						TimeIndex = Application::Get().objects->GetChoosedIndex();
+					}
+				}
 			}
 
 			
@@ -805,15 +823,33 @@ namespace Hazel {
 					}
 					ImGui::SameLine();
 
+					if (ImGui::Button(u8"修改点"))
+					{
+						Application::Get().objects->GetMyAnimation().SetPathPos(Pos * 10.0f, KeyIndex);
+						Application::Get().objects->GetMyAnimation().SetPathRotate(RotateQuaternion, KeyIndex);
+						Application::Get().objects->GetMyAnimation().SetPathHandPos(Application::Get().objects->GetHandPos(), KeyIndex);
+						Application::Get().objects->GetMyAnimation().SetPathHandEular(Application::Get().objects->GetHandEular(), KeyIndex);
+						Application::Get().objects->GetMyAnimation().SetPathTime(PathTime, KeyIndex -1);
+						Application::Get().objects->GetMyAnimation().SetPathMode(CircleCenter * 10.0f, KeyIndex -1);
+						Application::Get().objects->GetMyAnimation().SetPathState2(Application::Get().objects->GetState2(), KeyIndex);
+					}
+
+					ImGui::SameLine();
+
+
 					if (ImGui::Button(u8"删点"))
 					{
 						Application::Get().objects->GetMyAnimation().RemovePath();
 					}
+
 // 					ImGui::SetNextItemWidth(100);
 // 					ImGui::InputFloat(u8"总动画时长", &TotalAllTime, 0.0f, 10000.0f, "%.1f");
 // 					ImGui::SameLine();
-					ImGui::SetNextItemWidth(100);
-					ImGui::InputInt(u8"时长索引", &TotalTimeIndex, 0, 10000);
+					//ImGui::SetNextItemWidth(100);
+					//ImGui::InputInt(u8"时长索引", &TotalTimeIndex, 0, 10000);
+
+					//static int counter = 0;
+					
 				}
 			}
 
@@ -839,11 +875,45 @@ namespace Hazel {
 					}
 				}
 			}
+			ImGui::SameLine();
+			if (ImGui::Button(u8"结束动画"))
+			{
+				for (int i = 0; i < Application::Get().objects->GetObjectAmount(); i++)
+				{
+					for (int j = 0; j < Application::Get().objects->GetAmount(i); j++)
+					{
+						if (Application::Get().objects->GetAnimation(i, j).HaveAnimation)
+						{
+							Application::Get().objects->GetAnimation(i, j).Reset();
+							Application::Get().objects->GetAnimation(i, j).Playing = false;
+							Application::Get().objects->ChangePos(Application::Get().objects->GetAnimation(i, j).GetPathKeyPos(0) - Application::Get().objects->GetPos(i, j), i, j);
+							//for(int k = Application::Get().objects->GetAnimation(i, j).GetPathKeySize()-1;k>-1;k--)
+							Application::Get().objects->ChangeRotateQ(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(0), i, j);
+							Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(0), i, j);
+							Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(0), i, j);
+
+						}
+					}
+				}
+			}
+
 
 			//ImGui::SetNextItemWidth(100);
 
 			if (ImGui::CollapsingHeader(u8"关键帧表"))
 			{
+				ImGui::PushButtonRepeat(true);
+				if (ImGui::ArrowButton("##left", ImGuiDir_Left))
+				{
+					if (TotalTimeIndex > 0)
+						TotalTimeIndex--;
+				}
+				ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+				if (ImGui::ArrowButton("##right", ImGuiDir_Right)) { TotalTimeIndex++; }
+				ImGui::PopButtonRepeat();
+				ImGui::SameLine();
+				ImGui::Text(u8"时长索引：%d", TotalTimeIndex);
+
 				if (Application::Get().objects->GetChoosedIndex() > -1)
 				{
 					static ImGuiTableFlags flags = ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
@@ -948,6 +1018,7 @@ namespace Hazel {
 
 											if (ImGui::Button(ButtomName.c_str()))
 											{
+												KeyIndex = index;
 												Application::Get().objects->ChangePos(Application::Get().objects->GetMyAnimation().GetPathKeyPos(index) - Application::Get().objects->GetPos());
 												Application::Get().objects->ChangeRotateQ(Application::Get().objects->GetMyAnimation().GetPathKeyRotate(index));
 												Application::Get().objects->ChangeHandPos(Application::Get().objects->GetMyAnimation().GetPathKeyHandPos(index));
@@ -1011,20 +1082,20 @@ namespace Hazel {
 			ImGui::Begin(u8"物品栏");
 			if (ImGui::CollapsingHeader(u8"物品生成"))
 			{
-				if (ImGui::Button(u8"ABB IRB120 六轴机械臂"))
+				if (ImGui::Button(u8"六轴机械臂"))
 				{
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 					{
-						if ((*it).m_Name == "irb120")
+						if ((*it).m_Name == u8"六轴机械臂")
 						{
-							Application::Get().objects->AddAmount("irb120");
+							Application::Get().objects->AddAmount(u8"六轴机械臂");
 							finded = true;
 						}
 					}
 					if (!finded)
 					{
-						Application::Get().objects->AddObject("irb120", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
+						Application::Get().objects->AddObject(u8"六轴机械臂", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
 						Application::Get().insbos->AddObject(Application::Get().objects);
 					}
 
@@ -1034,15 +1105,15 @@ namespace Hazel {
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 					{
-						if ((*it).m_Name == "belt1")
+						if ((*it).m_Name == u8"低传送带")
 						{
-							Application::Get().objects->AddAmount("belt1");
+							Application::Get().objects->AddAmount(u8"低传送带");
 							finded = true;
 						}
 					}
 					if (!finded)
 					{
-						Application::Get().objects->AddObject("belt1", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+						Application::Get().objects->AddObject(u8"低传送带", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
 						Application::Get().insbos->AddObject(Application::Get().objects);
 					}
 
@@ -1052,15 +1123,15 @@ namespace Hazel {
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 					{
-						if ((*it).m_Name == "belt")
+						if ((*it).m_Name == u8"中传送带")
 						{
-							Application::Get().objects->AddAmount("belt");
+							Application::Get().objects->AddAmount(u8"中传送带");
 							finded = true;
 						}
 					}
 					if (!finded)
 					{
-						Application::Get().objects->AddObject("belt", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+						Application::Get().objects->AddObject(u8"中传送带", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
 						Application::Get().insbos->AddObject(Application::Get().objects);
 					}
 
@@ -1070,15 +1141,15 @@ namespace Hazel {
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 					{
-						if ((*it).m_Name == "belt2")
+						if ((*it).m_Name == u8"高传送带")
 						{
-							Application::Get().objects->AddAmount("belt2");
+							Application::Get().objects->AddAmount(u8"高传送带");
 							finded = true;
 						}
 					}
 					if (!finded)
 					{
-						Application::Get().objects->AddObject("belt2", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+						Application::Get().objects->AddObject(u8"高传送带", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
 						Application::Get().insbos->AddObject(Application::Get().objects);
 					}
 
@@ -1088,15 +1159,15 @@ namespace Hazel {
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 					{
-						if ((*it).m_Name == "belt_lift")
+						if ((*it).m_Name == u8"传送带升降机")
 						{
-							Application::Get().objects->AddAmount("belt_lift");
+							Application::Get().objects->AddAmount(u8"传送带升降机");
 							finded = true;
 						}
 					}
 					if (!finded)
 					{
-						Application::Get().objects->AddObject("belt_lift", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), true);
+						Application::Get().objects->AddObject(u8"传送带升降机", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), true);
 						Application::Get().insbos->AddObject(Application::Get().objects);
 					}
 
@@ -1106,33 +1177,33 @@ namespace Hazel {
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 					{
-						if ((*it).m_Name == "AVG")
+						if ((*it).m_Name == u8"AGV运输车")
 						{
-							Application::Get().objects->AddAmount("AVG");
+							Application::Get().objects->AddAmount(u8"AGV运输车");
 							finded = true;
 						}
 					}
 					if (!finded)
 					{
-						Application::Get().objects->AddObject("AVG", glm::vec3(0, 0.8f, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+						Application::Get().objects->AddObject(u8"AGV运输车", glm::vec3(0, 0.8f, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
 						Application::Get().insbos->AddObject(Application::Get().objects);
 					}
 
 				}
-				if (ImGui::Button(u8"转运盒"))
+				if (ImGui::Button(u8"周转箱"))
 				{
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 					{
-						if ((*it).m_Name == "box")
+						if ((*it).m_Name == u8"周转箱")
 						{
-							Application::Get().objects->AddAmount("box");
+							Application::Get().objects->AddAmount(u8"周转箱");
 							finded = true;
 						}
 					}
 					if (!finded)
 					{
-						Application::Get().objects->AddObject("box", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
+						Application::Get().objects->AddObject(u8"周转箱", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
 						Application::Get().insbos->AddObject(Application::Get().objects);
 					}
 
@@ -1142,15 +1213,15 @@ namespace Hazel {
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 					{
-						if ((*it).m_Name == "machine")
+						if ((*it).m_Name == u8"注塑机")
 						{
-							Application::Get().objects->AddAmount("machine");
+							Application::Get().objects->AddAmount(u8"注塑机");
 							finded = true;
 						}
 					}
 					if (!finded)
 					{
-						Application::Get().objects->AddObject("machine", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(2.5f,2.5f,2.5f), true);
+						Application::Get().objects->AddObject(u8"注塑机", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(2.5f,2.5f,2.5f), true);
 						Application::Get().insbos->AddObject(Application::Get().objects);
 					}
 
@@ -1160,15 +1231,15 @@ namespace Hazel {
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
 					{
-						if ((*it).m_Name == "storage")
+						if ((*it).m_Name == u8"立体仓库")
 						{
-							Application::Get().objects->AddAmount("storage");
+							Application::Get().objects->AddAmount(u8"立体仓库");
 							finded = true;
 						}
 					}
 					if (!finded)
 					{
-						Application::Get().objects->AddObject("storage", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f), true);
+						Application::Get().objects->AddObject(u8"立体仓库", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f), true);
 						Application::Get().insbos->AddObject(Application::Get().objects);
 					}
 
@@ -1180,19 +1251,25 @@ namespace Hazel {
 			{
 				for (int i = 0; i < Application::Get().objects->GetObjectAmount(); i++)
 				{
-					for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
+					if (ImGui::TreeNode(Application::Get().objects->objects[i].m_Name.c_str()))
 					{
-						std::string name(Application::Get().objects->objects[i].m_Name);
-
-						// 准备根据格式造字符串流
-						std::stringstream fmt;
-						// 造字符串流
-						fmt << name << ":" << j;
-						std::string namej = fmt.str();
-						if (ImGui::Button(namej.c_str()))
+						
+						for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
 						{
-							Application::Get().objects->SetChoosedIndex(i, j);
+							std::string name(Application::Get().objects->objects[i].m_Name);
+
+							// 准备根据格式造字符串流
+							std::stringstream fmt;
+							// 造字符串流
+							fmt << name << ":" << j;
+							std::string namej = fmt.str();
+							if (ImGui::Button(namej.c_str()))
+							{
+								Application::Get().objects->SetChoosedIndex(i, j);
+							}
 						}
+					ImGui::TreePop();
+					ImGui::Separator();
 					}
 				}
 			}
@@ -1245,8 +1322,10 @@ namespace Hazel {
 					if (Application::Get().objects->objects[i].m_Anima[j].Playing)
 					{
 						ImGui::TextColored(ImVec4(0.2f,0.75f,0.17f,1.0f), u8"动画运行中");
-						ImGui::Text(u8"运行时间：%.1f秒", Application::Get().objects->objects[i].m_Anima[j].TotalTimeNow);
-						AnimaTotalTime = Application::Get().objects->objects[i].m_Anima[j].TotalTimeNow; 
+						
+						ImGui::Text(u8"工作时间：%.1f秒", Application::Get().objects->objects[i].m_Anima[j].TotalTimeNow);
+						ImGui::Text(u8"总时间：%.1f秒", Application::Get().objects->objects[i].m_Anima[j].AllTotalTimeNow);
+						
 					}
 					else
 					{
@@ -1278,10 +1357,15 @@ namespace Hazel {
 			}
 			
 			ImGui::Begin(u8"智能化车间概况");
+			if (TimeIndex > -1)
+			{
+				AnimaTotalTime = Application::Get().objects->objects[TimeObjectIndex].m_Anima[TimeIndex].AllTotalTimeNow;
+			}
+
 			for (int i = 0; i < Application::Get().objects->GetObjectAmount(); i++)
 			{
 				std::string name(Application::Get().objects->objects[i].m_Name);
-				if (name == "box")
+				if (name == u8"周转箱")
 				{
 					FactoryInAmount = 0;
 					FactoryProcessAmount = 0;
@@ -1289,6 +1373,7 @@ namespace Hazel {
 					FactoryTotalAmount = Application::Get().objects->GetAmount(i);
 					for (int j = 0; j < Application::Get().objects->GetAmount(i); j++)
 					{
+						
 						glm::vec3 BoxPos = Application::Get().objects->GetPos(i, j);
 						if (BoxPos.x > FactoryInMin.x&& BoxPos.x < FactoryInMax.x && BoxPos.z > FactoryInMin.z&& BoxPos.z < FactoryInMax.z)
 						{
@@ -1452,6 +1537,42 @@ namespace Hazel {
 
 				
 				
+			}
+			if (ImGui::CollapsingHeader(u8"设备利用率"))
+			{
+				for (int i = 0; i < Application::Get().objects->GetObjectAmount(); i++)
+				{
+					for (int j = 0; j < Application::Get().objects->GetAmount(i); j++)
+					{
+						if (Application::Get().objects->objects[i].m_Anima[j].HaveAnimation)
+						{
+							static float progress = 0.0f, progress_dir = 1.0f;
+							if (AnimaTotalTime > 0.01)
+							{
+								progress = Application::Get().objects->objects[i].m_Anima[j].TotalTimeNow / AnimaTotalTime;
+							}
+							else
+							{
+								progress = 0.0f;
+							}
+							// Typically we would use ImVec2(-1.0f,0.0f) or ImVec2(-FLT_MIN,0.0f) to use all available width,
+							// or ImVec2(width,0.0f) for a specified width. ImVec2(0.0f,0.0f) uses ItemWidth.
+							ImGui::ProgressBar(progress, ImVec2(0.0f, 0.0f));
+							ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+
+							std::string name(Application::Get().objects->objects[i].m_Name);
+							// 准备根据格式造字符串流
+							std::stringstream fmt;
+							// 造字符串流
+							fmt << name << ":" << j;
+							std::string namej = fmt.str();
+							ImGui::Text(namej.c_str());
+						}
+					}
+					
+				}
+
+
 			}
 			
 			//ImGui::Text(u8"生产进度")

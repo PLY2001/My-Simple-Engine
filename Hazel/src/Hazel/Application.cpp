@@ -80,18 +80,18 @@ namespace Hazel
 		BeltModel.reset(new Model("res/models/belt/belt.obj"));
 		BeltLiftModel.reset(new Model("res/models/belt_lift/belt_lift.obj"));
 		AVGModel.reset(new Model("res/models/AVGcar/AVGcar.obj"));
-		BoxModel.reset(new Model("res/models/box/box.obj"));
+		BoxModel.reset(new Model("res/models/box1/box1.obj"));
 		MachineModel.reset(new Model("res/models/machine/machine.obj"));
 		StorageModel.reset(new Model("res/models/storage/3DStorage.obj"));
-		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("irb120",IRB120Model));
-		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt1", Belt1Model));
-		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt2", Belt2Model));
-		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt", BeltModel));
-		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("belt_lift", BeltLiftModel));
-		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("AVG", AVGModel));
-		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("box", BoxModel));
-		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("machine", MachineModel));
-		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>("storage", StorageModel));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>(u8"六轴机械臂",IRB120Model));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>(u8"低传送带", Belt1Model));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>(u8"高传送带", Belt2Model));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>(u8"中传送带", BeltModel));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>(u8"传送带升降机", BeltLiftModel));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>(u8"AGV运输车", AVGModel));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>(u8"周转箱", BoxModel));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>(u8"注塑机", MachineModel));
+		modelmap.insert(std::pair<std::string, std::shared_ptr<Model>>(u8"立体仓库", StorageModel));
 		objects.reset(new Objects(modelmap));
 
 		/*平面*/
@@ -1128,9 +1128,9 @@ namespace Hazel
 									glm::vec4 HandPos = glm::vec4(otherPos - Pos,1.0f);
 									
 									
-									if(objects->GetName() == "irb120")
+									if(objects->GetName() == u8"六轴机械臂")
 									{
-										if (objects->GetName(j) == "box")
+										if (objects->GetName(j) == u8"周转箱")
 										{
 											glm::mat4 ro = glm::mat4(1.0f);
 											ro = glm::rotate(ro, -objects->GetRotate(j, i).y, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -1140,19 +1140,19 @@ namespace Hazel
 											ToGrab = false;
 										}	
 									}
-									else if(objects->GetName() == "box")
+									else if(objects->GetName() == u8"周转箱")
 									{
-										if (objects->GetName(j) == "AVG")
+										if (objects->GetName(j) == u8"AGV运输车")
 										{
 											objects->ChangePos(glm::vec3(HandPos.x, HandPos.y + 2.53f, HandPos.z));
 											ToGrab = false;
 										}
-										else if (objects->GetName(j) == "belt1")
+										else if (objects->GetName(j) == u8"低传送带")
 										{
 											objects->ChangePos(glm::vec3(0.0f, HandPos.y + 2.0f, 0.0f));
 											ToGrab = false;
 										}
-										else if (objects->GetName(j) == "belt2")
+										else if (objects->GetName(j) == u8"高传送带")
 										{
 											objects->ChangePos(glm::vec3(0.0f, HandPos.y + 4.73f, 0.0f));
 											ToGrab = false;
@@ -1162,9 +1162,9 @@ namespace Hazel
 											ToGrab = false;
 										}
 									}
-									else if (objects->GetName() == "AVG")
+									else if (objects->GetName() == u8"AGV运输车")
 									{
-										if (objects->GetName(j) == "storage")
+										if (objects->GetName(j) == u8"立体仓库")
 										{
 											objects->ChangePos(glm::vec3(HandPos.x + 9.0f, 0.0f, HandPos.z - 1.2f));
 											ToGrab = false;

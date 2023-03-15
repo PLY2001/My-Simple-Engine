@@ -22,24 +22,31 @@ namespace Hazel {
 		void Reset();
 
 		void SetPathPos(glm::vec3 Pos);
+		void SetPathPos(glm::vec3 Pos,int index);
 		glm::vec3 GetPathKeyPos(int index);
 
 		void SetPathRotate(glm::qua<float> RotateQuaternion);
+		void SetPathRotate(glm::qua<float> RotateQuaternion,int index);
 		glm::qua<float> GetPathKeyRotate(int index);
 
 		void SetPathHandPos(glm::vec3 HandPos);
+		void SetPathHandPos(glm::vec3 HandPos,int index);
 		glm::vec3 GetPathKeyHandPos(int index);
 
 		void SetPathHandEular(glm::vec3 HandEular);
+		void SetPathHandEular(glm::vec3 HandEular,int index);
 		glm::vec3 GetPathKeyHandEular(int index);
 
 		void SetPathTime(float Time);
+		void SetPathTime(float Time,int index);
 		float GetPathTotalTime(int index);
 		float GetPathKeyTime(int index);
 
 		void SetPathMode(glm::vec3 CircleCenter);
+		void SetPathMode(glm::vec3 CircleCenter,int index);
 
 		void SetPathState2(std::string state2);
+		void SetPathState2(std::string state2,int index);
 		std::string GetPathKeyState2(int index);
 
 		void RemovePath();
@@ -55,6 +62,7 @@ namespace Hazel {
 		int frame = 0;
 		float TimeNow = 0.0f;
 		float TotalTimeNow = 0.0f;
+		float AllTotalTimeNow = 0.0f;
 		int Path_index = 0;
 		int Key_index = 0;
 		bool Playing = false;

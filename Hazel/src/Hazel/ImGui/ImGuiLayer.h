@@ -65,6 +65,10 @@ namespace Hazel {
 		bool BoxLoaded = false;
 		float a = 0.4;
 		float b = 1;
+		
+		int KeyIndex = 0;
+		int TimeObjectIndex = -1;
+		int TimeIndex = -1;
 	};
 
 }

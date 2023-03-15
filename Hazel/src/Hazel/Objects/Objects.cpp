@@ -48,11 +48,11 @@ namespace Hazel {
 				object.m_Angle[i].push_back(0);
 			}
 		}
-		if (name == "irb120")
+		if (name == u8"六轴机械臂")
 		{
 			object.m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
 		}
-		else if (name == "box")
+		else if (name == u8"周转箱")
 		{
 			object.m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 		}
@@ -181,11 +181,11 @@ namespace Hazel {
 		{
 			objects[m_Objectindex].m_Angle[i].push_back(0);
 		}
-		if (objects[m_Objectindex].m_Name == "irb120")
+		if (objects[m_Objectindex].m_Name == u8"六轴机械臂")
 		{
 			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
 		}
-		else if (objects[m_Objectindex].m_Name == "box")
+		else if (objects[m_Objectindex].m_Name == u8"周转箱")
 		{
 			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 		}
@@ -278,11 +278,11 @@ namespace Hazel {
 		{
 			objects[m_Objectindex].m_Angle[i].push_back(0);
 		}
-		if (objects[m_Objectindex].m_Name == "irb120")
+		if (objects[m_Objectindex].m_Name == u8"六轴机械臂")
 		{
 			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
 		}
-		else if (objects[m_Objectindex].m_Name == "box")
+		else if (objects[m_Objectindex].m_Name == u8"周转箱")
 		{
 			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 		}
@@ -438,11 +438,11 @@ namespace Hazel {
 		{
 			objects[m_Objectindex].m_Angle[i].push_back(0);
 		}
-		if (objects[m_Objectindex].m_Name == "irb120")
+		if (objects[m_Objectindex].m_Name == u8"六轴机械臂")
 		{
 			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(-5.18f, 6.3f, 0.0f));
 		}
-		else if (objects[m_Objectindex].m_Name == "box")
+		else if (objects[m_Objectindex].m_Name == u8"周转箱")
 		{
 			objects[m_Objectindex].m_HandPos.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
 		}
@@ -509,7 +509,7 @@ namespace Hazel {
 
 		}
 
-		if (objects[m_Objectindex].m_Name == "irb120")
+		if (objects[m_Objectindex].m_Name == u8"六轴机械臂")
 		{
 			for (int j = 1; j < objects[m_Objectindex].m_Model->meshes.size(); j++)
 			{
@@ -556,7 +556,7 @@ namespace Hazel {
 
 			}
 		}
-		else if (objects[m_Objectindex].m_Name == "storage")
+		else if (objects[m_Objectindex].m_Name == u8"立体仓库")
 		{
 			for (int j = 1; j < objects[m_Objectindex].m_Model->meshes.size(); j++)
 			{
@@ -584,16 +584,16 @@ namespace Hazel {
 
 			}
 		}
-		else if (objects[m_Objectindex].m_Name == "machine")
+		else if (objects[m_Objectindex].m_Name == u8"注塑机")
 		{
 			for (int j = 4; j < objects[m_Objectindex].m_Model->meshes.size(); j++)
 			{
-				if (j > 3&&j<6)
+				if (j > 3&&j<8)
 				{
 					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[0][m_index]), glm::vec3(0.0f, 1.0f, 0.0f));
 					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(objects[m_Objectindex].m_Angle[0][m_index],0.0f, 0.0f ));
 				}
-				if (j > 4 && j < 6)
+				if (j > 4 && j < 8)
 				{
 
 					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, objects[m_Objectindex].m_Angle[1][m_index], 0.0f));
@@ -601,7 +601,16 @@ namespace Hazel {
 					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -290.0f, 0.0f));
 
 				}
-				if (j > 5)
+				if (j > 5 && j < 8)
+				{
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.842f, 2.023, 5.15f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[3][m_index]), glm::vec3(1.0f, 0.0f, 0.0f));
+					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(-0.842f, -2.023, -5.15f));
+					
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[2][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -560.0f, 0.0f));
+				}
+				if (j > 7)
 				{
 					objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, 0.0f, objects[m_Objectindex].m_Angle[2][m_index]));
 					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[2][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -612,7 +621,7 @@ namespace Hazel {
 
 			}
 		}
-		else if (objects[m_Objectindex].m_Name == "belt_lift")
+		else if (objects[m_Objectindex].m_Name == u8"传送带升降机")
 		{
 		for (int j = 1; j < objects[m_Objectindex].m_Model->meshes.size(); j++)
 		{
@@ -626,7 +635,7 @@ namespace Hazel {
 
 		}
 		}
-		else if (objects[m_Objectindex].m_Name == "box")
+		else if (objects[m_Objectindex].m_Name == u8"周转箱")
 		{
 		for (int j = 1; j < objects[m_Objectindex].m_Model->meshes.size(); j++)
 		{
@@ -655,7 +664,7 @@ namespace Hazel {
 
 		}
 
-		if (objects[objectindex].m_Name == "irb120")
+		if (objects[objectindex].m_Name == u8"六轴机械臂")
 		{
 			for (int j = 1; j < objects[objectindex].m_Model->meshes.size(); j++)
 			{
@@ -702,7 +711,7 @@ namespace Hazel {
 
 			}
 		}
-		else if (objects[objectindex].m_Name == "storage")
+		else if (objects[objectindex].m_Name == u8"立体仓库")
 		{
 			for (int j = 1; j < objects[objectindex].m_Model->meshes.size(); j++)
 			{
@@ -730,16 +739,16 @@ namespace Hazel {
 
 			}
 		}
-		else if (objects[objectindex].m_Name == "machine")
+		else if (objects[objectindex].m_Name == u8"注塑机")
 		{
 			for (int j = 4; j < objects[objectindex].m_Model->meshes.size(); j++)
 			{
-				if (j > 3 && j < 6)
+				if (j > 3 && j < 8)
 				{
 					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[0][m_index]), glm::vec3(0.0f, 1.0f, 0.0f));
 					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(objects[objectindex].m_Angle[0][index],0.0f, 0.0f ));
 				}
-				if (j > 4 && j < 6)
+				if (j > 4 && j < 8)
 				{
 
 					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.0f, objects[objectindex].m_Angle[1][index], 0.0f));
@@ -747,7 +756,16 @@ namespace Hazel {
 					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -290.0f, 0.0f));
 
 				}
-				if (j > 5)
+				if (j > 5 && j < 8)
+				{
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(0.842f, 2.023, 5.15f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::rotate(objects[objectindex].m_ModelMatrices[j][index], glm::radians(objects[objectindex].m_Angle[3][index]), glm::vec3(1.0f, 0.0f, 0.0f));
+					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3(-0.842f, -2.023, -5.15f));
+					
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[2][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
+					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::translate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::vec3(0.0f, -560.0f, 0.0f));
+				}
+				if (j > 7)
 				{
 					objects[objectindex].m_ModelMatrices[j][index] = glm::translate(objects[objectindex].m_ModelMatrices[j][index], glm::vec3( 0.0f, 0.0f, objects[objectindex].m_Angle[2][index]));
 					//objects[m_Objectindex].m_ModelMatrices[j][m_index] = glm::rotate(objects[m_Objectindex].m_ModelMatrices[j][m_index], glm::radians(objects[m_Objectindex].m_Angle[2][m_index]), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -758,7 +776,7 @@ namespace Hazel {
 
 			}
 		}
-		else if (objects[objectindex].m_Name == "belt_lift")
+		else if (objects[objectindex].m_Name == u8"传送带升降机")
 		{
 		for (int j = 1; j < objects[objectindex].m_Model->meshes.size(); j++)
 		{
@@ -772,7 +790,7 @@ namespace Hazel {
 
 		}
 		}
-		else if (objects[objectindex].m_Name == "box")
+		else if (objects[objectindex].m_Name == u8"周转箱")
 		{
 		for (int j = 1; j < objects[objectindex].m_Model->meshes.size(); j++)
 		{
@@ -810,7 +828,7 @@ namespace Hazel {
 
 	bool Objects::SolveAngle()
 	{
-		if (objects[m_Objectindex].m_Name == "irb120")
+		if (objects[m_Objectindex].m_Name == u8"六轴机械臂")
 		{
 			glm::vec3 Pos = objects[m_Objectindex].m_HandPos[m_index] / objects[m_Objectindex].m_Scale;
 			glm::vec3 Eular = objects[m_Objectindex].m_HandEular[m_index];
@@ -930,7 +948,7 @@ namespace Hazel {
 			}
 			return true;
 		}
-		else if (objects[m_Objectindex].m_Name == "storage")
+		else if (objects[m_Objectindex].m_Name == u8"立体仓库")
 		{
 			glm::vec3 Pos = objects[m_Objectindex].m_HandPos[m_index] / objects[m_Objectindex].m_Scale;
 			objects[m_Objectindex].m_Angle[0][m_index] = Pos.z;
@@ -938,15 +956,17 @@ namespace Hazel {
 			objects[m_Objectindex].m_Angle[2][m_index] = Pos.x;
 			return true;
 		}
-		else if (objects[m_Objectindex].m_Name == "machine")
+		else if (objects[m_Objectindex].m_Name == u8"注塑机")
 		{
 		glm::vec3 Pos = objects[m_Objectindex].m_HandPos[m_index] / objects[m_Objectindex].m_Scale;
+		glm::vec3 Eular = objects[m_Objectindex].m_HandEular[m_index];
 		objects[m_Objectindex].m_Angle[0][m_index] = Pos.x;
 		objects[m_Objectindex].m_Angle[1][m_index] = Pos.y;
 		objects[m_Objectindex].m_Angle[2][m_index] = Pos.z;
+		objects[m_Objectindex].m_Angle[3][m_index] = Eular.x;
 		return true;
 		}
-		else if (objects[m_Objectindex].m_Name == "belt_lift")
+		else if (objects[m_Objectindex].m_Name == u8"传送带升降机")
 		{
 		glm::vec3 Pos = objects[m_Objectindex].m_HandPos[m_index] / objects[m_Objectindex].m_Scale;
 		
@@ -954,7 +974,7 @@ namespace Hazel {
 		
 		return true;
 		}
-		else if (objects[m_Objectindex].m_Name == "box")
+		else if (objects[m_Objectindex].m_Name == u8"周转箱")
 		{
 		glm::vec3 Pos = objects[m_Objectindex].m_HandPos[m_index] / objects[m_Objectindex].m_Scale;
 
@@ -970,7 +990,7 @@ namespace Hazel {
 
 	bool Objects::SolveAngle(int objectindex, int index)
 	{
-		if (objects[objectindex].m_Name == "irb120")
+		if (objects[objectindex].m_Name == u8"六轴机械臂")
 		{
 			glm::vec3 Pos = objects[objectindex].m_HandPos[index] / objects[objectindex].m_Scale;
 			glm::vec3 Eular = objects[objectindex].m_HandEular[index];
@@ -1095,7 +1115,7 @@ namespace Hazel {
 			//ChangeAngle();
 			return true;
 		}
-		else if (objects[objectindex].m_Name == "storage")
+		else if (objects[objectindex].m_Name == u8"立体仓库")
 		{
 		glm::vec3 Pos = objects[objectindex].m_HandPos[index] / objects[objectindex].m_Scale;
 		objects[objectindex].m_Angle[0][index] = Pos.z;
@@ -1103,15 +1123,17 @@ namespace Hazel {
 		objects[objectindex].m_Angle[2][index] = Pos.x;
 		return true;
 		}
-		else if (objects[objectindex].m_Name == "machine")
+		else if (objects[objectindex].m_Name == u8"注塑机")
 		{
 		glm::vec3 Pos = objects[objectindex].m_HandPos[index] / objects[objectindex].m_Scale;
+		glm::vec3 Eular = objects[objectindex].m_HandEular[index];
 		objects[objectindex].m_Angle[0][index] = Pos.x;
 		objects[objectindex].m_Angle[1][index] = Pos.y;
 		objects[objectindex].m_Angle[2][index] = Pos.z;
+		objects[objectindex].m_Angle[3][index] = Eular.x;
 		return true;
 		}
-		else if (objects[objectindex].m_Name == "belt_lift")
+		else if (objects[objectindex].m_Name == u8"传送带升降机")
 		{
 		glm::vec3 Pos = objects[objectindex].m_HandPos[index] / objects[objectindex].m_Scale;
 		
@@ -1119,7 +1141,7 @@ namespace Hazel {
 		
 		return true;
 		}
-		else if (objects[objectindex].m_Name == "box")
+		else if (objects[objectindex].m_Name == u8"周转箱")
 		{
 		glm::vec3 Pos = objects[objectindex].m_HandPos[index] / objects[objectindex].m_Scale;
 
