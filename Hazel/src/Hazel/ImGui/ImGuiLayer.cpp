@@ -822,6 +822,30 @@ namespace Hazel {
 						Application::Get().objects->GetMyAnimation().SetPathState2(Application::Get().objects->GetState2());
 					}
 					ImGui::SameLine();
+					if (ImGui::Button(u8"插入点"))
+					{
+						
+						Application::Get().objects->GetMyAnimation().InsertPathRotate(RotateQuaternion, KeyIndex);
+						Application::Get().objects->GetMyAnimation().InsertPathHandPos(Application::Get().objects->GetHandPos(), KeyIndex);
+						Application::Get().objects->GetMyAnimation().InsertPathHandEular(Application::Get().objects->GetHandEular(), KeyIndex);
+						Application::Get().objects->GetMyAnimation().InsertPathTime(PathTime, KeyIndex);
+						Application::Get().objects->GetMyAnimation().InsertPathMode(CircleCenter * 10.0f, KeyIndex);
+						Application::Get().objects->GetMyAnimation().InsertPathState2(Application::Get().objects->GetState2(), KeyIndex);
+						Application::Get().objects->GetMyAnimation().InsertPathPos(Pos * 10.0f, KeyIndex);
+					}
+					ImGui::SameLine();
+					if (ImGui::Button(u8"删去点"))
+					{
+						
+						Application::Get().objects->GetMyAnimation().DeletePathRotate(RotateQuaternion, KeyIndex);
+						Application::Get().objects->GetMyAnimation().DeletePathHandPos(Application::Get().objects->GetHandPos(), KeyIndex);
+						Application::Get().objects->GetMyAnimation().DeletePathHandEular(Application::Get().objects->GetHandEular(), KeyIndex);
+						Application::Get().objects->GetMyAnimation().DeletePathTime(PathTime, KeyIndex-1);
+						Application::Get().objects->GetMyAnimation().DeletePathMode(CircleCenter * 10.0f, KeyIndex-1);
+						Application::Get().objects->GetMyAnimation().DeletePathState2(Application::Get().objects->GetState2(), KeyIndex);
+						Application::Get().objects->GetMyAnimation().DeletePathPos(Pos * 10.0f, KeyIndex);
+					}
+					ImGui::SameLine();
 
 					if (ImGui::Button(u8"修改点"))
 					{
@@ -861,7 +885,7 @@ namespace Hazel {
 				{
 					for (int j = 0; j < Application::Get().objects->GetAmount(i); j++)
 					{
-						if (Application::Get().objects->GetAnimation(i, j).HaveAnimation)
+						if (Application::Get().objects->GetAnimation(i, j).GetHaveAnimation())
 						{
 							Application::Get().objects->GetAnimation(i, j).Reset();
 							Application::Get().objects->GetAnimation(i, j).Playing = true;
@@ -882,7 +906,7 @@ namespace Hazel {
 				{
 					for (int j = 0; j < Application::Get().objects->GetAmount(i); j++)
 					{
-						if (Application::Get().objects->GetAnimation(i, j).HaveAnimation)
+						if (Application::Get().objects->GetAnimation(i, j).GetHaveAnimation())
 						{
 							Application::Get().objects->GetAnimation(i, j).Reset();
 							Application::Get().objects->GetAnimation(i, j).Playing = false;
@@ -905,29 +929,31 @@ namespace Hazel {
 				ImGui::PushButtonRepeat(true);
 				if (ImGui::ArrowButton("##left", ImGuiDir_Left))
 				{
-					if (TotalTimeIndex > 0)
-						TotalTimeIndex--;
+					if (Application::Get().TotalTimeIndex > 0)
+						Application::Get().TotalTimeIndex--;
 				}
 				ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-				if (ImGui::ArrowButton("##right", ImGuiDir_Right)) { TotalTimeIndex++; }
+				if (ImGui::ArrowButton("##right", ImGuiDir_Right)) { Application::Get().TotalTimeIndex++; }
 				ImGui::PopButtonRepeat();
 				ImGui::SameLine();
-				ImGui::Text(u8"时长索引：%d", TotalTimeIndex);
+				ImGui::Text(u8"时长索引：%d", Application::Get().TotalTimeIndex);
+
+				static ImGuiTableFlags flags = ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+				static int freeze_cols = 1;
+				static int freeze_rows = 1;
+				// When using ScrollX or ScrollY we need to specify a size for our table container!
+				// Otherwise by default the table will fit all available space, like a BeginChild() call.
+				ImVec2 outer_size = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 2.5f);
+				//int TotalObjAmount = Application::Get().objects->GetObjectAmount();
+				//int TotalAmount = 0;
+// 				for (int i = 0; i < TotalObjAmount; i++)
+// 				{
+// 					TotalAmount += Application::Get().objects->objects[i].m_Amount;
+// 				}
 
 				if (Application::Get().objects->GetChoosedIndex() > -1)
 				{
-					static ImGuiTableFlags flags = ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
-					static int freeze_cols = 1;
-					static int freeze_rows = 1;
-					// When using ScrollX or ScrollY we need to specify a size for our table container!
-					// Otherwise by default the table will fit all available space, like a BeginChild() call.
-					ImVec2 outer_size = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing()*2.5f);
-					//int TotalObjAmount = Application::Get().objects->GetObjectAmount();
-					//int TotalAmount = 0;
-	// 				for (int i = 0; i < TotalObjAmount; i++)
-	// 				{
-	// 					TotalAmount += Application::Get().objects->objects[i].m_Amount;
-	// 				}
+					
 					
 					
 					
@@ -940,7 +966,7 @@ namespace Hazel {
 						{
 							std::stringstream fmt;
 							// 造字符串流
-							fmt << float(column*0.5f + TotalTimeIndex* TotalTime) <<u8"秒";
+							fmt << float(column*0.5f + Application::Get().TotalTimeIndex* TotalTime) <<u8"秒";
 							std::string namej = fmt.str();
 							//ImGui::SetNextItemWidth(100.0f);
 							ImGui::TableSetupColumn(namej.c_str());
@@ -948,7 +974,7 @@ namespace Hazel {
 						Application::Get().objects->GetMyAnimation().Key_index = 0;
 						for (int i = 0; i < Application::Get().objects->GetMyAnimation().GetPathKeySize(); i++)
 						{
-							if (Application::Get().objects->GetMyAnimation().GetPathTotalTime(i) > TotalTimeIndex * TotalTime-0.5f)
+							if (Application::Get().objects->GetMyAnimation().GetPathTotalTime(i) > Application::Get().TotalTimeIndex * TotalTime-0.5f)
 							{
 								Application::Get().objects->GetMyAnimation().Key_index = i;
 								break;
@@ -995,24 +1021,48 @@ namespace Hazel {
 							{
 								
 								ImGui::TableSetColumnIndex(column);
-								if (Application::Get().objects->GetMyAnimation().HaveAnimation)
+								if (Application::Get().objects->GetMyAnimation().GetHaveAnimation())
 								{
 									int index = Application::Get().objects->GetMyAnimation().Key_index;
 									if (index < Application::Get().objects->GetMyAnimation().GetPathKeySize())
 									{
 										//float temp1 = Application::Get().objects->GetMyAnimation().GetPathTotalTime(index);
 										//float temp2 = column * 0.5f;
-										if (Application::Get().objects->GetMyAnimation().GetPathTotalTime(index) == (column -1 + TotalTimeIndex * TotalTime/0.5f) * 0.5f )
+										if (Application::Get().objects->GetMyAnimation().GetPathTotalTime(index) == (column -1 + Application::Get().TotalTimeIndex * TotalTime/0.5f) * 0.5f )
 										{
 											
 
 
 											std::string ButtomName = u8"有##" + std::to_string(index) + u8":" + std::to_string(column);//给每个buttom取名为"有##1:1"、"有##1:2"...（为了避免名字相同而冲突，且实际不会显示##1:1、##1:2等）
-
-											ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.84f, 0.33f, 0.33f, 1.0f));
-											ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.90f, 0.33f, 0.33f, 1.0f));
-											ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.33f, 0.33f, 1.0f));
-											ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+											if (Application::Get().objects->GetMyAnimation().GetPathKeyState2(index) == u8"满载")
+											{
+												ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.33f, 0.84f, 0.33f, 1.0f));
+												ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.33f, 0.90f, 0.33f, 1.0f));
+												ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.33f, 1.0f, 0.33f, 1.0f));
+												if (index == KeyIndex)
+												{
+													ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+												}
+												else
+												{
+													ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+												}
+											}
+											else
+											{
+												ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.84f, 0.33f, 0.33f, 1.0f));
+												ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.90f, 0.33f, 0.33f, 1.0f));
+												ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 0.33f, 0.33f, 1.0f));
+												if (index == KeyIndex)
+												{
+													ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+												}
+												else
+												{
+													ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+												}
+											}
+											
 											//ImGui::Button("Click");
 
 
@@ -1069,6 +1119,138 @@ namespace Hazel {
 						//}
 						ImGui::EndTable();
 					}
+				}
+				else
+				{
+					if (ImGui::BeginTable("KeyTimes", 1 + (int)(TotalTime / 0.5 + 1), flags, outer_size))
+					{
+						ImGui::TableSetupScrollFreeze(freeze_cols, freeze_rows);
+						ImGui::TableSetupColumn(u8"物体名称", ImGuiTableColumnFlags_NoHide); // Make the first column not hideable to match our use of TableSetupScrollFreeze()
+
+						for (int column = 0; column < (int)(TotalTime / 0.5 + 1); column++)
+						{
+							std::stringstream fmt;
+							// 造字符串流
+							fmt << float(column * 0.5f + Application::Get().TotalTimeIndex * TotalTime) << u8"秒";
+							std::string namej = fmt.str();
+							//ImGui::SetNextItemWidth(100.0f);
+							ImGui::TableSetupColumn(namej.c_str());
+						}
+						//Application::Get().objects->GetMyAnimation().Key_index = 0;
+// 						for (int i = 0; i < Application::Get().objects->GetMyAnimation().GetPathKeySize(); i++)
+// 						{
+// 							if (Application::Get().objects->GetMyAnimation().GetPathTotalTime(i) > Application::Get().TotalTimeIndex* TotalTime - 0.5f)
+// 							{
+// 								Application::Get().objects->GetMyAnimation().Key_index = i;
+// 								break;
+// 							}
+// 						}
+						ImGui::TableHeadersRow();
+
+
+						
+						ImGui::TableNextRow();
+						ImGui::TableSetColumnIndex(0);
+						
+						ImGui::Text(u8"全部");
+
+						for (int column = 1; column < 1 + (int)(TotalTime / 0.5 + 1); column++)
+						{
+
+							ImGui::TableSetColumnIndex(column);
+							//if (Application::Get().objects->GetMyAnimation().HaveAnimation)
+							//{
+							int index = Application::Get().TotalTimeIndex * TotalTime / 0.5f + column - 1;
+								//if (index < Application::Get().objects->GetMyAnimation().GetPathKeySize())
+								//{
+									//float temp1 = Application::Get().objects->GetMyAnimation().GetPathTotalTime(index);
+									//float temp2 = column * 0.5f;
+									//if (Application::Get().objects->GetMyAnimation().GetPathTotalTime(index) == (column - 1 + Application::Get().TotalTimeIndex * TotalTime / 0.5f) * 0.5f)
+									//{
+
+
+
+										std::string ButtomName = u8"有##" + std::to_string(index) + u8":" + std::to_string(column);//给每个buttom取名为"有##1:1"、"有##1:2"...（为了避免名字相同而冲突，且实际不会显示##1:1、##1:2等）
+										
+											ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.33f, 0.33f, 0.84f, 1.0f));
+											ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.33f, 0.33f, 0.90f, 1.0f));
+											ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.33f, 0.33f, 1.0f, 1.0f));
+											if (index == Application::Get().AllKeyIndex)
+											{
+												ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+											}
+											else
+											{
+												ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+											}
+										
+										
+
+										//ImGui::Button("Click");
+
+
+										if (ImGui::Button(ButtomName.c_str()))
+										{
+											Application::Get().AllKeyIndex = index;
+											for (int i = 0; i < Application::Get().objects->GetObjectAmount(); i++)
+											{
+												for (int j = 0; j < Application::Get().objects->GetAmount(i); j++)
+												{
+													if (Application::Get().objects->GetAnimation(i, j).GetHaveAnimation())
+													{
+														Application::Get().objects->GetAnimation(i, j).Reset();
+														Application::Get().objects->GetAnimation(i, j).StepPlaying = true;
+														
+														Application::Get().objects->ChangePos(Application::Get().objects->GetAnimation(i, j).GetPathKeyPos(0) - Application::Get().objects->GetPos(i, j), i, j);
+														//for(int k = Application::Get().objects->GetAnimation(i, j).GetPathKeySize()-1;k>-1;k--)
+														Application::Get().objects->ChangeRotateQ(Application::Get().objects->GetAnimation(i, j).GetPathKeyRotate(0), i, j);
+														Application::Get().objects->ChangeHandPos(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandPos(0), i, j);
+														Application::Get().objects->ChangeHandEular(Application::Get().objects->GetAnimation(i, j).GetPathKeyHandEular(0), i, j);
+														
+														
+														
+
+													}
+												}
+											}
+											
+										}
+										ImGui::PopStyleColor(4);
+
+									//}
+// 									else
+// 									{
+// 
+// 										ImGui::Text(u8"无");
+// 									}
+
+								//}
+// 								else
+// 								{
+// 
+// 									ImGui::Text(u8"无");
+// 								}
+
+							//}
+// 							else
+// 							{
+// 
+// 								ImGui::Text(u8"无");
+// 							}
+						}
+						// 							for (int i = 0; i < TotalObjAmount; i++)
+						// 							{
+						// 								for (int j = 0; j < Application::Get().objects->objects[i].m_Amount; j++)
+						// 								{
+						// 									
+						// 
+						// 								}
+						// 							}
+
+												//}
+						ImGui::EndTable();
+					}
+				
 				}
 			}
 
@@ -1404,7 +1586,7 @@ namespace Hazel {
 				{
 					for (int j = 0; j < Application::Get().objects->GetAmount(i); j++)
 					{
-						if (Application::Get().objects->GetAnimation(i, j).HaveAnimation)
+						if (Application::Get().objects->GetAnimation(i, j).GetHaveAnimation())
 						{
 							Application::Get().objects->GetAnimation(i, j).Reset();
 							Application::Get().objects->GetAnimation(i, j).Playing = true;
@@ -1544,7 +1726,7 @@ namespace Hazel {
 				{
 					for (int j = 0; j < Application::Get().objects->GetAmount(i); j++)
 					{
-						if (Application::Get().objects->objects[i].m_Anima[j].HaveAnimation)
+						if (Application::Get().objects->objects[i].m_Anima[j].GetHaveAnimation())
 						{
 							static float progress = 0.0f, progress_dir = 1.0f;
 							if (AnimaTotalTime > 0.01)

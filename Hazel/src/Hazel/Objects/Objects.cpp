@@ -1814,7 +1814,7 @@ namespace Hazel {
 				writer1.Double(object.m_HandEular[i].z);
 				writer1.EndArray();
 				
-				if(object.m_Anima[i].HaveAnimation)
+				if(object.m_Anima[i].GetHaveAnimation())
 				{
 					writer1.Key("animation");
 					writer1.StartArray();

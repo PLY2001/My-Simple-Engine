@@ -23,34 +23,49 @@ namespace Hazel {
 
 		void SetPathPos(glm::vec3 Pos);
 		void SetPathPos(glm::vec3 Pos,int index);
+		void InsertPathPos(glm::vec3 Pos, int index);
+		void DeletePathPos(glm::vec3 Pos, int index);
 		glm::vec3 GetPathKeyPos(int index);
 
 		void SetPathRotate(glm::qua<float> RotateQuaternion);
 		void SetPathRotate(glm::qua<float> RotateQuaternion,int index);
+		void InsertPathRotate(glm::qua<float> RotateQuaternion, int index);
+		void DeletePathRotate(glm::qua<float> RotateQuaternion, int index);
 		glm::qua<float> GetPathKeyRotate(int index);
 
 		void SetPathHandPos(glm::vec3 HandPos);
 		void SetPathHandPos(glm::vec3 HandPos,int index);
+		void InsertPathHandPos(glm::vec3 HandPos, int index);
+		void DeletePathHandPos(glm::vec3 HandPos, int index);
 		glm::vec3 GetPathKeyHandPos(int index);
 
 		void SetPathHandEular(glm::vec3 HandEular);
 		void SetPathHandEular(glm::vec3 HandEular,int index);
+		void InsertPathHandEular(glm::vec3 HandEular, int index);
+		void DeletePathHandEular(glm::vec3 HandEular, int index);
 		glm::vec3 GetPathKeyHandEular(int index);
 
 		void SetPathTime(float Time);
 		void SetPathTime(float Time,int index);
+		void InsertPathTime(float Time, int index);
+		void DeletePathTime(float Time, int index);
 		float GetPathTotalTime(int index);
 		float GetPathKeyTime(int index);
 
 		void SetPathMode(glm::vec3 CircleCenter);
 		void SetPathMode(glm::vec3 CircleCenter,int index);
+		void InsertPathMode(glm::vec3 CircleCenter, int index);
+		void DeletePathMode(glm::vec3 CircleCenter, int index);
 
 		void SetPathState2(std::string state2);
 		void SetPathState2(std::string state2,int index);
+		void InsertPathState2(std::string state2, int index);
+		void DeletePathState2(std::string state2, int index);
 		std::string GetPathKeyState2(int index);
 
 		void RemovePath();
 		int GetPathKeySize();
+		bool GetHaveAnimation();
 
 		int GetPathMode(int index);
 		glm::vec3 GetPathCircleCenter(int index);
@@ -63,10 +78,12 @@ namespace Hazel {
 		float TimeNow = 0.0f;
 		float TotalTimeNow = 0.0f;
 		float AllTotalTimeNow = 0.0f;
+		float StepTotalTime = 0.0f;
 		int Path_index = 0;
 		int Key_index = 0;
 		bool Playing = false;
-		bool HaveAnimation = false;
+		bool StepPlaying = false;
+		//bool HaveAnimation = false;
 		PathMode pathmode = PathMode::Straght;
 	private:
 		std::vector<float> Path_Time;

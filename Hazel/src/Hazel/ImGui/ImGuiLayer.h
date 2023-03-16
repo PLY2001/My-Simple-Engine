@@ -34,11 +34,11 @@ namespace Hazel {
 		bool ToSave = false;
 		bool Loaded = false;
 		bool ToLoad = false;
-		float PathTime = 0.5;
+		float PathTime = 1.0f;
 		glm::vec3 CircleCenter = glm::vec3(0.0f);
-		float TotalTime = 30.0f;
+		float TotalTime = 10.0f;
 		float AnimaTotalTime = 0.0f;
-		int TotalTimeIndex = 0;
+		
 		//float TotalAllTime = 10.0;
 
 		int SaveAddress = 0;
@@ -69,6 +69,7 @@ namespace Hazel {
 		int KeyIndex = 0;
 		int TimeObjectIndex = -1;
 		int TimeIndex = -1;
+		//int AllKeyIndex = 0;
 	};
 
 }

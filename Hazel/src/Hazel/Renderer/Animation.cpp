@@ -16,8 +16,11 @@ namespace Hazel {
 		TimeNow = 0.0f;
 		TotalTimeNow = 0.0f;
 		AllTotalTimeNow = 0.0f;
+		StepTotalTime = 0.0f;
 		Path_index = 0;
 		Playing = false;
+		StepPlaying = false;
+		
 	}
 
 	void Animation::SetPathPos(glm::vec3 Pos)
@@ -30,6 +33,22 @@ namespace Hazel {
 		if (index < m_Path_Pos.size())
 		{
 			m_Path_Pos[index] =  Pos;
+		}
+	}
+
+	void Animation::InsertPathPos(glm::vec3 Pos, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_Pos.emplace(m_Path_Pos.begin()+index+1,Pos);
+		}
+	}
+
+	void Animation::DeletePathPos(glm::vec3 Pos, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_Pos.erase(m_Path_Pos.begin() + index);
 		}
 	}
 
@@ -46,6 +65,22 @@ namespace Hazel {
 		}
 	}
 
+	void Animation::InsertPathRotate(glm::qua<float> RotateQuaternion, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_Rotate.emplace(m_Path_Rotate.begin() + index + 1, RotateQuaternion);
+		}
+	}
+
+	void Animation::DeletePathRotate(glm::qua<float> RotateQuaternion, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_Rotate.erase(m_Path_Rotate.begin() + index);
+		}
+	}
+
 	void Animation::SetPathHandPos(glm::vec3 HandPos)
 	{
 		m_Path_HandPos.push_back(HandPos);
@@ -56,6 +91,22 @@ namespace Hazel {
 		if (index < m_Path_Pos.size())
 		{
 			m_Path_HandPos[index] = HandPos;
+		}
+	}
+
+	void Animation::InsertPathHandPos(glm::vec3 HandPos, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_HandPos.emplace(m_Path_HandPos.begin() + index + 1, HandPos);
+		}
+	}
+
+	void Animation::DeletePathHandPos(glm::vec3 HandPos, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_HandPos.erase(m_Path_HandPos.begin() + index);
 		}
 	}
 
@@ -72,9 +123,29 @@ namespace Hazel {
 		}
 	}
 
+	void Animation::InsertPathHandEular(glm::vec3 HandEular, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_HandEular.emplace(m_Path_HandEular.begin() + index + 1, HandEular);
+		}
+	}
+
+	void Animation::DeletePathHandEular(glm::vec3 HandEular, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_HandEular.erase(m_Path_HandEular.begin() + index);
+		}
+	}
+
 	PathPoint Animation::GetPathPoint(float deltaTime)
 	{
-
+		if (StepPlaying)
+		{
+			StepTotalTime = deltaTime;
+			deltaTime -= AllTotalTimeNow;
+		}
 		float thisTotalTime = Path_Time[Path_index];
 		Path_Pos_Last = Path_Pos_Now;
 		Path_Rotate_Last = Path_Rotate_Now;
@@ -193,11 +264,41 @@ namespace Hazel {
 			{
 				TotalTimeNow += deltaTime;
 			}
+			
+			
 			AllTotalTimeNow += deltaTime;
+			
+
+			if ((StepTotalTime - AllTotalTimeNow) < 0.01f)
+			{
+				StepPlaying = false;
+			}
 			
 		}
 		else//²¥·ÅÍê±Ï
 		{
+			
+			if (m_Path_State2[Path_index] == u8"ÂúÔØ")
+			{
+				TotalTimeNow += thisTotalTime - TimeNow;
+			}
+
+			AllTotalTimeNow += thisTotalTime - TimeNow;
+			if (StepPlaying)
+			{
+				TimeNow = 0.0f;
+			}
+			else
+			{
+				TimeNow = deltaTime + TimeNow - thisTotalTime;
+			}
+
+			if (StepTotalTime - AllTotalTimeNow < 0.01f)
+			{
+				StepPlaying = false;
+			}
+			
+
 			Path_Pos_Now = m_Path_Pos[Path_index + 1];
 			Path_Rotate_Now = m_Path_Rotate[Path_index + 1];
 			if (HaveAngle)
@@ -206,11 +307,13 @@ namespace Hazel {
 				Path_HandEular_Now = m_Path_HandEular[Path_index + 1];
 			}
 			Path_index++;
-			TimeNow = deltaTime + TimeNow - thisTotalTime;
+			
 			if (Path_index + 1 > Path_Time.size())
 			{
 				Playing = false;
+				StepPlaying = false;
 			}
+			
 		}
 
 		
@@ -367,7 +470,7 @@ namespace Hazel {
 		{
 			Path_Time.push_back(Time);
 		}
-		HaveAnimation = true;
+		
 	}
 
 	void Animation::SetPathTime(float Time, int index)
@@ -375,6 +478,26 @@ namespace Hazel {
 		if (index < m_Path_Pos.size()-1&&index>-1)
 		{
 			Path_Time[index] = Time;
+		}
+	}
+
+	void Animation::InsertPathTime(float Time, int index)
+	{
+		if (index < m_Path_Pos.size() - 1)
+		{
+			Path_Time.emplace(Path_Time.begin() + index + 1, Time);
+		}
+	}
+
+	void Animation::DeletePathTime(float Time, int index)
+	{
+		if (index < m_Path_Pos.size() - 1 && index>-1)
+		{
+			if (index < m_Path_Pos.size() - 2)
+			{
+				Path_Time[index + 1] += Path_Time[index];
+			}
+			Path_Time.erase(Path_Time.begin() + index);		
 		}
 	}
 
@@ -418,6 +541,25 @@ namespace Hazel {
 		}
 	}
 
+	void Animation::InsertPathMode(glm::vec3 CircleCenter, int index)
+	{
+		if (index < m_Path_Pos.size() - 1)
+		{
+			pathmodelist.emplace(pathmodelist.begin() + index + 1, pathmode);
+			CircleCenterList.emplace(CircleCenterList.begin() + index + 1, CircleCenter);
+
+		}
+	}
+
+	void Animation::DeletePathMode(glm::vec3 CircleCenter, int index)
+	{
+		if (index < m_Path_Pos.size() - 1 && index>-1)
+		{
+			pathmodelist.erase(pathmodelist.begin() + index);
+			CircleCenterList.erase(CircleCenterList.begin() + index);
+		}
+	}
+
 	void Animation::SetPathState2(std::string state2)
 	{
 		m_Path_State2.push_back(state2);
@@ -428,6 +570,22 @@ namespace Hazel {
 		if (index < m_Path_Pos.size())
 		{
 			m_Path_State2[index] = state2;
+		}
+	}
+
+	void Animation::InsertPathState2(std::string state2, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_State2.emplace(m_Path_State2.begin() + index + 1, state2);
+		}
+	}
+
+	void Animation::DeletePathState2(std::string state2, int index)
+	{
+		if (index < m_Path_Pos.size())
+		{
+			m_Path_State2.erase(m_Path_State2.begin() + index);
 		}
 	}
 
@@ -458,6 +616,19 @@ namespace Hazel {
 	int Animation::GetPathKeySize()
 	{
 		return m_Path_Pos.size();
+	}
+
+	bool Animation::GetHaveAnimation()
+	{
+		if (m_Path_Pos.size() > 1)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+		
 	}
 
 	int Animation::GetPathMode(int index)
