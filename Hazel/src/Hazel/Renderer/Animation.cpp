@@ -483,7 +483,7 @@ namespace Hazel {
 
 	void Animation::InsertPathTime(float Time, int index)
 	{
-		if (index < m_Path_Pos.size() - 1)
+		if (index < m_Path_Pos.size() - 1 && index>-1)
 		{
 			Path_Time.emplace(Path_Time.begin() + index + 1, Time);
 		}
@@ -543,7 +543,7 @@ namespace Hazel {
 
 	void Animation::InsertPathMode(glm::vec3 CircleCenter, int index)
 	{
-		if (index < m_Path_Pos.size() - 1)
+		if (index < m_Path_Pos.size() - 1 && index>-1)
 		{
 			pathmodelist.emplace(pathmodelist.begin() + index + 1, pathmode);
 			CircleCenterList.emplace(CircleCenterList.begin() + index + 1, CircleCenter);

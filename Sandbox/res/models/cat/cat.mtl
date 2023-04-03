@@ -1,0 +1,45 @@
+newmtl eye:phong1SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd eye_uv1.jpg
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 98.00
+newmtl head:phong1SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd head_uv1.jpg
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 98.00
+newmtl phong2SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd white.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 98.00
+newmtl phong3SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd pink.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 98.00
+newmtl phong4SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd black.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 98.00

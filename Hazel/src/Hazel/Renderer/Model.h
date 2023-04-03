@@ -9,6 +9,7 @@ namespace Hazel {
 	{
 	private:
 		glm::vec3 Pos;
+		glm::vec3 Rotate;
 		std::string directory;
 		
 		void processNode(aiNode* node, const aiScene* scene);
@@ -22,6 +23,7 @@ namespace Hazel {
 
 	public:
 		Model(std::string path, glm::vec3 Pos);
+		Model(std::string path, glm::vec3 Pos, glm::vec3 Rotate);
 		Model(std::string path);
 		std::string m_path;
 		void Draw(const std::shared_ptr<Shader>& shader);

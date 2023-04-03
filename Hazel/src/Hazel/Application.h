@@ -86,6 +86,8 @@ namespace Hazel
 		std::shared_ptr<Shader> LightShader;
 		std::shared_ptr<Shader> LoadingShader;
 		std::shared_ptr<Shader> RegionShader;
+		std::shared_ptr<Shader> CatShader;
+		std::shared_ptr<Shader> NoSelfShadowShader;
 		//灯光
 		float count = 0;
 		std::unique_ptr<Light> PointLight;
@@ -99,14 +101,15 @@ namespace Hazel
 		//std::vector<std::unique_ptr<InstanceBuffer>> insbobelt;//belt
 		//std::vector<std::unique_ptr<InstanceBuffer>> insboAVG;//AVG
 		std::unique_ptr<InstanceBuffer> insboplane;//plane
+		std::unique_ptr<InstanceBuffer> insbocat;//plane
 		//std::unique_ptr<InstanceBuffer> insbolight;//light
 		//创建Uniform缓冲对象
 		std::unique_ptr<UniformBuffer> ubo;
 		
 
 		//shadow map 分辨率
-		unsigned int ShadowMapWidth = 2048;
-		unsigned int ShadowMapHeight = 2048;
+		unsigned int ShadowMapWidth = 4096;
+		unsigned int ShadowMapHeight = 4096;
 
 		//创建帧缓冲1
 		std::unique_ptr<FrameBuffer> framebuffer1;
@@ -146,6 +149,8 @@ namespace Hazel
 		std::shared_ptr<Model> plane;
 		std::shared_ptr<Model> light;
 		std::shared_ptr<Model> LoadingModel;
+		std::shared_ptr<Model> cat;
+		std::shared_ptr<Texture> toon;
 
 		//std::shared_ptr<Model> ArrowModel;
 		
@@ -289,6 +294,9 @@ namespace Hazel
 
 		int TotalTimeIndex = 0;
 		int AllKeyIndex = 0;
+
+		float LineSize = 0.005f;
+		float LineBias = 0.003f;
 	};
 
 	Application* CreateApplication();

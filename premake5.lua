@@ -16,6 +16,7 @@ IncludeDir["ImGui"] = "Hazel/vendor/imgui"
 IncludeDir["glm"] = "Hazel/vendor/glm"
 IncludeDir["assimp"] = "Hazel/vendor/assimp/include"
 IncludeDir["rapidjson"] = "Hazel/vendor/rapidjson/include"
+IncludeDir["python"] = "Hazel/vendor/python/include"
 --IncludeDir["ImPlot"] = "Hazel/vendor/implot"
 
 group "Dependencies"
@@ -36,6 +37,8 @@ project "Hazel"                                     --项目名称Hazel
     objdir "%{prj.name}/x64/%{cfg.buildcfg}"        --obj中间文件生成地址，项目名称/x64/配置（cfg）
     pchheader "hzpch.h"                             --开启预编译头文件
     pchsource "%{prj.name}/src/hzpch.cpp"           --指定预编译头文件地址
+    
+    --debugenvs  "PATH=D:/Users/PLY/anaconda3/envs/pytorch_cpu;D:/Users/PLY/anaconda3/envs/pytorch_cpu/Library/bin;%PATH%" 
 
     files {                                         --项目文件，即项目名称/src目录下及其根目录所有的.h和.cpp文件（其中/**表示当前路径及其所有子路径）        
             "%{prj.name}/src/**.h",
@@ -60,7 +63,8 @@ project "Hazel"                                     --项目名称Hazel
                     "%{IncludeDir.glm}",
                     "%{IncludeDir.assimp}",
                     "%{prj.name}/vendor/stb_image",
-                    "%{IncludeDir.rapidjson}"
+                    "%{IncludeDir.rapidjson}",
+                    "%{IncludeDir.python}"
                     --"%{IncludeDir.ImPlot}"
                 }
 
@@ -69,10 +73,16 @@ project "Hazel"                                     --项目名称Hazel
             "Opengl32.lib",                          --附加依赖项
             "Glad",
             "ImGui",
-            "assimp-vc142-mtd.lib"
+            "assimp-vc142-mtd.lib",
+            "python3.lib",
+            "python38.lib"
             --"ImPlot"
           }
-    libdirs  "Hazel/vendor/assimp"           --附加库目录
+    libdirs {
+                "Hazel/vendor/assimp",           --附加库目录
+                "Hazel/vendor/python/libs"
+
+            }
 
     filter "system:windows"                         --filter可看作if，即如果系统是windows。
                                   
@@ -111,6 +121,8 @@ project "Sandbox"
     targetdir "x64/%{cfg.buildcfg}"
     objdir "%{prj.name}/x64/%{cfg.buildcfg}"
     
+    --debugenvs "PATH=D:/Users/PLY/anaconda3/envs/pytorch_cpu;D:/Users/PLY/anaconda3/envs/pytorch_cpu/Library/bin;%PATH%" 
+
     files { 
             "%{prj.name}/src/**.h",
             "%{prj.name}/src/**.cpp" 
@@ -125,15 +137,22 @@ project "Sandbox"
                     "%{IncludeDir.Glad}",
                     "%{IncludeDir.assimp}",
                     "Hazel/vendor/stb_image",
-                    "%{IncludeDir.rapidjson}"
+                    "%{IncludeDir.rapidjson}",
+                    "%{IncludeDir.python}"
                     
                 }
 
     links{
             "Hazel",                                      --引用Hazel项目
-            "assimp-vc142-mtd.lib"
+            "assimp-vc142-mtd.lib",
+            "python3.lib",
+            "python38.lib"
          }
-    libdirs  "Hazel/vendor/assimp"           --附加库目录
+    libdirs {
+                "Hazel/vendor/assimp",           --附加库目录
+                "Hazel/vendor/python/libs"
+
+            }
     filter "system:windows"
 
         systemversion "latest"

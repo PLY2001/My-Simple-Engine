@@ -4,6 +4,7 @@
 #include "Hazel/Events/ApplicationEvent.h"
 #include "Hazel/Events/KeyEvent.h"
 #include "Hazel/Events/MouseEvent.h"
+#include <Python.h>
 
 //#include <map>
 
@@ -70,6 +71,11 @@ namespace Hazel {
 		int TimeObjectIndex = -1;
 		int TimeIndex = -1;
 		//int AllKeyIndex = 0;
+		float size = 1.0f;
+
+		//bool ToPython = false;
+		PyObject* pModule = nullptr;
+		PyObject* pFunc = nullptr;
 	};
 
 }

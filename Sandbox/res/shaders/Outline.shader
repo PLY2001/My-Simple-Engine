@@ -11,11 +11,14 @@ layout(std140) uniform Matrices
 	mat4 u_projection;
 };
 
+uniform float LineSize;
+uniform float LineBias;
+
 void main() 
 { 
-	vec3 Oposition=normalize(normal)*2.0f+position;
+	vec3 Oposition=normalize(normal)*LineSize+position;
 	vec4 Cposition=u_projection*u_view*model*vec4(Oposition,1.0f);
-	Cposition.z+=0.0015f;
+	Cposition.z+=LineBias;
 	gl_Position = Cposition;
 
 }
@@ -31,5 +34,5 @@ void main()
 {
 	
 
-	color =vec4(0.0f,0.0f,1.0f,1.0f); 
+	color =vec4(0.0f,0.0f,0.0f,1.0f); 
 }

@@ -2,7 +2,7 @@
 #include "Model.h"
 
 namespace Hazel {
-	Model::Model(std::string path, glm::vec3 Pos) :m_path(path), Pos(Pos)
+	Model::Model(std::string path, glm::vec3 Pos) :m_path(path), Pos(Pos), Rotate(glm::vec3(0))
 	{
 		Assimp::Importer import;
 		const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);// | aiProcess_CalcTangentSpace);
@@ -20,7 +20,25 @@ namespace Hazel {
 		
 	}
 
-	Model::Model(std::string path) :m_path(path),Pos(glm::vec3(0))
+	Model::Model(std::string path, glm::vec3 Pos, glm::vec3 Rotate) :m_path(path), Pos(Pos), Rotate(Rotate)
+	{
+		Assimp::Importer import;
+		const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);// | aiProcess_CalcTangentSpace);
+
+		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+		{
+			std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
+			return;
+		}
+		directory = path.substr(0, path.find_last_of('/'));
+		processNode(scene->mRootNode, scene);
+
+		SetPosition();
+
+
+	}
+
+	Model::Model(std::string path) :m_path(path),Pos(glm::vec3(0)), Rotate(glm::vec3(0))
 	{
 		Assimp::Importer import;
 		const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);// | aiProcess_CalcTangentSpace);
@@ -213,5 +231,6 @@ namespace Hazel {
 	void Model::SetPosition()
 	{
 		mModelMatrix = glm::translate(mModelMatrix, Pos);
+		mModelMatrix = glm::rotate(mModelMatrix, glm::radians(Rotate.y), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 }

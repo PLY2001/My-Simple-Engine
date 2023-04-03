@@ -786,7 +786,80 @@ namespace Hazel {
 	//  		ImGui::InputFloat(u8"heightB1", &Application::Get().heightB1);
 	// 		ImGui::InputFloat(u8"BloomSize", &Application::Get().BloomSize);
 			//ImGui::InputFloat(u8"RegionW", &Application::Get().RegionW);
-			
+// 			ImGui::InputFloat(u8"LineSize", &Application::Get().LineSize);
+// 			ImGui::InputFloat(u8"LineBias", &Application::Get().LineBias);
+
+			if (ImGui::Button(u8"Python_Setup"))
+			{
+				//Py_SetPath(L"D:\\Users\\PLY\\anaconda3\\envs\\pytorch_cpu\\Lib;D:\\Users\\PLY\\anaconda3\\envs\\pytorch_cpu\\Lib\\site-packages;D:\\Users\\PLY\\anaconda3\\envs\\pytorch_cpu\\DLLs;.\\res\\scripts");
+				Py_SetPath(L".\\scripts\\Lib;.\\scripts\\Lib\\site-packages;.\\scripts\\DLLs;.\\scripts");
+				//SetCurrentDirectoryA("D:\\PycharmProjects\\3DShapesRetrieval");
+				//Py_SetPythonHome(L"D:\\Users\\PLY\\anaconda3\\envs\\pytorch_cpu");
+
+				
+				
+				
+
+					
+				//PyRun_SimpleString("import sys");
+				//PyRun_SimpleString("sys.path.append('scripts')");
+				//PyRun_SimpleString("import os");
+				//PyRun_SimpleString("print(os.listdir())");
+
+
+				Py_Initialize();
+				if (!Py_IsInitialized())
+				{
+					std::cout << "Initialization error" << std::endl;
+					//ToPython = false;
+				}
+				else
+				{
+					//PyRun_SimpleString("import os");
+					//PyRun_SimpleString("print(os.listdir())");
+					pModule = PyImport_ImportModule("predict1");
+					if (pModule == NULL) {
+						std::cout << "module not found" << std::endl;
+						//ToPython = false;
+					}
+					else
+					{
+						//µ÷ÓÃº¯Êý
+						
+						pFunc = PyObject_GetAttrString(pModule, "main");
+						if (!pFunc || !PyCallable_Check(pFunc)) {
+							std::cout << "not found function add_num" << std::endl;
+							//ToPython = false;
+						}
+						// 
+						else
+						{
+							//ToPython = true;
+							std::cout << "Setup done" << std::endl;
+							
+						}
+
+					}
+				}
+				
+				
+
+				//Py_Finalize();
+
+
+				
+			}
+			//ImGui::Checkbox(u8"ToPython", &ToPython);
+			if (ImGui::Button(u8"Python_Show"))
+			{
+				//Py_Initialize();
+				PyObject_CallObject(pFunc, NULL);
+				//Py_Finalize();
+			}
+			if (ImGui::Button(u8"Python_Stop"))
+			{
+				Py_Finalize();
+			}
 
 			ImGui::End();
 
@@ -828,8 +901,8 @@ namespace Hazel {
 						Application::Get().objects->GetMyAnimation().InsertPathRotate(RotateQuaternion, KeyIndex);
 						Application::Get().objects->GetMyAnimation().InsertPathHandPos(Application::Get().objects->GetHandPos(), KeyIndex);
 						Application::Get().objects->GetMyAnimation().InsertPathHandEular(Application::Get().objects->GetHandEular(), KeyIndex);
-						Application::Get().objects->GetMyAnimation().InsertPathTime(PathTime, KeyIndex);
-						Application::Get().objects->GetMyAnimation().InsertPathMode(CircleCenter * 10.0f, KeyIndex);
+						Application::Get().objects->GetMyAnimation().InsertPathTime(PathTime, KeyIndex-1);
+						Application::Get().objects->GetMyAnimation().InsertPathMode(CircleCenter * 10.0f, KeyIndex-1);
 						Application::Get().objects->GetMyAnimation().InsertPathState2(Application::Get().objects->GetState2(), KeyIndex);
 						Application::Get().objects->GetMyAnimation().InsertPathPos(Pos * 10.0f, KeyIndex);
 					}

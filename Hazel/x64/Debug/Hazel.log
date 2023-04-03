@@ -1,0 +1,11 @@
+﻿  ImGuiLayer.cpp
+D:\C++\Cherno\Hazel\Hazel\src\Hazel\ImGui\ImGuiLayer.h(66,16): warning C4305: “初始化”: 从“double”到“float”截断
+D:\C++\Cherno\Hazel\Hazel\src\Hazel\Objects\Objects.h(12,1): warning C4005: “PI”: 宏重定义
+D:\C++\Cherno\Hazel\Hazel\src\Hazel\Renderer\Animation.h(3): message : 参见“PI”的前一个定义
+D:\C++\Cherno\Hazel\Hazel\src\Hazel\ImGui\ImGuiLayer.cpp(1163,18): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+D:\C++\Cherno\Hazel\Hazel\src\Hazel\ImGui\ImGuiLayer.cpp(1651,113): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+assimp-vc142-mtd.lib(assimp-vc142-mtd.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR 已在 Opengl32.lib(OPENGL32.dll) 中定义；已忽略第二个定义
+Model.obj : warning LNK4006: "public: struct aiScene const * __cdecl Assimp::Importer::ReadFile(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,unsigned int)" (?ReadFile@Importer@Assimp@@QEAAPEBUaiScene@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@I@Z) 已在 assimp-vc142-mtd.lib(assimp-vc142-mtd.dll) 中定义；已忽略第二个定义
+Model.obj : warning LNK4006: "public: unsigned int __cdecl aiMaterial::GetTextureCount(enum aiTextureType)const " (?GetTextureCount@aiMaterial@@QEBAIW4aiTextureType@@@Z) 已在 assimp-vc142-mtd.lib(assimp-vc142-mtd.dll) 中定义；已忽略第二个定义
+Model.obj : warning LNK4006: "public: enum aiReturn __cdecl aiMaterial::GetTexture(enum aiTextureType,unsigned int,struct aiString *,enum aiTextureMapping *,unsigned int *,float *,enum aiTextureOp *,enum aiTextureMapMode *)const " (?GetTexture@aiMaterial@@QEBA?AW4aiReturn@@W4aiTextureType@@IPEAUaiString@@PEAW4aiTextureMapping@@PEAIPEAMPEAW4aiTextureOp@@PEAW4aiTextureMapMode@@@Z) 已在 assimp-vc142-mtd.lib(assimp-vc142-mtd.dll) 中定义；已忽略第二个定义
+  Hazel.vcxproj -> D:\C++\Cherno\Hazel\Hazel\..\x64\Debug\Hazel.lib

@@ -17,6 +17,7 @@ namespace Hazel
 
 	Application::Application()
 	{
+		//std::cout << __cplusplus << std::endl;//查看c++版本
 		HZ_CORE_ASSERT(!s_Instance, "Application already exists!");//保证单例
 		s_Instance = this;
 
@@ -33,7 +34,8 @@ namespace Hazel
 		LoadingShader.reset(new Shader("res/shaders/Loading.shader"));
 		OpenGLRendererAPI::Draw(LoadingModel, LoadingShader);
 		m_Window->OnUpdate();//SwapBuffers和PollEvent
-		GLCheckError();//获取错误信息	
+		
+		
 
 // 		m_ImGuiLayer->Begin();
 // 		m_ImGuiLayer->Loading("Loading Shaders");
@@ -62,6 +64,8 @@ namespace Hazel
 		PlaneShader.reset(new Shader("res/shaders/Plane.shader"));
 		LightShader.reset(new Shader("res/shaders/Light.shader"));
 		RegionShader.reset(new Shader("res/shaders/Region.shader"));
+		CatShader.reset(new Shader("res/shaders/Cat.shader"));
+		NoSelfShadowShader.reset(new Shader("res/shaders/NoSelfShadow.shader"));
 
 		//加载模型
 // 		std::ifstream source("res/models/path.txt");
@@ -103,6 +107,17 @@ namespace Hazel
 			insboplane->SetDatamat4(sizeof(glm::mat4), &plane->mModelMatrix);
 			
 		}
+
+		/*大臣*/
+		cat.reset(new Model("res/models/cat/cat.obj", glm::vec3(13.94f, 22.59f + 0.05f, 71.90f),glm::vec3(0.0f,180.0f,0.0f)));
+		insbocat.reset(new InstanceBuffer(sizeof(glm::mat4), NULL));//创建实例化数组
+		for (int i = 0; i < cat->meshes.size(); i++)//该模型有多个网格时，每个网格都有自己的顶点数组对象ID，要想把实例化数组缓冲区绑定在每个顶点数组对象上，就必须遍历
+		{
+			insbocat->AddInstanceBuffermat4(cat->meshes[i].vaID, 3);
+			insbocat->SetDatamat4(sizeof(glm::mat4), &cat->mModelMatrix);
+
+		}
+
 		glm::mat4 lightMM = glm::mat4(1.0f);
 		/*光晕*/
 		for (int i = 0; i < 7; i++)
@@ -190,6 +205,8 @@ namespace Hazel
 		shaderIDs.push_back(PlaneShader->RendererID);
 		shaderIDs.push_back(LightShader->RendererID);
 		shaderIDs.push_back(RegionShader->RendererID);
+		shaderIDs.push_back(CatShader->RendererID);
+		shaderIDs.push_back(NoSelfShadowShader->RendererID);
 
 		ubo->Bind(shaderIDs, "Matrices");
 
@@ -226,6 +243,8 @@ namespace Hazel
 		origin.reset(new Origin(OriginShader));
 
 		FactoryRegionPos.resize(6);
+
+		toon.reset(new Texture("res/textures/toons.png"));
 		
 		HZ_CORE_INFO("Done!");
 	}
@@ -364,7 +383,7 @@ namespace Hazel
 
 			//设置直射光VP变换矩阵
 			
-			glm::mat4 LightProjectionMatrix = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 1.0f, 2000.0f);
+			glm::mat4 LightProjectionMatrix = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, 1.0f, 2000.0f);
 			glm::mat4 LightViewMatrix = glm::lookAt(DirectLight->Pos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 			//设置点光源远平面
@@ -390,6 +409,7 @@ namespace Hazel
 				{
 					OpenGLRendererAPI::DrawInstanced(objects->objects[i].m_Model, ShadowMapShader, objects->GetAmount(i));//绘制需要投射阴影的物体
 				}
+				//OpenGLRendererAPI::Draw(cat, ShadowMapShader);
 
 				ShadowMapShader->Unbind();
 				framebufferSM->Unbind();
@@ -451,6 +471,7 @@ namespace Hazel
 				{
 					OpenGLRendererAPI::DrawInstanced(objects->objects[i].m_Model, ShadowCubeMapShader, objects->GetAmount(i));//绘制需要投射阴影的物体
 				}
+				//OpenGLRendererAPI::Draw(cat, ShadowCubeMapShader);
 				ShadowCubeMapShader->Unbind();
 				framebufferSCM->Unbind();
 
@@ -469,6 +490,7 @@ namespace Hazel
 				OpenGLRendererAPI::DrawInstanced(objects->objects[i].m_Model, CameraDepthMapShader, objects->GetAmount(i));//绘制需要投射阴影的物体
 			}
 			OpenGLRendererAPI::Draw(plane, CameraDepthMapShader);
+			OpenGLRendererAPI::Draw(cat, CameraDepthMapShader);
 			framebufferCM->Unbind();
 
 
@@ -532,6 +554,37 @@ namespace Hazel
 			}
 
 			PlaneShader->Unbind();
+
+			OpenGLRendererAPI::CullFace("FRONT");
+			OutlineShader->Bind();
+			OutlineShader->SetUniform1f("LineSize", LineSize);
+			OutlineShader->SetUniform1f("LineBias", LineBias);
+			
+			OpenGLRendererAPI::Draw(cat, OutlineShader);
+			OutlineShader->Unbind();
+			OpenGLRendererAPI::CullFace("BACK");
+
+			CatShader->Bind();
+
+			//向shader发送灯光位置和相机位置
+
+			//PlaneShader->SetUniform4f("u_LightPosition", -0.76f, 27.64f, -0.12f, 1.0f);
+
+			CatShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
+			if (lightmode == LightMode::Direct)
+				CatShader->SetUniform4f("u_LightPosition", 100.0f * DirectLight->Pos.x, 100.0f * DirectLight->Pos.y, 100.0f * DirectLight->Pos.z, 1.0f);
+			else
+				CatShader->SetUniform4f("u_LightPosition", PointLight->Pos.x, PointLight->Pos.y, PointLight->Pos.z, 1.0f);
+			
+			toon->Bind(13);
+			CatShader->SetUniform1i("toon", 13);
+
+			//绘制真实物体
+			
+			OpenGLRendererAPI::Draw(cat, CatShader);
+			
+
+			CatShader->Unbind();
 
 			shader->Bind();
 
@@ -689,7 +742,8 @@ namespace Hazel
 						OpenGLRendererAPI::DrawInstanced(objects->objects[i].m_Model, ShadowDrawShader, objects->GetAmount(i));
 					}
 					OpenGLRendererAPI::Draw(plane, ShadowDrawShader);
-
+					ShadowDrawShader->Unbind();
+					OpenGLRendererAPI::Draw(cat, NoSelfShadowShader);
 					/*
 					ShadowDrawPlaneShader->Unbind();
 
@@ -754,7 +808,8 @@ namespace Hazel
 						OpenGLRendererAPI::DrawInstanced(objects->objects[i].m_Model, ShadowCubeDrawShader, objects->GetAmount(i));
 					}
 					OpenGLRendererAPI::Draw(plane, ShadowCubeDrawShader);
-
+					ShadowCubeDrawShader->Unbind();
+					OpenGLRendererAPI::Draw(cat, NoSelfShadowShader);
 
 					ShadowCubeDrawShader->Unbind();
 				}
