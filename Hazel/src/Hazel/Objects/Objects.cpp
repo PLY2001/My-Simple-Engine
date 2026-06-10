@@ -1555,6 +1555,21 @@ namespace Hazel {
 
 	}
 
+	void Objects::ChangeScale(glm::vec3 ChangedScale)
+	{
+		objects[m_Objectindex].m_Scale *= ChangedScale;
+		for (int i = 0; i < objects[m_Objectindex].m_Model->meshes.size(); i++)
+		{
+			objects[m_Objectindex].m_DefaultPosScaleMatrices[i][m_index] = glm::scale(objects[m_Objectindex].m_DefaultPosScaleMatrices[i][m_index], ChangedScale);
+			objects[m_Objectindex].m_DefaultModelMatrices[i][m_index] = objects[m_Objectindex].m_DefaultPosScaleMatrices[i][m_index] * objects[m_Objectindex].m_RotateMatrices[i][m_index];
+		}
+		if (objects[m_Objectindex].m_HaveAngle)
+		{
+			ChangeAngle(m_Objectindex, m_index);
+		}
+		SetAABB(m_Objectindex, m_index);
+	}
+
 	void Objects::ChangeState1(std::string state)
 	{
 		objects[m_Objectindex].m_State1[m_index] = state;
@@ -2459,6 +2474,11 @@ namespace Hazel {
 		objects[objectindex].m_State2[index] = pathpoint.Path_State2;
 
 	}
+
+	
+		
+		
+	
 
 }
 

@@ -152,6 +152,7 @@ namespace Hazel
 		std::shared_ptr<Model> cat;
 		std::shared_ptr<Texture> toon;
 
+		
 		//std::shared_ptr<Model> ArrowModel;
 		
 
@@ -159,8 +160,7 @@ namespace Hazel
 		std::unique_ptr<Skybox> skybox;
 		unsigned int SkyboxID;
 
-		//camera
-		std::unique_ptr<Camera> camera;
+		
 		float deltaTime = 0;//每次循环耗时
 		float lastTime = 0;
 		
@@ -174,10 +174,12 @@ namespace Hazel
 
 		std::unique_ptr<AABB> aabb;
 
-	private:
+	public:
 		static Application* s_Instance;//单例，就需要在类里面直接声明当前类的唯一实例
 
 	public:
+		//camera
+		std::unique_ptr<Camera> camera;
 		//模式
 		enum class GraphicMode { Normal = 0, Outline = 1, NoShadow = 2 };
 		enum class LightMode { Direct = 0, Point = 1 };
@@ -297,6 +299,36 @@ namespace Hazel
 
 		float LineSize = 0.005f;
 		float LineBias = 0.003f;
+
+		bool ToTakePicture = false;
+		float PictureSize = 12.0f;
+		bool TakingPicture = false;
+		bool ToTakePictureFirst = false;
+		bool AllowTakingPicture = false;
+		int PictureAmount = 0;
+		int PictureWidth = 1600;
+		int PictureHeight = 1600;
+
+		char name[64];
+
+		int WindowWidth = 2400;
+		int WindowHeight = 1600;
+
+		std::shared_ptr<Texture> AGVTex;
+		std::shared_ptr<Texture> belt_liftTex;
+		std::shared_ptr<Texture> belt1Tex;
+		std::shared_ptr<Texture> belt2Tex;
+		std::shared_ptr<Texture> belt3Tex;
+		std::shared_ptr<Texture> boxTex;
+		std::shared_ptr<Texture> irb120Tex;
+		std::shared_ptr<Texture> machineTex;
+		std::shared_ptr<Texture> storageTex;
+
+		std::vector<std::shared_ptr<Texture>> ResultTexs;
+
+		PyObject* pModule = nullptr;
+		PyObject* pFunc = nullptr;
+		
 	};
 
 	Application* CreateApplication();

@@ -245,6 +245,55 @@ namespace Hazel
 		FactoryRegionPos.resize(6);
 
 		toon.reset(new Texture("res/textures/toons.png"));
+		AGVTex.reset(new Texture("res/textures/models/AGV.png", false));
+		belt_liftTex.reset(new Texture("res/textures/models/belt_lift.png", false));
+		belt1Tex.reset(new Texture("res/textures/models/belt1.png",false));
+		belt2Tex.reset(new Texture("res/textures/models/belt2.png",false));
+		belt3Tex.reset(new Texture("res/textures/models/belt3.png",false));
+		boxTex.reset(new Texture("res/textures/models/box.png", false));
+		irb120Tex.reset(new Texture("res/textures/models/irb120.png", false));
+		machineTex.reset(new Texture("res/textures/models/machine.png", false));
+		storageTex.reset(new Texture("res/textures/models/storage.png", false));
+
+		ResultTexs.resize(6);
+
+
+		//python 初始化
+		Py_SetPath(L"..\\scripts\\Lib;..\\scripts\\Lib\\site-packages;..\\scripts\\DLLs;..\\scripts");
+		Py_Initialize();
+		if (!Py_IsInitialized())
+		{
+			std::cout << "Initialization error" << std::endl;
+			//ToPython = false;
+		}
+		else
+		{
+			//PyRun_SimpleString("import os");
+			//PyRun_SimpleString("print(os.listdir())");
+			pModule = PyImport_ImportModule("predict1");
+			if (pModule == NULL) {
+				std::cout << "module not found" << std::endl;
+				//ToPython = false;
+			}
+			else
+			{
+				//调用函数
+
+				pFunc = PyObject_GetAttrString(pModule, "main");
+				if (!pFunc || !PyCallable_Check(pFunc)) {
+					std::cout << "not found function add_num" << std::endl;
+					//ToPython = false;
+				}
+				// 
+				else
+				{
+					//ToPython = true;
+					std::cout << "Setup done" << std::endl;
+
+				}
+
+			}
+		}
 		
 		HZ_CORE_INFO("Done!");
 	}
@@ -314,6 +363,49 @@ namespace Hazel
 			GLClearError();//清除错误信息
 
 			
+			
+
+			if (ToTakePictureFirst)
+			{
+				if (ToTakePicture)
+				{
+					WindowWidth = s_Instance->GetWindow().GetWidth();
+					WindowHeight = s_Instance->GetWindow().GetHeight();
+					glfwSetWindowSize(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), PictureWidth, PictureHeight);
+
+				}
+				else
+				{
+					glfwSetWindowSize(static_cast<GLFWwindow*>(s_Instance->GetWindow().GetNativeWindow()), WindowWidth, WindowHeight);
+				}
+				ToTakePictureFirst = false;
+			}
+
+			if (TakingPicture)
+			{
+				
+				camera->ChangePosition(glm::vec3(0.0f, 7.0f, 12.124f));
+				camera->ChangeFront(glm::vec3(0.0f, -0.5f, -0.866f));
+				camera->ChangeUp(glm::vec3(0.0f, 1.0f, 0.0f));
+
+				objects->ChangeRotate(glm::vec3(objects->GetRotate().x, PictureAmount * 30.0f * PI / 180.0f, objects->GetRotate().z));
+
+				glm::vec3 MaxPos = objects->GetAABBMaxPos() / 10.0f;
+				glm::vec3 MinPos = objects->GetAABBMinPos() / 10.0f;
+				objects->ChangePos(-(MaxPos + MinPos) / 2.0f * 10.0f);
+				MaxPos = objects->GetAABBMaxPos() / 10.0f;
+				MinPos = objects->GetAABBMinPos() / 10.0f;
+				float D = sqrt(((MaxPos.x - MinPos.x) * (MaxPos.x - MinPos.x) + (MaxPos.y - MinPos.y) * (MaxPos.y - MinPos.y) + (MaxPos.z - MinPos.z) * (MaxPos.z - MinPos.z)));
+				glm::vec3 Scale = glm::vec3(2.0f / D);
+				objects->ChangeScale(Scale);
+				MaxPos = objects->GetAABBMaxPos() / 10.0f;
+				MinPos = objects->GetAABBMinPos() / 10.0f;
+				objects->ChangePos(-(MaxPos + MinPos) / 2.0f * 10.0f);//缩放至半径为1的球中
+				AllowTakingPicture = true;
+			}
+			
+
+			
 
 // 			if (mousemode == MouseMode::Disable)
 // 			{
@@ -369,7 +461,17 @@ namespace Hazel
 
 			//相机的VP矩阵
 			ViewMatrix = camera->SetView();
-			ProjectionMatrix = camera->SetProjection((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight());
+			if (!ToTakePicture)
+			{
+				glViewport(0, 0, s_Instance->GetWindow().GetWidth(), s_Instance->GetWindow().GetHeight());//还原视口尺寸
+				ProjectionMatrix = camera->SetProjection((float)s_Instance->GetWindow().GetWidth() / s_Instance->GetWindow().GetHeight());
+			}
+			else
+			{
+				glViewport(0, 0, PictureWidth, PictureHeight);//修改视口尺寸
+				ProjectionMatrix = camera->SetOrtho(PictureSize);
+			}
+			
 
 			//将model矩阵数组填入irb120的实例化数组
 			insbos->SetDatamat4(objects);
@@ -489,8 +591,12 @@ namespace Hazel
 			{
 				OpenGLRendererAPI::DrawInstanced(objects->objects[i].m_Model, CameraDepthMapShader, objects->GetAmount(i));//绘制需要投射阴影的物体
 			}
-			OpenGLRendererAPI::Draw(plane, CameraDepthMapShader);
-			OpenGLRendererAPI::Draw(cat, CameraDepthMapShader);
+			if (!ToTakePicture)
+			{
+				OpenGLRendererAPI::Draw(plane, CameraDepthMapShader);
+				OpenGLRendererAPI::Draw(cat, CameraDepthMapShader);
+			}
+			
 			framebufferCM->Unbind();
 
 
@@ -519,14 +625,17 @@ namespace Hazel
 			
 
 			//绘制碰撞盒
-			if (objects->GetChoosedIndex() > -1)
+			if (!ToTakePicture)
 			{
-				OpenGLRendererAPI::CullFace("DISABLE");
-				aabb->Draw(objects->GetAABBMinPos(), objects->GetAABBMaxPos());
+				if (objects->GetChoosedIndex() > -1)
+				{
+					OpenGLRendererAPI::CullFace("DISABLE");
+					aabb->Draw(objects->GetAABBMinPos(), objects->GetAABBMaxPos());
 
 
 
 
+				}
 			}
 
 
@@ -534,58 +643,59 @@ namespace Hazel
 
 
 			OpenGLRendererAPI::CullFace("BACK");
-
-			PlaneShader->Bind();
-
-			//向shader发送灯光位置和相机位置
-
-			//PlaneShader->SetUniform4f("u_LightPosition", -0.76f, 27.64f, -0.12f, 1.0f);
-
-			PlaneShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
-
-			PlaneShader->SetUniform1fArray("u_LightPosition", FactoryLightPos, 70);
-			PlaneShader->SetUniform1f("p", planeP);
-
-
-			//绘制真实物体
-			if (graphicmode != GraphicMode::Outline)
+			if (!ToTakePicture)
 			{
-				OpenGLRendererAPI::Draw(plane, PlaneShader);
+				PlaneShader->Bind();
+
+				//向shader发送灯光位置和相机位置
+
+				//PlaneShader->SetUniform4f("u_LightPosition", -0.76f, 27.64f, -0.12f, 1.0f);
+
+				PlaneShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
+
+				PlaneShader->SetUniform1fArray("u_LightPosition", FactoryLightPos, 70);
+				PlaneShader->SetUniform1f("p", planeP);
+
+
+				//绘制真实物体
+				if (graphicmode != GraphicMode::Outline)
+				{
+					OpenGLRendererAPI::Draw(plane, PlaneShader);
+				}
+
+				PlaneShader->Unbind();
+
+				OpenGLRendererAPI::CullFace("FRONT");
+				OutlineShader->Bind();
+				OutlineShader->SetUniform1f("LineSize", LineSize);
+				OutlineShader->SetUniform1f("LineBias", LineBias);
+
+				OpenGLRendererAPI::Draw(cat, OutlineShader);
+				OutlineShader->Unbind();
+				OpenGLRendererAPI::CullFace("BACK");
+
+				CatShader->Bind();
+
+				//向shader发送灯光位置和相机位置
+
+				//PlaneShader->SetUniform4f("u_LightPosition", -0.76f, 27.64f, -0.12f, 1.0f);
+
+				CatShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
+				if (lightmode == LightMode::Direct)
+					CatShader->SetUniform4f("u_LightPosition", 100.0f * DirectLight->Pos.x, 100.0f * DirectLight->Pos.y, 100.0f * DirectLight->Pos.z, 1.0f);
+				else
+					CatShader->SetUniform4f("u_LightPosition", PointLight->Pos.x, PointLight->Pos.y, PointLight->Pos.z, 1.0f);
+
+				toon->Bind(13);
+				CatShader->SetUniform1i("toon", 13);
+
+				//绘制真实物体
+
+				OpenGLRendererAPI::Draw(cat, CatShader);
+
+
+				CatShader->Unbind();
 			}
-
-			PlaneShader->Unbind();
-
-			OpenGLRendererAPI::CullFace("FRONT");
-			OutlineShader->Bind();
-			OutlineShader->SetUniform1f("LineSize", LineSize);
-			OutlineShader->SetUniform1f("LineBias", LineBias);
-			
-			OpenGLRendererAPI::Draw(cat, OutlineShader);
-			OutlineShader->Unbind();
-			OpenGLRendererAPI::CullFace("BACK");
-
-			CatShader->Bind();
-
-			//向shader发送灯光位置和相机位置
-
-			//PlaneShader->SetUniform4f("u_LightPosition", -0.76f, 27.64f, -0.12f, 1.0f);
-
-			CatShader->SetUniform4f("u_CameraPosition", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z, 1.0f);
-			if (lightmode == LightMode::Direct)
-				CatShader->SetUniform4f("u_LightPosition", 100.0f * DirectLight->Pos.x, 100.0f * DirectLight->Pos.y, 100.0f * DirectLight->Pos.z, 1.0f);
-			else
-				CatShader->SetUniform4f("u_LightPosition", PointLight->Pos.x, PointLight->Pos.y, PointLight->Pos.z, 1.0f);
-			
-			toon->Bind(13);
-			CatShader->SetUniform1i("toon", 13);
-
-			//绘制真实物体
-			
-			OpenGLRendererAPI::Draw(cat, CatShader);
-			
-
-			CatShader->Unbind();
-
 			shader->Bind();
 
 			//向shader发送灯光位置和相机位置
@@ -895,7 +1005,7 @@ namespace Hazel
 
 
 			}
-			if(graphicmode!=GraphicMode::Outline)
+			if(graphicmode!=GraphicMode::Outline&&!ToTakePicture)
 			{
 				framebuffer6->Bind();
 
@@ -948,15 +1058,16 @@ namespace Hazel
 				glDisable(GL_BLEND);
 			}
 			
-
-			if (objects->GetChoosedIndex() > -1)//绘制原点
+			if (!ToTakePicture)
 			{
-				glDisable(GL_DEPTH_TEST);
-				origin->Draw();
-				
-				glEnable(GL_DEPTH_TEST);
-			}
+				if (objects->GetChoosedIndex() > -1)//绘制原点
+				{
+					glDisable(GL_DEPTH_TEST);
+					origin->Draw();
 
+					glEnable(GL_DEPTH_TEST);
+				}
+			}
 			
 
 			
@@ -977,7 +1088,49 @@ namespace Hazel
 				}
 			}
 			
+
 			
+			//拍摄
+			if (TakingPicture && AllowTakingPicture)
+			{
+				unsigned char* picture = new unsigned char[PictureWidth * PictureHeight * 3];
+				glReadPixels(0, 0, PictureWidth, PictureHeight, GL_BGR, GL_UNSIGNED_BYTE, picture);
+
+				// 准备根据格式造字符串流
+				std::stringstream fmt;
+				// 造字符串流
+				fmt << name << "_" << PictureAmount + 1 << ".bmp";
+				std::string namej = fmt.str();
+				FILE* pFile = fopen(namej.c_str(), "wb");
+				if (pFile)
+				{
+					BITMAPFILEHEADER bfh;
+					memset(&bfh, 0, sizeof(BITMAPFILEHEADER));
+					bfh.bfType = 0x4D42;
+					bfh.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + PictureWidth * PictureHeight * 3;
+					bfh.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+					fwrite(&bfh, sizeof(BITMAPFILEHEADER), 1, pFile);
+					BITMAPINFOHEADER bih;
+					memset(&bih, 0, sizeof(BITMAPINFOHEADER));
+					bih.biWidth = PictureWidth;
+					bih.biHeight = PictureHeight;
+					bih.biBitCount = 24;
+					bih.biSize = sizeof(BITMAPINFOHEADER);
+					fwrite(&bih, sizeof(BITMAPINFOHEADER), 1, pFile);
+					fwrite(picture, 1, PictureWidth * PictureHeight * 3, pFile);
+					fclose(pFile);
+				}
+
+				delete picture;
+
+				AllowTakingPicture = false;
+				PictureAmount++;
+				if (PictureAmount > 11)
+				{
+					TakingPicture = false;
+					PictureAmount = 0;
+				}
+			}
 				
 			
 
@@ -987,14 +1140,16 @@ namespace Hazel
 
 			m_ImGuiLayer->Begin();
 			
-				for (Layer* layer : m_LayerStack)//正向遍历层来显示Imgui层
-					layer->OnImGuiRender();
+			for (Layer* layer : m_LayerStack)//正向遍历层来显示Imgui层
+				layer->OnImGuiRender();
 			
 			m_ImGuiLayer->End();
 
 			m_Window->OnUpdate();//SwapBuffers和PollEvent
 			
 
+			
+			
 
 			GLCheckError();//获取错误信息	
 

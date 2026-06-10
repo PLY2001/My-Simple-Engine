@@ -788,78 +788,40 @@ namespace Hazel {
 			//ImGui::InputFloat(u8"RegionW", &Application::Get().RegionW);
 // 			ImGui::InputFloat(u8"LineSize", &Application::Get().LineSize);
 // 			ImGui::InputFloat(u8"LineBias", &Application::Get().LineBias);
-
-			if (ImGui::Button(u8"Python_Setup"))
+			
+			
+// 			ImGui::Text(u8"cameraPos( %.3f , %.3f , %.3f )", Application::Get().camera->GetPosition().x, Application::Get().camera->GetPosition().y, Application::Get().camera->GetPosition().z );
+// 			ImGui::Text(u8"cameraFront( %.3f , %.3f , %.3f )", Application::Get().camera->GetFront().x, Application::Get().camera->GetFront().y, Application::Get().camera->GetFront().z);
+// 			ImGui::Text(u8"cameraUp( %.3f , %.3f , %.3f )", Application::Get().camera->GetUp().x, Application::Get().camera->GetUp().y, Application::Get().camera->GetUp().z);
+			
+			if (ImGui::CollapsingHeader(u8"拍摄视图"))
 			{
-				//Py_SetPath(L"D:\\Users\\PLY\\anaconda3\\envs\\pytorch_cpu\\Lib;D:\\Users\\PLY\\anaconda3\\envs\\pytorch_cpu\\Lib\\site-packages;D:\\Users\\PLY\\anaconda3\\envs\\pytorch_cpu\\DLLs;.\\res\\scripts");
-				Py_SetPath(L".\\scripts\\Lib;.\\scripts\\Lib\\site-packages;.\\scripts\\DLLs;.\\scripts");
-				//SetCurrentDirectoryA("D:\\PycharmProjects\\3DShapesRetrieval");
-				//Py_SetPythonHome(L"D:\\Users\\PLY\\anaconda3\\envs\\pytorch_cpu");
 
-				
-				
-				
-
-					
-				//PyRun_SimpleString("import sys");
-				//PyRun_SimpleString("sys.path.append('scripts')");
-				//PyRun_SimpleString("import os");
-				//PyRun_SimpleString("print(os.listdir())");
-
-
-				Py_Initialize();
-				if (!Py_IsInitialized())
+				if (ImGui::Button(u8"切换拍摄模式/恢复"))
 				{
-					std::cout << "Initialization error" << std::endl;
-					//ToPython = false;
+					Application::Get().ToTakePicture = !Application::Get().ToTakePicture;
+					Application::Get().ToTakePictureFirst = true;
 				}
-				else
+				ImGui::InputText(u8"保存文件名", Application::Get().name, 64);
+				ImGui::InputFloat(u8"PictureSize", &Application::Get().PictureSize);
+				if (Application::Get().objects->GetChoosedIndex() > -1)
 				{
-					//PyRun_SimpleString("import os");
-					//PyRun_SimpleString("print(os.listdir())");
-					pModule = PyImport_ImportModule("predict1");
-					if (pModule == NULL) {
-						std::cout << "module not found" << std::endl;
-						//ToPython = false;
-					}
-					else
+					//ImGui::InputFloat3(u8"Scale", (float*)&Scale);
+					if (ImGui::Button(u8"拍摄"))
 					{
-						//调用函数
-						
-						pFunc = PyObject_GetAttrString(pModule, "main");
-						if (!pFunc || !PyCallable_Check(pFunc)) {
-							std::cout << "not found function add_num" << std::endl;
-							//ToPython = false;
-						}
-						// 
-						else
+						Application::Get().TakingPicture = true;
+						if (Application::Get().mousemode == Application::MouseMode::Enable)//关闭指针
 						{
-							//ToPython = true;
-							std::cout << "Setup done" << std::endl;
-							
+							glfwSetInputMode(static_cast<GLFWwindow*>(Application::Get().s_Instance->GetWindow().GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+							Application::Get().mousemode = Application::MouseMode::Disable;
+							Application::Get().camera->firstMouse = 1;
 						}
 
 					}
 				}
-				
-				
-
-				//Py_Finalize();
-
-
-				
 			}
-			//ImGui::Checkbox(u8"ToPython", &ToPython);
-			if (ImGui::Button(u8"Python_Show"))
-			{
-				//Py_Initialize();
-				PyObject_CallObject(pFunc, NULL);
-				//Py_Finalize();
-			}
-			if (ImGui::Button(u8"Python_Stop"))
-			{
-				Py_Finalize();
-			}
+			
+			
 
 			ImGui::End();
 
@@ -1337,7 +1299,21 @@ namespace Hazel {
 			ImGui::Begin(u8"物品栏");
 			if (ImGui::CollapsingHeader(u8"物品生成"))
 			{
-				if (ImGui::Button(u8"六轴机械臂"))
+// 				Application::Get().AGVTex->Bind(14);
+// 				Application::Get().belt_liftTex->Bind(15);
+// 				Application::Get().belt1Tex->Bind(16);
+// 				Application::Get().belt2Tex->Bind(17);
+// 				Application::Get().belt3Tex->Bind(18);
+// 				Application::Get().boxTex->Bind(19);
+				//Application::Get().irb120Tex->Bind(20);
+// 				Application::Get().machineTex->Bind(21);
+// 				Application::Get().storageTex->Bind(22);
+
+				float my_tex_w = (float)150;
+				float my_tex_h = (float)150;
+				ImTextureID my_tex_id = (GLuint*)Application::Get().irb120Tex->GetID();
+				//ImGui::Image(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
+				if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1,ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
 				{
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
@@ -1353,9 +1329,13 @@ namespace Hazel {
 						Application::Get().objects->AddObject(u8"六轴机械臂", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
 						Application::Get().insbos->AddObject(Application::Get().objects);
 					}
-
 				}
-				if (ImGui::Button(u8"低传送带"))
+				ImGui::Text(u8"六轴机械臂");
+				ImGui::Separator();
+
+
+				my_tex_id = (GLuint*)Application::Get().belt1Tex->GetID();
+				if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
 				{
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
@@ -1373,7 +1353,12 @@ namespace Hazel {
 					}
 
 				}
-				if (ImGui::Button(u8"中传送带"))
+				ImGui::Text(u8"低传送带");
+				ImGui::Separator();
+
+
+				my_tex_id = (GLuint*)Application::Get().belt2Tex->GetID();
+				if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
 				{
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
@@ -1391,7 +1376,12 @@ namespace Hazel {
 					}
 
 				}
-				if (ImGui::Button(u8"高传送带"))
+				ImGui::Text(u8"中传送带");
+				ImGui::Separator();
+
+
+				my_tex_id = (GLuint*)Application::Get().belt3Tex->GetID();
+				if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
 				{
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
@@ -1409,7 +1399,11 @@ namespace Hazel {
 					}
 
 				}
-				if (ImGui::Button(u8"传送带升降机"))
+				ImGui::Text(u8"高传送带");
+				ImGui::Separator();
+
+				my_tex_id = (GLuint*)Application::Get().belt_liftTex->GetID();
+				if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
 				{
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
@@ -1427,7 +1421,11 @@ namespace Hazel {
 					}
 
 				}
-				if (ImGui::Button(u8"AGV运输车"))
+				ImGui::Text(u8"传送带升降机");
+				ImGui::Separator();
+
+				my_tex_id = (GLuint*)Application::Get().AGVTex->GetID();
+				if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
 				{
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
@@ -1445,7 +1443,11 @@ namespace Hazel {
 					}
 
 				}
-				if (ImGui::Button(u8"周转箱"))
+				ImGui::Text(u8"AGV运输车");
+				ImGui::Separator();
+
+				my_tex_id = (GLuint*)Application::Get().boxTex->GetID();
+				if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
 				{
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
@@ -1463,7 +1465,12 @@ namespace Hazel {
 					}
 
 				}
-				if (ImGui::Button(u8"注塑机"))
+				ImGui::Text(u8"周转箱");
+				ImGui::Separator();
+
+
+				my_tex_id = (GLuint*)Application::Get().machineTex->GetID();
+				if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
 				{
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
@@ -1481,7 +1488,12 @@ namespace Hazel {
 					}
 
 				}
-				if (ImGui::Button(u8"立体仓库"))
+				ImGui::Text(u8"注塑机");
+				ImGui::Separator();
+
+
+				my_tex_id = (GLuint*)Application::Get().storageTex->GetID();
+				if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
 				{
 					bool finded = false;
 					for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
@@ -1499,8 +1511,339 @@ namespace Hazel {
 					}
 
 				}
+				ImGui::Text(u8"立体仓库");
+				ImGui::Separator();
 			}
 			
+
+
+
+			if (ImGui::CollapsingHeader(u8"三维检索"))
+			{
+				ImGui::InputText(u8"图片", PictureName, 64);
+				
+				
+
+				ImGui::Checkbox(u8"是否弹窗",&Toplt);
+				if (ImGui::Button(u8"检索"))
+				{
+
+					//Py_Initialize();
+					PyObject* pArgs = PyTuple_New(2);
+
+					// 0：第一个参数，传入 int 类型的值 2
+					PyTuple_SetItem(pArgs, 0, Py_BuildValue("s", PictureName));
+					if (Toplt)
+					{
+						PyTuple_SetItem(pArgs, 1, Py_BuildValue("i", 1));
+					}
+					else
+					{
+						PyTuple_SetItem(pArgs, 1, Py_BuildValue("i", 0));
+					}
+
+
+					// 6、使用C++的python接口调用该函数
+					PyObject* pReturn = PyEval_CallObject(Application::Get().pFunc, pArgs);
+					//PyObject_CallObject(pFunc, NULL);
+					//Py_Finalize();
+					int nResult;
+					// 在这里，最需要注意的是：PyArg_Parse的最后一个参数，必须加上“&”符号
+					PyArg_Parse(pReturn, "i", &nResult);
+					std::cout << nResult << std::endl;
+					
+					FileNameList.clear();
+					SimList.clear();
+
+					if (nResult > 0)
+					{
+						Show3DRetrievalResults = true;
+						std::ifstream source("../scripts/FileNameList.json");
+						std::string line;
+						while (getline(source, line))
+						{
+							if (line == "[" || line == "]")
+							{
+								continue;
+							}
+							else
+							{
+								if (line.back() == ',')
+								{
+									FileNameList.push_back(line.substr(1, line.size() - 3));
+								}
+								else
+								{
+									FileNameList.push_back(line.substr(1, line.size() - 2));
+								}
+							}
+
+						}
+						
+
+						std::ifstream source1("../scripts/SimList.json");
+						std::string line1;
+						while (getline(source1, line1))
+						{
+							if (line1 == "[" || line1 == "]")
+							{
+								continue;
+							}
+							else
+							{
+								if (line1.back() == ',')
+								{
+									float Sim;
+									std::istringstream str1(line1.substr(1, line1.size() - 2));
+									str1 >> Sim;
+									SimList.push_back(Sim);
+								}
+								else
+								{
+									float Sim;
+									std::istringstream str1(line1.substr(1, line1.size() - 1));
+									str1 >> Sim;
+									SimList.push_back(Sim);
+								}
+							}
+
+						}
+						for (int i = 0; i < FileNameList.size(); i++)
+						{					
+							Application::Get().ResultTexs[i].reset(new Texture("../scripts/FDataset/photos/"+ FileNameList[i], false));
+						}
+						Application::Get().ResultTexs.back().reset(new Texture("../scripts/" + (std::string)PictureName, false));
+
+						
+
+					}
+					else
+					{
+						Show3DRetrievalResults = false;
+					}
+				}
+
+				if (Show3DRetrievalResults)
+				{
+					float my_tex_w = (float)150;
+					float my_tex_h = (float)150;
+					ImTextureID my_tex_id = (GLuint*)Application::Get().ResultTexs.back()->GetID();
+					ImGui::Image(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+					ImGui::Text(u8"检索图像");
+					ImGui::Separator();
+					ImGui::Separator();
+
+					for (int i = 0; i < FileNameList.size(); i++)
+					{
+						my_tex_id = (GLuint*)Application::Get().ResultTexs[i]->GetID();
+						
+						if (FileNameList[i].find("irb120") != std::string::npos)
+						{
+							if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
+							{
+								bool finded = false;
+								for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+								{
+									if ((*it).m_Name == u8"六轴机械臂")
+									{
+										Application::Get().objects->AddAmount(u8"六轴机械臂");
+										finded = true;
+									}
+								}
+								if (!finded)
+								{
+									Application::Get().objects->AddObject(u8"六轴机械臂", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
+									Application::Get().insbos->AddObject(Application::Get().objects);
+								}
+							}
+							ImGui::Text(u8"六轴机械臂");
+						}
+						else if (FileNameList[i].find("belt1") != std::string::npos)
+						{
+							if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
+							{
+								bool finded = false;
+								for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+								{
+									if ((*it).m_Name == u8"低传送带")
+									{
+										Application::Get().objects->AddAmount(u8"低传送带");
+										finded = true;
+									}
+								}
+								if (!finded)
+								{
+									Application::Get().objects->AddObject(u8"低传送带", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+									Application::Get().insbos->AddObject(Application::Get().objects);
+								}
+							}
+							ImGui::Text(u8"低传送带");
+						}
+						else if (FileNameList[i].find("belt2") != std::string::npos)
+						{
+							if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
+							{
+								bool finded = false;
+								for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+								{
+									if ((*it).m_Name == u8"中传送带")
+									{
+										Application::Get().objects->AddAmount(u8"中传送带");
+										finded = true;
+									}
+								}
+								if (!finded)
+								{
+									Application::Get().objects->AddObject(u8"中传送带", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+									Application::Get().insbos->AddObject(Application::Get().objects);
+								}
+							}
+							ImGui::Text(u8"中传送带");
+						}
+						else if (FileNameList[i].find("belt3") != std::string::npos)
+						{
+							if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
+							{
+								bool finded = false;
+								for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+								{
+									if ((*it).m_Name == u8"高传送带")
+									{
+										Application::Get().objects->AddAmount(u8"高传送带");
+										finded = true;
+									}
+								}
+								if (!finded)
+								{
+									Application::Get().objects->AddObject(u8"高传送带", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+									Application::Get().insbos->AddObject(Application::Get().objects);
+								}
+							}
+							ImGui::Text(u8"高传送带");
+						}
+						else if (FileNameList[i].find("belt_lift") != std::string::npos)
+						{
+							if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
+							{
+								bool finded = false;
+								for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+								{
+									if ((*it).m_Name == u8"传送带升降机")
+									{
+										Application::Get().objects->AddAmount(u8"传送带升降机");
+										finded = true;
+									}
+								}
+								if (!finded)
+								{
+									Application::Get().objects->AddObject(u8"传送带升降机", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), true);
+									Application::Get().insbos->AddObject(Application::Get().objects);
+								}
+							}
+							ImGui::Text(u8"传送带升降机");
+						}
+						else if (FileNameList[i].find("AGV") != std::string::npos)
+						{
+							if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
+							{
+								bool finded = false;
+								for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+								{
+									if ((*it).m_Name == u8"AGV运输车")
+									{
+										Application::Get().objects->AddAmount(u8"AGV运输车");
+										finded = true;
+									}
+								}
+								if (!finded)
+								{
+									Application::Get().objects->AddObject(u8"AGV运输车", glm::vec3(0, 0.8f, 0), glm::vec3(0, 0, 0), glm::vec3(0.005f, 0.005f, 0.005f), false);
+									Application::Get().insbos->AddObject(Application::Get().objects);
+								}
+							}
+							ImGui::Text(u8"AGV运输车");
+						}
+						else if (FileNameList[i].find("box") != std::string::npos)
+						{
+							if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
+							{
+								bool finded = false;
+								for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+								{
+									if ((*it).m_Name == u8"周转箱")
+									{
+										Application::Get().objects->AddAmount(u8"周转箱");
+										finded = true;
+									}
+								}
+								if (!finded)
+								{
+									Application::Get().objects->AddObject(u8"周转箱", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01f, 0.01f, 0.01f), true);
+									Application::Get().insbos->AddObject(Application::Get().objects);
+								}
+							}
+							ImGui::Text(u8"周转箱");
+						}
+						else if (FileNameList[i].find("machine") != std::string::npos)
+						{
+							if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
+							{
+								bool finded = false;
+								for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+								{
+									if ((*it).m_Name == u8"注塑机")
+									{
+										Application::Get().objects->AddAmount(u8"注塑机");
+										finded = true;
+									}
+								}
+								if (!finded)
+								{
+									Application::Get().objects->AddObject(u8"注塑机", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(2.5f, 2.5f, 2.5f), true);
+									Application::Get().insbos->AddObject(Application::Get().objects);
+								}
+							}
+							ImGui::Text(u8"注塑机");
+						}
+						else if (FileNameList[i].find("storage") != std::string::npos)
+						{
+							if (ImGui::ImageButton(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f)))
+							{
+								bool finded = false;
+								for (auto it = Application::Get().objects->objects.begin(); it != Application::Get().objects->objects.end(); ++it)
+								{
+									if ((*it).m_Name == u8"立体仓库")
+									{
+										Application::Get().objects->AddAmount(u8"立体仓库");
+										finded = true;
+									}
+								}
+								if (!finded)
+								{
+									Application::Get().objects->AddObject(u8"立体仓库", glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f), true);
+									Application::Get().insbos->AddObject(Application::Get().objects);
+								}
+							}
+							ImGui::Text(u8"立体仓库");
+						}
+
+						ImGui::Text(u8"相似度:%.4f％", SimList[i]*100.0f);
+						
+						ImGui::Separator();
+					}
+					
+				}
+
+
+// 				if (ImGui::Button(u8"接口关闭"))
+// 				{
+// 					Py_Finalize();
+// 				}
+
+			}
+
+
+
 
 			if (ImGui::CollapsingHeader(u8"已生成物品"))
 			{

@@ -4,13 +4,15 @@
 class Texture
 {
 private:
-	unsigned int RendererID;
+	GLuint RendererID;
 	std::string FilePath;
 	unsigned char* LocalBuffer;
 	int Width, Height, BBP;//bits per pixel
 
 public:
+
 	Texture(const std::string& path);
+	Texture(const std::string& path,bool ToFlip);
 	~Texture();
 
 	void Bind(unsigned int slot = 0) const;//Ä¬ÈÏË÷ÒýÎª0£¨¼´TEXCOORD0£©
@@ -18,4 +20,6 @@ public:
 
 	inline int GetWidth() const { return Width; }
 	inline int GetHeight() const { return Height; }
+
+	GLuint GetID();
 };

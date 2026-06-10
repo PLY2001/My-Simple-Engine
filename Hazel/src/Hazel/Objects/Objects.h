@@ -116,6 +116,8 @@ namespace Hazel {
 		void ChangeHandEular(glm::vec3 ChangedHandEular);
 		void ChangeHandEular(glm::vec3 ChangedHandEular, int objectindex, int index);
 
+		void ChangeScale(glm::vec3 ChangedScale);
+
 		void ChangeState1(std::string state);
 		void ChangeState1(std::string state, int objectindex, int index);
 		void ChangeState2(std::string state);
@@ -172,6 +174,8 @@ namespace Hazel {
 		glm::vec3 SolveEularAngle(glm::qua<float> RotateQuaternion, glm::vec3 lastEular);
 
 		void ChangeAnimation(PathPoint pathpoint, int objectindex, int index);
+
+		
 	};
 
 

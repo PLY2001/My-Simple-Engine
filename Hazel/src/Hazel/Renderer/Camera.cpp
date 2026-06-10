@@ -78,4 +78,26 @@ namespace Hazel {
 		glm::mat4 projection = glm::perspective(glm::radians(cameraFov), aspect, 0.1f, 10000.0f);
 		return projection;
 	}
+
+	glm::mat4 Camera::SetOrtho(float PictureSize)
+	{
+		glm::mat4 ortho = glm::ortho(-PictureSize, PictureSize, -PictureSize, PictureSize, 0.1f, 10000.0f);
+		return ortho;
+	}
+
+	void Camera::ChangePosition(glm::vec3 pos)
+	{
+		cameraPos = pos;
+	}
+
+	void Camera::ChangeFront(glm::vec3 front)
+	{
+		cameraFront = front;
+	}
+
+	void Camera::ChangeUp(glm::vec3 up)
+	{
+		cameraUp = up;
+	}
+
 }

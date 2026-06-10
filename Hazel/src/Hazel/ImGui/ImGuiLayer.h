@@ -74,8 +74,16 @@ namespace Hazel {
 		float size = 1.0f;
 
 		//bool ToPython = false;
-		PyObject* pModule = nullptr;
-		PyObject* pFunc = nullptr;
+		
+
+		//glm::vec3 Scale = glm::vec3(1.0f);
+		char PictureName[64] = "test1.jpeg";
+
+		std::vector<std::string> FileNameList;
+		std::vector<float> SimList;
+
+		bool Show3DRetrievalResults = false;
+		bool Toplt = false;
 	};
 
 }
